@@ -1,0 +1,7 @@
+reports
+*.egg-info
+.venv
+.claude
+config.json
+__pycache__
+!.gitignore

@@ -1,0 +1,494 @@
+{
+  "version": "2.0.0",
+  "metadata": {
+    "description": "Golden dataset for EEA Chatbot comprehensive validation",
+    "lastUpdated": "2026-02-04",
+    "maintainer": "Miu Razvan"
+  },
+  "validation_thresholds": {
+    "min_response_length": 100,
+    "min_sources": 1,
+    "min_quality_score": 60,
+    "min_related_questions": 2
+  },
+  "default_validation": {
+    "response": {
+      "min_length": 100
+    },
+    "sources": {
+      "min_count": 1
+    },
+    "quality_check": {
+      "min_score": 60
+    },
+    "related_questions": {
+      "min_count": 2
+    },
+    "llm": {
+      "verify_answers_question": true,
+      "verify_not_vague": true,
+      "verify_citations": true
+    }
+  },
+  "default_feedback": true,
+  "test_cases": [
+    {
+      "id": "Q-001",
+      "priority": "medium",
+      "question": "How does SatCen use AI and Big Data for Earth observation?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-002",
+      "priority": "medium",
+      "question": "What is the relationship between SatCen and the European Commission in the context of the EU Space Programme?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-003",
+      "priority": "medium",
+      "question": "How does AI4Copernicus contribute to the development of AI solutions for societal challenges?",
+      "markers": [
+        "copernicus",
+        "ai"
+      ]
+    },
+    {
+      "id": "Q-004",
+      "priority": "medium",
+      "question": "What kind of technologies does SatCen use to provide strategic intelligence in a complex global security environment?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-005",
+      "priority": "medium",
+      "question": "What is the relationship between SatCen and the European Space Agency?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-006",
+      "priority": "medium",
+      "question": "How does SatCen collaborate with other EU agencies like EMSA and Frontex?",
+      "markers": [
+        "test",
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-007",
+      "priority": "low",
+      "question": "What kind of work do physicists do at SatCen?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-008",
+      "priority": "medium",
+      "question": "What is the goal of the Big Data in Secure Societies workshops?",
+      "markers": [
+        "security"
+      ]
+    },
+    {
+      "id": "Q-009",
+      "priority": "medium",
+      "question": "How does the EU use geospatial products and services to support border management?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-010",
+      "priority": "medium",
+      "question": "What is the relationship between SatCen and NATO in terms of surveillance and security?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-011",
+      "priority": "high",
+      "question": "What is the significance of space for EU security and defence?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-012",
+      "priority": "medium",
+      "question": "How does SatCen use satellite data to support EU policies?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-013",
+      "priority": "high",
+      "question": "How does SatCen contribute to the monitoring of climate change and its impact on security?",
+      "markers": [
+        "satellite",
+        "security",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-014",
+      "priority": "medium",
+      "question": "What is the Big Data from Space Conference about?",
+      "markers": [
+        "satellite"
+      ]
+    },
+    {
+      "id": "Q-015",
+      "priority": "medium",
+      "question": "What is the purpose of the IntSen² project in the context of European defence and security?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-016",
+      "priority": "medium",
+      "question": "How does SatCen use geospatial intelligence to address security challenges?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-017",
+      "priority": "medium",
+      "question": "How does SatCen contribute to Space Surveillance and Tracking activities?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-018",
+      "priority": "medium",
+      "question": "How can satellite imagery be used to monitor refugee camps?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-019",
+      "priority": "medium",
+      "question": "What is the role of SatCen in European strategic priorities?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-020",
+      "priority": "medium",
+      "question": "What is the significance of SatCen's geospatial analysis in supporting EU decision-making?",
+      "markers": [
+        "satellite",
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-021",
+      "priority": "high",
+      "question": "What is the significance of SatCen's cooperation with the Commission under the Copernicus Programme?",
+      "markers": [
+        "satellite",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-022",
+      "priority": "high",
+      "question": "What is the goal of the joint ESA-SatCen large-scale pilot on climate security?",
+      "markers": [
+        "satellite",
+        "climate",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-023",
+      "priority": "medium",
+      "question": "How does the EU SST system track and survey space objects orbiting the Earth?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-024",
+      "priority": "medium",
+      "question": "What kind of intelligence analysis does SatCen provide?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-025",
+      "priority": "medium",
+      "question": "What is the Digital Twin Earth concept and its application in security?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-026",
+      "priority": "medium",
+      "question": "What is the main objective of Operation EUNAVFOR MED IRINI?",
+      "markers": [
+        "security",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-027",
+      "priority": "medium",
+      "question": "How does SatCen leverage technology and innovation to improve geospatial services?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-028",
+      "priority": "medium",
+      "question": "How does the ENTRUSTED project contribute to the future of EU GOVSATCOM?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-029",
+      "priority": "high",
+      "question": "What are the advantages of using Synthetic Aperture Radar (SAR) imagery in defense and security?",
+      "markers": [
+        "satellite",
+        "security",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-030",
+      "priority": "medium",
+      "question": "How does SatCen contribute to crisis management and military operations?",
+      "markers": [
+        "satellite",
+        "security"
+      ]
+    },
+    {
+      "id": "Q-031",
+      "priority": "medium",
+      "question": "What is the difference between relative and absolute orbit numbers in Sentinel-1 products?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-032",
+      "priority": "medium",
+      "question": "How does Sentinel-5P measure aerosol layer height?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-033",
+      "priority": "low",
+      "question": "What factors affect the multiplication factor for processing units?",
+      "markers": [
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-034",
+      "priority": "medium",
+      "question": "What is the effect of the incidence angle on Sentinel-1 data quality?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-035",
+      "priority": "high",
+      "question": "How does vegetation affect the Earth's climate system?",
+      "markers": [
+        "climate",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-036",
+      "priority": "medium",
+      "question": "What kind of information does the Copernicus SEA service provide to decision makers?",
+      "markers": [
+        "copernicus",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-037",
+      "priority": "medium",
+      "question": "How does SatCen use artificial intelligence in its operations?",
+      "markers": [
+        "satellite",
+        "ai"
+      ]
+    },
+    {
+      "id": "Q-038",
+      "priority": "medium",
+      "question": "What is the purpose of reprocessing operations in Copernicus?",
+      "markers": [
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-039",
+      "priority": "high",
+      "question": "How can I use Sentinel-5P data to compare NO2 pollution statistics for different cities?",
+      "markers": [
+        "sentinel",
+        "air_quality",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-040",
+      "priority": "medium",
+      "question": "What are the components of the Level-2 Ocean (OCN) products derived from Level-1 SAR data?",
+      "markers": [
+        "marine",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-041",
+      "priority": "medium",
+      "question": "What is the difference between experimental and non-experimental collections in the openEO federation?",
+      "markers": [
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-042",
+      "priority": "medium",
+      "question": "What could be causing missing points in my process result when using Copernicus Vegetation Indices?",
+      "markers": [
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-043",
+      "priority": "high",
+      "question": "What is the difference between Sentinel-2 L1C and L2A products?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-044",
+      "priority": "high",
+      "question": "What are the benefits of using the openEO API for Earth observation data analysis?",
+      "markers": [
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-045",
+      "priority": "medium",
+      "question": "What is the difference between sigma0 and gamma0 in Sentinel-1 data?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-046",
+      "priority": "medium",
+      "question": "What is the difference between MSI and L2A satellite data?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-047",
+      "priority": "medium",
+      "question": "What is the difference between the Low-Resolution Mode and Synthetic Aperture Radar mode in altimetry?",
+      "markers": [
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-048",
+      "priority": "medium",
+      "question": "What atmospheric conditions can be measured using Sentinel-2 data?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-049",
+      "priority": "medium",
+      "question": "What is the optical design of the MultiSpectral Instrument on Sentinel-2?",
+      "markers": [
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-050",
+      "priority": "low",
+      "question": "What is the status of the checksum issue in the Copernicus Data Space Ecosystem?",
+      "markers": [
+        "copernicus",
+        "technical"
+      ]
+    }
+  ]
+}

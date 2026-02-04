@@ -1,0 +1,14 @@
+{
+  "chatbot_base_url": "http://localhost:3000",
+  "chatbot_path": "/en/chatbot",
+  "headless": true,
+  "browser": "chromium",
+  "timeout": 240000,
+  "expect_timeout": 30000,
+  "reports_dir": "./reports",
+  "fixtures_dir": "./fixtures",
+  "enable_llm_analysis": true,
+  "llm_model": "Inhouse-LLM/gpt-oss-120b",
+  "llm_url": "https://llmgw.eea.europa.eu",
+  "llm_api_key": ""
+}

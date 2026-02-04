@@ -1,0 +1,540 @@
+{"cnt": 0, "question": "How does SatCen use AI and Big Data for Earth observation?"}
+{"cnt": 1, "question": "What is the relationship between SatCen and the European Commission in the context of the EU Space Programme?"}
+{"cnt": 2, "question": "How does AI4Copernicus contribute to the development of AI solutions for societal challenges?"}
+{"cnt": 3, "question": "What kind of technologies does SatCen use to provide strategic intelligence in a complex global security environment?"}
+{"cnt": 4, "question": "What is the relationship between SatCen and the European Space Agency?"}
+{"cnt": 5, "question": "How does SatCen collaborate with other EU agencies like EMSA and Frontex?"}
+{"cnt": 6, "question": "What kind of work do physicists do at SatCen?"}
+{"cnt": 7, "question": "What is the goal of the Big Data in Secure Societies workshops?"}
+{"cnt": 8, "question": "How does the EU use geospatial products and services to support border management?"}
+{"cnt": 9, "question": "What is the relationship between SatCen and NATO in terms of surveillance and security?"}
+{"cnt": 10, "question": "What is the significance of space for EU security and defence?"}
+{"cnt": 11, "question": "How does SatCen use satellite data to support EU policies?"}
+{"cnt": 12, "question": "How does SatCen contribute to the monitoring of climate change and its impact on security?"}
+{"cnt": 13, "question": "What is the Big Data from Space Conference about?"}
+{"cnt": 14, "question": "What is the purpose of the IntSen\u00b2 project in the context of European defence and security?"}
+{"cnt": 15, "question": "How does SatCen use geospatial intelligence to address security challenges?"}
+{"cnt": 16, "question": "How does SatCen contribute to Space Surveillance and Tracking activities?"}
+{"cnt": 17, "question": "How can satellite imagery be used to monitor refugee camps?"}
+{"cnt": 18, "question": "What is the role of SatCen in European strategic priorities?"}
+{"cnt": 19, "question": "What is the significance of SatCen's geospatial analysis in supporting EU decision-making?"}
+{"cnt": 20, "question": "What is the significance of SatCen's cooperation with the Commission under the Copernicus Programme?"}
+{"cnt": 21, "question": "What is the goal of the joint ESA-SatCen large-scale pilot on climate security?"}
+{"cnt": 22, "question": "How does the EU SST system track and survey space objects orbiting the Earth?"}
+{"cnt": 23, "question": "What kind of intelligence analysis does SatCen provide?"}
+{"cnt": 24, "question": "What is the Digital Twin Earth concept and its application in security?"}
+{"cnt": 25, "question": "What is the main objective of Operation EUNAVFOR MED IRINI?"}
+{"cnt": 26, "question": "How does SatCen leverage technology and innovation to improve geospatial services?"}
+{"cnt": 27, "question": "How does the ENTRUSTED project contribute to the future of EU GOVSATCOM?"}
+{"cnt": 28, "question": "What are the advantages of using Synthetic Aperture Radar (SAR) imagery in defense and security?"}
+{"cnt": 29, "question": "How does SatCen contribute to crisis management and military operations?"}
+{"cnt": 30, "question": "What is the difference between relative and absolute orbit numbers in Sentinel-1 products?"}
+{"cnt": 31, "question": "How does Sentinel-5P measure aerosol layer height?"}
+{"cnt": 32, "question": "What factors affect the multiplication factor for processing units?"}
+{"cnt": 33, "question": "What is the effect of the incidence angle on Sentinel-1 data quality?"}
+{"cnt": 34, "question": "How does vegetation affect the Earth's climate system?"}
+{"cnt": 35, "question": "What kind of information does the Copernicus SEA service provide to decision makers?"}
+{"cnt": 36, "question": "How does SatCen use artificial intelligence in its operations?"}
+{"cnt": 37, "question": "What is the purpose of reprocessing operations in Copernicus?"}
+{"cnt": 38, "question": "How can I use Sentinel-5P data to compare NO2 pollution statistics for different cities?"}
+{"cnt": 39, "question": "What are the components of the Level-2 Ocean (OCN) products derived from Level-1 SAR data?"}
+{"cnt": 40, "question": "What is the difference between experimental and non-experimental collections in the openEO federation?"}
+{"cnt": 41, "question": "What could be causing missing points in my process result when using Copernicus Vegetation Indices?"}
+{"cnt": 42, "question": "What is the difference between Sentinel-2 L1C and L2A products?"}
+{"cnt": 43, "question": "What are the benefits of using the openEO API for Earth observation data analysis?"}
+{"cnt": 44, "question": "What is the difference between sigma0 and gamma0 in Sentinel-1 data?"}
+{"cnt": 45, "question": "What is the difference between MSI and L2A satellite data?"}
+{"cnt": 46, "question": "What is the difference between the Low-Resolution Mode and Synthetic Aperture Radar mode in altimetry?"}
+{"cnt": 47, "question": "What atmospheric conditions can be measured using Sentinel-2 data?"}
+{"cnt": 48, "question": "What is the optical design of the MultiSpectral Instrument on Sentinel-2?"}
+{"cnt": 49, "question": "What is the status of the checksum issue in the Copernicus Data Space Ecosystem?"}
+{"cnt": 50, "question": "What is the difference between a push and pull subscription?"}
+{"cnt": 51, "question": "What are the available APIs for accessing Copernicus data?"}
+{"cnt": 52, "question": "How do I calculate the Enhanced Vegetation Index using Sentinel-2 data?"}
+{"cnt": 53, "question": "How does the altimeter determine the surface type of a given area?"}
+{"cnt": 54, "question": "What is the advantage of using a rank composite over compositing per band?"}
+{"cnt": 55, "question": "What is the relationship between cloud top pressure and ozone columns above clouds?"}
+{"cnt": 56, "question": "What is the purpose of retracking in altimetry processing?"}
+{"cnt": 57, "question": "How are the GCPs selected for the Copernicus Sentinel-2 GRI as Databases of GCPs in Level-1B and Level-1C?"}
+{"cnt": 58, "question": "What is the difference between S3_Object_defined and S3_Object_found?"}
+{"cnt": 59, "question": "What is required to develop an openEO algorithm and share it as a service?"}
+{"cnt": 60, "question": "How does Sentinel-1 use dual polarisation for enhanced analysis of backscattering properties?"}
+{"cnt": 61, "question": "What is the difference between TOA radiances and TOA brightness temperatures in SLSTR products?"}
+{"cnt": 62, "question": "What cloud infrastructure does Copernicus Data Space Ecosystem use?"}
+{"cnt": 63, "question": "What is the effect of detector saturation on image quality?"}
+{"cnt": 64, "question": "What causes Sentinel-1 data to become corrupted during download?"}
+{"cnt": 65, "question": "What is the difference between a personal account and a service account in openEO?"}
+{"cnt": 66, "question": "What causes a ClassCastException in a Spark job using openEO?"}
+{"cnt": 67, "question": "How are dark pixels used in the calibration process of OLCI detectors?"}
+{"cnt": 68, "question": "Are there any plans to release new Sentinel missions data in the near future?"}
+{"cnt": 69, "question": "What is the difference between geodetic latitude and projected coordinates?"}
+{"cnt": 70, "question": "What is the latest update on the BIOPAR process in OpenEO?"}
+{"cnt": 71, "question": "What are common errors encountered when using the load_stac process with AWS and Hadoop?"}
+{"cnt": 72, "question": "What is the difference between mosaicking by orbit and mosaicking by tile?"}
+{"cnt": 73, "question": "What are the criteria for failed general quality in Sentinel-2 L2A products?"}
+{"cnt": 74, "question": "Can Sentinel-2 L2A products have negative reflectance values?"}
+{"cnt": 75, "question": "What is the Batch Statistical API used for?"}
+{"cnt": 76, "question": "What is the difference between Single Look Complex and other SAR data products?"}
+{"cnt": 77, "question": "What is the difference between the QUICKLOOK and PRODUCT assets in Sentinel-1 data?"}
+{"cnt": 78, "question": "What are the differences between Sentinel-3A and -3B Ocean and Land Colour Imager processing baselines?"}
+{"cnt": 79, "question": "What are the benefits of using synthetic aperture radar imaging?"}
+{"cnt": 80, "question": "What is the role of the Sentinel missions in monitoring the Arctic environment?"}
+{"cnt": 81, "question": "What is the syntax for filtering products by multiple attributes in the Copernicus catalogue?"}
+{"cnt": 82, "question": "What is the difference between SAR_SC_GEC and SAR_SC_MGD data?"}
+{"cnt": 83, "question": "What is the Copernicus Data Space Ecosystem?"}
+{"cnt": 84, "question": "What is the openEO Web Editor used for?"}
+{"cnt": 85, "question": "What is the relationship between xcube and xarray?"}
+{"cnt": 86, "question": "What are the capabilities of the openEO API for accessing and processing Earth Observation data?"}
+{"cnt": 87, "question": "What is the biogeochemistry of the Mediterranean Sea?"}
+{"cnt": 88, "question": "What is an evalscript and how is it used?"}
+{"cnt": 89, "question": "How does the S5P processor handle cloud retrieval?"}
+{"cnt": 90, "question": "What are the benefits of using Copernicus data for Earth observation?"}
+{"cnt": 91, "question": "How can we balance economic development with ocean conservation?"}
+{"cnt": 92, "question": "What is the impact of the Nepal earthquake on the ground deformation in Kathmandu?"}
+{"cnt": 93, "question": "What are the available parameters for searching Sentinel-1 data?"}
+{"cnt": 94, "question": "What is the difference between LRM and SAR operating modes in altimetry?"}
+{"cnt": 95, "question": "How can I reduce environmental impact while sailing?"}
+{"cnt": 96, "question": "How can I use Earth observation data for storytelling?"}
+{"cnt": 97, "question": "How does the Copernicus Data Space Ecosystem support data traceability and reproducibility?"}
+{"cnt": 98, "question": "How can we separate anthropogenic CO2 emissions from biogenic fluxes?"}
+{"cnt": 99, "question": "What are the consequences of rising global temperatures?"}
+{"cnt": 100, "question": "What are the effects of a tropical cyclone on a community?"}
+{"cnt": 101, "question": "What is the purpose of the Sentinel-1 mission?"}
+{"cnt": 102, "question": "What is the role of Copernicus in marine conservation?"}
+{"cnt": 103, "question": "What kind of applications and services are supported by Copernicus data and information?"}
+{"cnt": 104, "question": "What is the role of Copernicus in disaster management?"}
+{"cnt": 105, "question": "What is the role of Copernicus Relays in the EU Space programme?"}
+{"cnt": 106, "question": "What types of disasters can be supported by Copernicus Risk and Recovery Mapping?"}
+{"cnt": 107, "question": "What is the significance of the Baltic Sea in European maritime affairs?"}
+{"cnt": 108, "question": "How can ecosystem-based management of aquaculture be achieved using marine data?"}
+{"cnt": 109, "question": "How do satellite sensors detect and forecast hazardous sea ice conditions?"}
+{"cnt": 110, "question": "What is the purpose of the Copernicus Services?"}
+{"cnt": 111, "question": "How does the Sentinel-5P mission impact air quality forecasts?"}
+{"cnt": 112, "question": "What is the Tropomi instrument on the Sentinel-5P satellite used for?"}
+{"cnt": 113, "question": "What are the benefits of Earth observation for humanity?"}
+{"cnt": 114, "question": "What role does Copernicus play in monitoring wildfires?"}
+{"cnt": 115, "question": "How do firefighters use satellite imagery to monitor wildfires?"}
+{"cnt": 116, "question": "How does Copernicus help in search and rescue operations at sea?"}
+{"cnt": 117, "question": "How can satellite imagery help in managing natural disasters?"}
+{"cnt": 118, "question": "How can satellite data help track ocean pollution?"}
+{"cnt": 119, "question": "How does the Copernicus Marine Service support ocean health?"}
+{"cnt": 120, "question": "What is the impact of climate change on ecosystems?"}
+{"cnt": 121, "question": "What types of disasters can the Copernicus EMS Risk and Recovery Mapping module support?"}
+{"cnt": 122, "question": "How can satellite imagery be used to monitor lakes and water bodies?"}
+{"cnt": 123, "question": "How can satellite data help monitor geological hazards?"}
+{"cnt": 124, "question": "How does Copernicus respond to earthquakes and floods?"}
+{"cnt": 125, "question": "How does the Sentinel-6/Jason CS satellite monitor sea level?"}
+{"cnt": 126, "question": "What is the role of the Laser Communication Terminal in Sentinel-1?"}
+{"cnt": 127, "question": "What kind of climate data does the Copernicus Climate Change Service provide?"}
+{"cnt": 128, "question": "What is the impact of water hyacinth on Lake Naivasha in Kenya?"}
+{"cnt": 129, "question": "What is the importance of land cover classification for understanding climate change?"}
+{"cnt": 130, "question": "What are the benefits of open-access satellite data for biodiversity research and conservation?"}
+{"cnt": 131, "question": "Can volcanic eruptions trigger tsunamis?"}
+{"cnt": 132, "question": "How does ocean warming affect sea levels and marine ecosystems?"}
+{"cnt": 133, "question": "What is Copernicus doing to address climate change?"}
+{"cnt": 134, "question": "What are the benefits of the Sentinel-2 mission for environmental monitoring?"}
+{"cnt": 135, "question": "What does the Sahara desert look like from space?"}
+{"cnt": 136, "question": "Can weather forecasts predict air quality?"}
+{"cnt": 137, "question": "What are the benefits of using Copernicus marine products?"}
+{"cnt": 138, "question": "How does the Copernicus program use satellite imagery to track environmental changes?"}
+{"cnt": 139, "question": "What are the potential uses of Copernicus data in different sectors?"}
+{"cnt": 140, "question": "What is the role of the European Space Agency in the Copernicus program?"}
+{"cnt": 141, "question": "How does the Copernicus program benefit the environment in countries like Kenya?"}
+{"cnt": 142, "question": "How does satellite imagery help in disaster management?"}
+{"cnt": 143, "question": "How does air pollution affect human health and the environment?"}
+{"cnt": 144, "question": "How does Earth observation contribute to science and society?"}
+{"cnt": 145, "question": "How do satellites help track water hyacinth plagues in lakes?"}
+{"cnt": 146, "question": "What is happening to the ice sheet in Greenland?"}
+{"cnt": 147, "question": "What is the impact of climate change on freshwater resources?"}
+{"cnt": 148, "question": "How can crop monitoring systems help with food security?"}
+{"cnt": 149, "question": "What is the economic value of Copernicus Sentinel data?"}
+{"cnt": 150, "question": "What role does the Copernicus Programme play in understanding and adapting to climate change?"}
+{"cnt": 151, "question": "What kind of data does the Copernicus project provide?"}
+{"cnt": 152, "question": "How can a green economy strategy be integrated into national decision-making?"}
+{"cnt": 153, "question": "What are the requirements for sampling frequency in EU water directives?"}
+{"cnt": 154, "question": "What is the EU's progress in reducing transport emissions?"}
+{"cnt": 155, "question": "How is the quality of freshwater fish affected by water pollution?"}
+{"cnt": 156, "question": "What is the impact of transport on air quality in Europe?"}
+{"cnt": 157, "question": "What is the role of the European Environment Agency in risk management?"}
+{"cnt": 158, "question": "How is the CORINE Biotopes database related to the NATURA 2000 Network?"}
+{"cnt": 159, "question": "What organisations are responsible for environmental assessments in different countries?"}
+{"cnt": 160, "question": "What is the European Environment Agency's role in addressing climate change?"}
+{"cnt": 161, "question": "What are the main threats to Europe's ecosystems and biodiversity?"}
+{"cnt": 162, "question": "Can renewable energy help the EU achieve carbon neutrality?"}
+{"cnt": 163, "question": "What air pollutants are typically measured in regional monitoring networks?"}
+{"cnt": 164, "question": "How effective are Environmental Agreements in achieving environmental goals?"}
+{"cnt": 165, "question": "How does the EU address climate change and energy in the industrial sector?"}
+{"cnt": 166, "question": "How does the uneven distribution of precipitation impact water availability in semi-arid areas?"}
+{"cnt": 167, "question": "How do dams affect river ecosystems?"}
+{"cnt": 168, "question": "How does nitrate pollution affect the environment and human health?"}
+{"cnt": 169, "question": "What are the most harmful chemicals and how can we avoid them?"}
+{"cnt": 170, "question": "What are the economic impacts of climate-related extremes in Europe?"}
+{"cnt": 171, "question": "What are the health effects of ozone concentrations above the threshold values?"}
+{"cnt": 172, "question": "What are the main pollutants affecting the environment in Europe?"}
+{"cnt": 173, "question": "What are the effects of cadmium on the environment?"}
+{"cnt": 174, "question": "What are the health effects of exposure to high levels of PM2.5 and PM10?"}
+{"cnt": 175, "question": "What are the effects of warming, acidification, and oxygen levels on Europe's seas?"}
+{"cnt": 176, "question": "What are the sources of pollution in European bathing waters?"}
+{"cnt": 177, "question": "How does the EU ensure the quality of environmental information made available to the public?"}
+{"cnt": 178, "question": "What are the estimated annual deaths in the EU due to exposure to air pollutants?"}
+{"cnt": 179, "question": "What international agreements exist for monitoring surface waters in Europe?"}
+{"cnt": 180, "question": "How does air pollution affect human health in Europe?"}
+{"cnt": 181, "question": "How does climate change affect soil health in Europe?"}
+{"cnt": 182, "question": "What are the effects of climate change on Europe's seas and coasts?"}
+{"cnt": 183, "question": "How is Europe tracking its progress towards climate and energy goals?"}
+{"cnt": 184, "question": "How can forest restoration help address climate change and biodiversity loss?"}
+{"cnt": 185, "question": "Can the EU reduce its consumption footprint while still growing its economy?"}
+{"cnt": 186, "question": "How has the amount of waste sent to landfills changed in the EU since 2010?"}
+{"cnt": 187, "question": "How are sampling sites chosen for river monitoring programs?"}
+{"cnt": 188, "question": "What percentage of Europe's freshwater resources are used by humans?"}
+{"cnt": 189, "question": "How does the EU plan to achieve its zero pollution ambition and reduce the negative impacts of air pollution on human health and the environment?"}
+{"cnt": 190, "question": "What are the environmental impacts of petroleum industries on freshwater ecosystems?"}
+{"cnt": 191, "question": "How do chemicals in the environment affect water quality and ecosystems?"}
+{"cnt": 192, "question": "What does a just transition to sustainability look like?"}
+{"cnt": 193, "question": "What are the main challenges facing inland waterways in the EU?"}
+{"cnt": 194, "question": "How can the EU's Common Agricultural Policy support sustainable agriculture?"}
+{"cnt": 195, "question": "What are the health risks associated with high ozone concentrations?"}
+{"cnt": 196, "question": "What are the effects of microplastics from textiles on the environment?"}
+{"cnt": 197, "question": "How does climate change affect water use in the EU?"}
+{"cnt": 198, "question": "What are the main differences in emissions between Western and Eastern European countries?"}
+{"cnt": 199, "question": "How do countries monitor the water quality of their lakes and marine waters?"}
+{"cnt": 200, "question": "What are the environmental co-benefits of climate adaptation measures?"}
+{"cnt": 201, "question": "What are the key environmental challenges facing Europe today?"}
+{"cnt": 202, "question": "What is the minimum mapping unit for areal phenomena in CORINE Land Cover datasets?"}
+{"cnt": 203, "question": "What is the EU's Natura 2000 network and how does it help conservation?"}
+{"cnt": 204, "question": "How does pollution affect human health in Europe?"}
+{"cnt": 205, "question": "How do you determine the spacing of observation wells in a groundwater quality network?"}
+{"cnt": 206, "question": "What type of sensor is used to collect the snow data?"}
+{"cnt": 207, "question": "How does ozone formation differ between urban and rural areas?"}
+{"cnt": 208, "question": "What are the main sources of microplastics in European seas?"}
+{"cnt": 209, "question": "What are the benefits of a circular economy for Europe's environment and economy?"}
+{"cnt": 210, "question": "What is the coherence indicator in ground motion data?"}
+{"cnt": 211, "question": "What is the N2K Land Cover/Land Use dataset about?"}
+{"cnt": 212, "question": "What is Synthetic Aperture Radar Interferometry used for?"}
+{"cnt": 213, "question": "What types of land cover are included in the dataset?"}
+{"cnt": 214, "question": "What causes disruptions in Northern Hemisphere Snow Cover Extent production?"}
+{"cnt": 215, "question": "What kind of data does the European Ground Motion Service provide?"}
+{"cnt": 216, "question": "How are the FCOVER, FAPAR, and LAI products validated?"}
+{"cnt": 217, "question": "How do remote sensing technologies assess lake water quality?"}
+{"cnt": 218, "question": "How are changes in land use classified in CLC data?"}
+{"cnt": 219, "question": "What is the difference between GeoJSON and Shapefile formats?"}
+{"cnt": 220, "question": "How are glaciers affected by global warming?"}
+{"cnt": 221, "question": "What is the frequency of CORINE Land Cover updates?"}
+{"cnt": 222, "question": "How do geostationary sensors observe land surface temperature?"}
+{"cnt": 223, "question": "What happens to coniferous forest on peatland when it is clear-cut and turned into a peat extraction site?"}
+{"cnt": 224, "question": "How does the Aggregated River and Lake Ice Extent product work?"}
+{"cnt": 225, "question": "What is the difference between gross primary production and net primary production?"}
+{"cnt": 226, "question": "How is the thermal condition index calculated?"}
+{"cnt": 227, "question": "How is snow cover extent measured in forested areas?"}
+{"cnt": 228, "question": "What does NDVI indicate about biomes?"}
+{"cnt": 229, "question": "What is the thematic accuracy of CORINE Land Cover datasets?"}
+{"cnt": 230, "question": "How does snow cover influence the accuracy of ground motion measurements?"}
+{"cnt": 231, "question": "Can wetlands increase in number over a short period of time?"}
+{"cnt": 232, "question": "What types of ice are classified in the lake ice extent data for the Northern Hemisphere?"}
+{"cnt": 233, "question": "What are the different ways to access high resolution ice products?"}
+{"cnt": 234, "question": "What is the difference between RLIE and ARLIE ice products?"}
+{"cnt": 235, "question": "How sensitive is satellite interferometry to ground displacements?"}
+{"cnt": 236, "question": "What is the difference between CLC revisions and real land cover changes?"}
+{"cnt": 237, "question": "What happens to the ownership of data or services created using CLMS data?"}
+{"cnt": 238, "question": "What is the best way to derive gains and losses between non-consecutive inventories?"}
+{"cnt": 239, "question": "Have the classes in the CORINE Land Cover system changed since its inception?"}
+{"cnt": 240, "question": "What is the purpose of temporal post-processing in land cover mapping?"}
+{"cnt": 241, "question": "What is the best way to visualize snow cover data?"}
+{"cnt": 242, "question": "Are there any limitations to detecting ice on narrow rivers and streams?"}
+{"cnt": 243, "question": "How does geographic complexity affect land cover validation results?"}
+{"cnt": 244, "question": "What is the difference between PSA and PSA LAEA snow products?"}
+{"cnt": 245, "question": "What is the basis for lake water level monitoring algorithms?"}
+{"cnt": 246, "question": "What is the thematic accuracy of the riparian zones land cover data?"}
+{"cnt": 247, "question": "How can satellite monitoring help detect landslides and ground motion?"}
+{"cnt": 248, "question": "How do satellite images detect burnt areas?"}
+{"cnt": 249, "question": "What is the theoretical basis for land surface temperature measurement?"}
+{"cnt": 250, "question": "How are changes in land cover tracked in CLC datasets?"}
+{"cnt": 251, "question": "What is the Soil Water Index used for?"}
+{"cnt": 252, "question": "What resources are available for monitoring lake water quality?"}
+{"cnt": 253, "question": "Why was the NOAA J1 VIIRS C2 Global VJ114IMGTDL used instead of the SUOMI VIIRS C2 Global VNP14IMGTDL?"}
+{"cnt": 254, "question": "What is the relationship between digital numbers and physical values in satellite data?"}
+{"cnt": 255, "question": "How do you validate wet snow cover maps?"}
+{"cnt": 256, "question": "What is the Plant Phenology Index used for?"}
+{"cnt": 257, "question": "What is the theoretical basis for snow cover extent algorithms in Europe?"}
+{"cnt": 258, "question": "What is the purpose of the Copernicus program?"}
+{"cnt": 259, "question": "What is the difference between WEkEO and Finder interfaces for ice products?"}
+{"cnt": 260, "question": "What are some examples of key landscapes for conservation globally?"}
+{"cnt": 261, "question": "What type of data is available from the Copernicus Land Monitoring Service?"}
+{"cnt": 262, "question": "Are there any snow products that can differentiate between wet and dry snow?"}
+{"cnt": 263, "question": "What is the spatial resolution of the available raster datasets?"}
+{"cnt": 264, "question": "Can I download Copernicus data for free?"}
+{"cnt": 265, "question": "What is the difference between imperviousness density and impervious built-up?"}
+{"cnt": 266, "question": "What is the role of optical water type in determining chlorophyll concentration?"}
+{"cnt": 267, "question": "What is WEkEO and what services does it offer?"}
+{"cnt": 268, "question": "What is the Leaf Area Index algorithm used for?"}
+{"cnt": 269, "question": "What type of data is available in the Coastal Zones dataset?"}
+{"cnt": 270, "question": "What is the relationship between land surface temperature and vegetation?"}
+{"cnt": 271, "question": "What is the minimum mapping unit for areal phenomena in CORINE Land Cover datasets?"}
+{"cnt": 272, "question": "What does the LAI status bit in the quality flag indicate?"}
+{"cnt": 273, "question": "What is the role of Copernicus data in monitoring soil sealing in Europe?"}
+{"cnt": 274, "question": "How is the lake surface water temperature calculated?"}
+{"cnt": 275, "question": "What is the difference between Gross Primary Production and Net Primary Production?"}
+{"cnt": 276, "question": "What guides are available for using the Copernicus Land Monitoring Service?"}
+{"cnt": 277, "question": "How does the classification accuracy of CLC data vary across geographic regions?"}
+{"cnt": 278, "question": "What is the thematic accuracy of N2K land cover datasets?"}
+{"cnt": 279, "question": "What caused the interruption of Northern Hemisphere Snow Cover Extent production from S-NPP VIIRS data?"}
+{"cnt": 280, "question": "How does the Burned Area algorithm use satellite reflectances to detect fires?"}
+{"cnt": 281, "question": "What is the nomenclature for land cover and land use in coastal zones?"}
+{"cnt": 282, "question": "How do satellites help in monitoring land surface temperature?"}
+{"cnt": 283, "question": "What are the guidelines for CORINE Land Cover changes?"}
+{"cnt": 284, "question": "What does a high NDVI value indicate?"}
+{"cnt": 285, "question": "What does DROM stand for in the context of French regions?"}
+{"cnt": 286, "question": "How do I declare the EPSG code in a CSV file?"}
+{"cnt": 287, "question": "How are high resolution snow products generated from satellite images?"}
+{"cnt": 288, "question": "What types of land cover are included in the dataset?"}
+{"cnt": 289, "question": "What is the purpose of the Soil Water Index validation report?"}
+{"cnt": 290, "question": "How is lake water quality measured using satellite data?"}
+{"cnt": 291, "question": "What are the limitations of using InSAR in areas with seasonal snow cover?"}
+{"cnt": 292, "question": "What is the spatial resolution of lake water quality data?"}
+{"cnt": 293, "question": "What happens to coniferous forest on peatland when it is clear-cut?"}
+{"cnt": 294, "question": "What sensor is used to collect lake ice extent data in the Baltic region?"}
+{"cnt": 295, "question": "How accurate are the imperviousness density datasets?"}
+{"cnt": 296, "question": "Why are there no CLC 1990 maps available for some countries?"}
+{"cnt": 297, "question": "What is Synthetic Aperture Radar Interferometry used for?"}
+{"cnt": 298, "question": "What causes noisy plots in ground motion data?"}
+{"cnt": 299, "question": "How does snow cover influence the accuracy of EGMS data?"}
+{"cnt": 300, "question": "What is the EPSG code for Martinique's UTM zone?"}
+{"cnt": 301, "question": "Why are land cover data from different years not always comparable?"}
+{"cnt": 302, "question": "What is the thematic accuracy of the CORINE Land Cover Change dataset?"}
+{"cnt": 303, "question": "What is the purpose of temporal post-processing in land cover classification?"}
+{"cnt": 304, "question": "How do geostationary satellites help with climate forecasting?"}
+{"cnt": 305, "question": "What is the difference between broadleaf and coniferous trees?"}
+{"cnt": 306, "question": "What is the spatial coverage of the seasonal vegetation monitoring data?"}
+{"cnt": 307, "question": "How does the Aggregated River and Lake Ice Extent product work?"}
+{"cnt": 308, "question": "How are changes in land cover accounted for in the CLC data?"}
+{"cnt": 309, "question": "What is the difference between RLIE and ARLIE ice products?"}
+{"cnt": 310, "question": "How does the geographic complexity of a country affect the accuracy of CLC data?"}
+{"cnt": 311, "question": "What is the theoretical basis for high resolution snow products in Europe?"}
+{"cnt": 312, "question": "Can the High Resolution River and Lake Ice Extent products detect ice on narrow rivers?"}
+{"cnt": 313, "question": "Why are High Resolution SAR Wet Snow S1 products not generated along Sentinel-1 tracks?"}
+{"cnt": 314, "question": "What is the difference between CLC-Change and intersecting two status layers?"}
+{"cnt": 315, "question": "Why was the NOAA J1 VIIRS C2 Global VJ114IMGTDL used instead of the SUOMI VIIRS C2 Global VNP14IMGTDL?"}
+{"cnt": 316, "question": "How accurate are high resolution snow area products?"}
+{"cnt": 317, "question": "How are changes in land cover tracked in CLC datasets?"}
+{"cnt": 318, "question": "How is radiation absorbed by vegetation monitored?"}
+{"cnt": 319, "question": "What is the difference between Sentinel-1 and Sentinel-2 observations for ice detection?"}
+{"cnt": 320, "question": "What is the EMSR695 report about?"}
+{"cnt": 321, "question": "What is the Copernicus Land Monitoring Service for lakes?"}
+{"cnt": 322, "question": "What is the spatial coverage of the high resolution image mosaic?"}
+{"cnt": 323, "question": "What is the difference between clear and productive waters in terms of reflectance?"}
+{"cnt": 324, "question": "Are there any snow products that can differentiate between wet and dry snow?"}
+{"cnt": 325, "question": "What is the Plant Phenology Index used for?"}
+{"cnt": 326, "question": "What is the future of Earth Observation?"}
+{"cnt": 327, "question": "What are the key landscapes for conservation in Africa?"}
+{"cnt": 328, "question": "What is Copernicus' role in humanitarian crises?"}
+{"cnt": 329, "question": "How does Copernicus EMS use science to address cross-border risks?"}
+{"cnt": 330, "question": "How can science be applied to save lives during disasters?"}
+{"cnt": 331, "question": "How does Copernicus EMS respond to floods?"}
+{"cnt": 332, "question": "How does GloFAS use space technologies for flood monitoring?"}
+{"cnt": 333, "question": "How does climate change affect wildfires in Europe?"}
+{"cnt": 334, "question": "What is the role of Copernicus EMS in flood management?"}
+{"cnt": 335, "question": "How does the F3O project use artificial intelligence in ocean modeling?"}
+{"cnt": 336, "question": "What are the effects of wildfires on the environment?"}
+{"cnt": 337, "question": "What are the consequences of severe flooding in densely populated areas like Dhaka?"}
+{"cnt": 338, "question": "How does the ocean's albedo impact the Earth's climate?"}
+{"cnt": 339, "question": "What is the relationship between EFAS and Copernicus EMS?"}
+{"cnt": 340, "question": "What is ArcticMix and what does it do?"}
+{"cnt": 341, "question": "What is the role of satellite imagery in flood forecasting and mapping?"}
+{"cnt": 342, "question": "Can deep learning models improve short-term sea ice forecasts?"}
+{"cnt": 343, "question": "What causes severe drought conditions in South America?"}
+{"cnt": 344, "question": "How does the Copernicus Emergency Management Service support disaster response?"}
+{"cnt": 345, "question": "How can machine learning be applied to ocean data for sustainable solutions?"}
+{"cnt": 346, "question": "How can machine learning be applied to improve data quality in oceanography?"}
+{"cnt": 347, "question": "How does the MIOST mapping process improve the mesoscale signal in L4 products?"}
+{"cnt": 348, "question": "What is the impact of the PFT algorithm recalibration on the datasets?"}
+{"cnt": 349, "question": "What is the relationship between ensemble predictions and reliability diagrams?"}
+{"cnt": 350, "question": "How can satellite oceanography help in understanding climate change?"}
+{"cnt": 351, "question": "What is the impact of upwelling on primary production in oceanic systems?"}
+{"cnt": 352, "question": "How does the SEAPODYM LMTL model simulate zooplankton distribution?"}
+{"cnt": 353, "question": "How does resolving diurnal variability improve climate datasets?"}
+{"cnt": 354, "question": "How will the new hybrid Mean Sea Surface and MDT improve the absolute dynamic height?"}
+{"cnt": 355, "question": "What is the role of quasigeostrophic potential vorticity in understanding ocean state?"}
+{"cnt": 356, "question": "How does the use of FES_2022 instead of FES_2014 model affect SLA variance in coastal areas?"}
+{"cnt": 357, "question": "What is the role of oceanography in offshore aquaculture systems?"}
+{"cnt": 358, "question": "How do scientists track oceanic biomass?"}
+{"cnt": 359, "question": "How do Earth observation scientists contribute to environmental monitoring?"}
+{"cnt": 360, "question": "How can space strategy and GIS be applied to support environmental conservation?"}
+{"cnt": 361, "question": "How can I use 4DVarNet for uncertainty quantification in forecasting?"}
+{"cnt": 362, "question": "How does salinity affect marine life in an estuary?"}
+{"cnt": 363, "question": "How do sailing drones contribute to oceanographic research?"}
+{"cnt": 364, "question": "What is the impact of ocean currents on the environment?"}
+{"cnt": 365, "question": "How can marine data be used for innovative applications?"}
+{"cnt": 366, "question": "How do ocean models help us understand the ocean's role in the climate system?"}
+{"cnt": 367, "question": "What are the benefits of using artificial neural networks for wind forecasting?"}
+{"cnt": 368, "question": "How does salinity vary in the Baltic Sea over time?"}
+{"cnt": 369, "question": "How does the LMTL model use bioacoustic data to estimate biomass?"}
+{"cnt": 370, "question": "How does the Global Control and Forecast Centre work?"}
+{"cnt": 371, "question": "What is the effect of wave forcing on wind forecast accuracy in different hemispheres?"}
+{"cnt": 372, "question": "How do remote sensing techniques support marine environment monitoring?"}
+{"cnt": 373, "question": "What is the European Digital Twin Ocean and what is its purpose?"}
+{"cnt": 374, "question": "What is the role of the stochastic module in NEMO-based systems?"}
+{"cnt": 375, "question": "What is the MASSIMILI project about?"}
+{"cnt": 376, "question": "How do scientists track and monitor whale movements?"}
+{"cnt": 377, "question": "What are the main threats to water quality in the Black Sea?"}
+{"cnt": 378, "question": "What is the purpose of the ZOOMBI project?"}
+{"cnt": 379, "question": "How do you calculate extreme wave heights in marine environments?"}
+{"cnt": 380, "question": "Can satellite data be used to track plastic patches in coastal waters?"}
+{"cnt": 381, "question": "What is the Blue Ocean initiative?"}
+{"cnt": 382, "question": "What are the effects of plastic pollution on marine ecosystems?"}
+{"cnt": 383, "question": "What is the impact of data assimilation on ocean model performance?"}
+{"cnt": 384, "question": "What are the effects of tidal forces on ocean salinity levels?"}
+{"cnt": 385, "question": "What is the connection between Earth observation and the blue economy?"}
+{"cnt": 386, "question": "How does the NWS model forecast ocean conditions?"}
+{"cnt": 387, "question": "How do researchers predict ocean deoxygenation and its effects?"}
+{"cnt": 388, "question": "What are the effects of plastic pollution on human health?"}
+{"cnt": 389, "question": "What are Harmful Algal Blooms and how do they impact aquaculture?"}
+{"cnt": 390, "question": "What are the effects of underwater noise on marine life?"}
+{"cnt": 391, "question": "What is the role of ocean monitoring in supporting Arctic policy?"}
+{"cnt": 392, "question": "How does the CARRA reanalysis dataset differ from global reanalyses?"}
+{"cnt": 393, "question": "What are the key findings of the Ocean State Report?"}
+{"cnt": 394, "question": "How do ocean currents and temperature affect the climate?"}
+{"cnt": 395, "question": "How does the Copernicus program support marine conservation efforts?"}
+{"cnt": 396, "question": "What is the role of the Copernicus Marine Service in monitoring ocean health?"}
+{"cnt": 397, "question": "What are the environmental concerns related to increased shipping in the Arctic?"}
+{"cnt": 398, "question": "What initiatives does the EU have for reducing plastic pollution?"}
+{"cnt": 399, "question": "How can satellite data be used for marine monitoring?"}
+{"cnt": 400, "question": "What is the difference between reanalysis and forecasting in climate data?"}
+{"cnt": 401, "question": "How do changes in sea ice cover impact ocean stratification and global sea levels?"}
+{"cnt": 402, "question": "What is the relationship between glacier mass change and climate change?"}
+{"cnt": 403, "question": "What is the role of Mercator-Ocean in the Copernicus Marine Environment Monitoring Service?"}
+{"cnt": 404, "question": "How do loss and risk indicators describe the impact of windstorms in Europe?"}
+{"cnt": 405, "question": "How does sea surface wind affect ocean salinity levels?"}
+{"cnt": 406, "question": "How are large-scale cross-sensor biases corrected in L3S SST data?"}
+{"cnt": 407, "question": "What is the impact of climate change on sea water salinity levels?"}
+{"cnt": 408, "question": "How do agroclimatic conditions influence agricultural productivity?"}
+{"cnt": 409, "question": "What is the difference between the reduced and enhanced measurement data files?"}
+{"cnt": 410, "question": "What is the source of the climate data provided by ECMWF?"}
+{"cnt": 411, "question": "How do spectrometers help in understanding climate patterns?"}
+{"cnt": 412, "question": "How does phytoplankton growth impact lake water quality?"}
+{"cnt": 413, "question": "How does phytoplankton affect ocean colour?"}
+{"cnt": 414, "question": "What hydrological variables are included in the European Flood Awareness System dataset?"}
+{"cnt": 415, "question": "What are the different types of datasets available for ocean color data?"}
+{"cnt": 416, "question": "How can I access and visualize sea water salinity data on a map?"}
+{"cnt": 417, "question": "How does the processing chain handle cloud detection in Sentinel-2 MSI data?"}
+{"cnt": 418, "question": "What are the effects of climate change on ocean salinity?"}
+{"cnt": 419, "question": "How are chlorophyll-a concentrations retrieved from remote sensing reflectances?"}
+{"cnt": 420, "question": "How does sea water salinity vary between equatorial and polar regions?"}
+{"cnt": 421, "question": "What is the difference between CLMS v1 and v2 datasets?"}
+{"cnt": 422, "question": "How does sea water salinity impact ocean ecosystems?"}
+{"cnt": 423, "question": "How do I visualize sea water salinity data on a map?"}
+{"cnt": 424, "question": "What is the relationship between tropospheric humidity and climate change?"}
+{"cnt": 425, "question": "What is the purpose of reforecasts in hydrological forecasting?"}
+{"cnt": 426, "question": "How are wave spectra used in ocean forecasting models?"}
+{"cnt": 427, "question": "What is the Copernicus Land Monitoring Service dataset about?"}
+{"cnt": 428, "question": "What type of data does the Sentinel-3 SRAL sensor collect?"}
+{"cnt": 429, "question": "What is the CLMS dataset about?"}
+{"cnt": 430, "question": "How do climate models account for uncertainties in future climate change?"}
+{"cnt": 431, "question": "What is the coverage area of the snow and ice data?"}
+{"cnt": 432, "question": "What kind of environmental data does CLMS provide?"}
+{"cnt": 433, "question": "How do satellites measure atmospheric methane levels?"}
+{"cnt": 434, "question": "What is the difference between delayed-time and near-real time applications in ocean data?"}
+{"cnt": 435, "question": "How can I access climate data from the Copernicus service?"}
+{"cnt": 436, "question": "How is diurnal warming accounted for in sea surface temperature analysis?"}
+{"cnt": 437, "question": "What are the sources of climate data used in the Copernicus dataset?"}
+{"cnt": 438, "question": "What is the elevation range for sea water salinity data?"}
+{"cnt": 439, "question": "How does sea ice affect the global climate?"}
+{"cnt": 440, "question": "Can I download sea water salinity data for a specific region?"}
+{"cnt": 441, "question": "How does data assimilation improve weather prediction?"}
+{"cnt": 442, "question": "What is the difference between Interim Reanalyses and Validated Reanalyses?"}
+{"cnt": 443, "question": "What is the relationship between Arctic sea ice and global warming?"}
+{"cnt": 444, "question": "What is the average global temperature compared to pre-industrial levels?"}
+{"cnt": 445, "question": "How does CAMS forecasting service track greenhouse gases?"}
+{"cnt": 446, "question": "What is the role of Copernicus in monitoring the Earth's atmosphere?"}
+{"cnt": 447, "question": "What is the difference between reanalysis and past weather observations?"}
+{"cnt": 448, "question": "What is the Copernicus service for ocean colour data?"}
+{"cnt": 449, "question": "How does the Copernicus Climate Change Service support climate intelligence?"}
+{"cnt": 450, "question": "How does the albedo of the Earth's surface affect the amount of solar radiation it receives?"}
+{"cnt": 451, "question": "How does Copernicus provide information on climate change?"}
+{"cnt": 452, "question": "What are the effects of extreme weather events on food security?"}
+{"cnt": 453, "question": "What are the regional differences in precipitation rates in Europe?"}
+{"cnt": 454, "question": "How do temperatures in Antarctica compare to the rest of the world?"}
+{"cnt": 455, "question": "How can climate services help protect people from heatwaves?"}
+{"cnt": 456, "question": "What is the current state of sea ice in the Arctic?"}
+{"cnt": 457, "question": "How does climate change affect the tourism industry in Europe?"}
+{"cnt": 458, "question": "What caused the high sea surface temperatures in the North Atlantic in July 2023?"}
+{"cnt": 459, "question": "What are the consequences of low precipitation on the environment?"}
+{"cnt": 460, "question": "What is the expected impact of the CO2MVS on climate change mitigation efforts?"}
+{"cnt": 461, "question": "Is Europe warming faster than other continents?"}
+{"cnt": 462, "question": "How do climate change and seasonal forecasts affect river discharge in Europe?"}
+{"cnt": 463, "question": "What are the consequences of severe wildfire activity on the environment?"}
+{"cnt": 464, "question": "How can renewable energy production be increased to meet European Green Deal targets?"}
+{"cnt": 465, "question": "How does rainfall vary across different regions of Europe?"}
+{"cnt": 466, "question": "What will climate change affect water resources in Europe?"}
+{"cnt": 467, "question": "What kind of climate data is essential for the energy sector to make informed decisions?"}
+{"cnt": 468, "question": "How does the Copernicus Climate Change Service track global temperatures?"}
+{"cnt": 469, "question": "What are the effects of extreme heat on human health in Europe?"}
+{"cnt": 470, "question": "What causes wildfires and how can they be forecasted?"}
+{"cnt": 471, "question": "What is the impact of heat stress on human health in Europe?"}
+{"cnt": 472, "question": "What are the months with the highest and lowest sea-ice area in the Arctic and Antarctic?"}
+{"cnt": 473, "question": "What is the impact of climate change on glaciers?"}
+{"cnt": 474, "question": "How can I develop a climate service using climate data and adaptation case studies?"}
+{"cnt": 475, "question": "How does the Copernicus Programme support climate change adaptation in Europe?"}
+{"cnt": 476, "question": "What tools are available to track the origin of pollutants in the atmosphere?"}
+{"cnt": 477, "question": "What kind of data does the Copernicus Atmosphere Monitoring Service provide to support air quality forecasts?"}
+{"cnt": 478, "question": "How does climate change affect the Arctic region?"}
+{"cnt": 479, "question": "What services are provided by the Copernicus Atmosphere Monitoring Service?"}
+{"cnt": 480, "question": "What are the effects of heavy rainfall on flooding in various parts of the world?"}
+{"cnt": 481, "question": "How does precipitation affect soil moisture levels in different European regions?"}
+{"cnt": 482, "question": "What is the relationship between global temperatures and pre-industrial levels?"}
+{"cnt": 483, "question": "How does ECMWF contribute to Earth's atmosphere monitoring?"}
+{"cnt": 484, "question": "How does sea ice cover vary in different regions of Antarctica?"}
+{"cnt": 485, "question": "How do global temperature datasets account for uncertainty in their estimates?"}
+{"cnt": 486, "question": "How does the ECMWF track and analyze hydrological variables in Europe?"}
+{"cnt": 487, "question": "How do wildfires impact the environment and human health?"}
+{"cnt": 488, "question": "How do wildfires in North America affect air quality in Europe?"}
+{"cnt": 489, "question": "How do human activities contribute to greenhouse gas emissions?"}
+{"cnt": 490, "question": "What is the impact of increasing greenhouse gases on the Earth's atmosphere?"}
+{"cnt": 491, "question": "What is the relationship between soil moisture and climate change?"}
+{"cnt": 492, "question": "What are the consequences of unprecedented wildfires in regions like Australia?"}
+{"cnt": 493, "question": "Are wildfires in the Arctic getting worse?"}
+{"cnt": 494, "question": "What is the purpose of the Copernicus Services at COP28?"}
+{"cnt": 495, "question": "What is the role of ECMWF in the EU's Copernicus programme?"}
+{"cnt": 496, "question": "What are the health effects of Saharan dust in the atmosphere?"}
+{"cnt": 497, "question": "What is the difference between large-scale snowfall and convective snowfall?"}
+{"cnt": 498, "question": "What is the role of the Copernicus Atmosphere Monitoring Service in fighting air pollution?"}
+{"cnt": 499, "question": "Can satellite monitoring help track air quality during a pandemic?"}
+{"cnt": 500, "question": "What is the difference between NRT and NTC products in Sentinel-3?"}
+{"cnt": 501, "question": "What causes the Antarctic ozone hole to form every year?"}
+{"cnt": 502, "question": "How far in advance can CAMS global forecasts predict atmospheric composition?"}
+{"cnt": 503, "question": "What is the impact of climate change on the Arctic region?"}
+{"cnt": 504, "question": "How does sea water salinity affect vegetation in equatorial regions?"}
+{"cnt": 505, "question": "How has global land averaged relative humidity changed over the past 40 years?"}
+{"cnt": 506, "question": "How does precipitation in Europe vary from year to year?"}
+{"cnt": 507, "question": "What is the source of atmospheric forcing for the Baltic Sea model?"}
+{"cnt": 508, "question": "How does sea water salinity affect ecosystems?"}
+{"cnt": 509, "question": "How does phytoplankton growth impact lake water quality?"}
+{"cnt": 510, "question": "How are ensemble means and standard deviations used in climate forecasting?"}
+{"cnt": 511, "question": "How is sea water salinity data analyzed and validated?"}
+{"cnt": 512, "question": "Can I find sea surface temperature data for the Arctic Ocean on WEkEO?"}
+{"cnt": 513, "question": "How do agroclimatic conditions influence agricultural productivity?"}
+{"cnt": 514, "question": "How does phytoplankton affect ocean colour?"}
+{"cnt": 515, "question": "What are the effects of salinity on vegetation in different climate zones?"}
+{"cnt": 516, "question": "How does sea water salinity vary between equatorial and polar regions?"}
+{"cnt": 517, "question": "What is the significance of LAI in understanding forest environments?"}
+{"cnt": 518, "question": "How do I access sea water salinity data on WEkEO?"}
+{"cnt": 519, "question": "How are chlorophyll-a concentrations retrieved from remote sensing reflectances?"}
+{"cnt": 520, "question": "What is the relationship between phytoplankton and ocean transparency?"}
+{"cnt": 521, "question": "How does Sentinel-2 MSI data processing handle cloud cover?"}
+{"cnt": 522, "question": "How do zooplankton and phytoplankton interact in the aquatic ecosystem?"}
+{"cnt": 523, "question": "How does satellite data help in understanding climate patterns?"}
+{"cnt": 524, "question": "What is the Copernicus land classification dataset?"}
+{"cnt": 525, "question": "How do wind patterns affect wave formation in the sea?"}
+{"cnt": 526, "question": "How does sea water salinity change seasonally?"}
+{"cnt": 527, "question": "How do climate models account for uncertainties in future climate change?"}
+{"cnt": 528, "question": "What is the purpose of reforecasts in hydrological forecasting?"}
+{"cnt": 529, "question": "What is the impact of sea water salinity on flood patterns?"}
+{"cnt": 530, "question": "What type of data does the Sentinel-3 SRAL sensor collect?"}
+{"cnt": 531, "question": "What is the resolution of snow cover data from Sentinel satellites?"}
+{"cnt": 532, "question": "How do satellites measure atmospheric methane levels?"}
+{"cnt": 533, "question": "How are climate indicators downscaled for regional analysis?"}
+{"cnt": 534, "question": "What is the elevation range for sea water salinity data?"}
+{"cnt": 535, "question": "What is the purpose of the OCEANCOLOUR_MED_BGC dataset?"}
+{"cnt": 536, "question": "How does the quality of reanalysis data change over time?"}
+{"cnt": 537, "question": "How does sea ice impact the global climate?"}
+{"cnt": 538, "question": "What type of environmental data does the CLMS dataset provide?"}
+{"cnt": 539, "question": "What is the difference between sub-skin temperature and foundation sea surface temperature?"}
