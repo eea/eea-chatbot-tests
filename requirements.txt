@@ -6,24 +6,14 @@ pytest-asyncio>=1.3.0
 pytest-html>=4.1.1
 pytest-xdist>=3.8.0
 
-# FastAPI for HTTP endpoint
-fastapi>=0.128.0
-uvicorn[standard]>=0.40.0
-
 # Configuration and utilities
 pydantic>=2.12.5
 pydantic-settings>=2.12.0
 python-dotenv>=1.2.1
 
-# HTTP client for testing
-httpx>=0.28.1
-
-# Async support
-anyio>=4.12.1
-
 # Report generation
-jinja2>=3.1.6
 md2pdf>=3.1.0
 
 # LLM analysis
 litellm>=1.81.3
+transformers>=5.0.0

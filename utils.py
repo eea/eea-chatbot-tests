@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import transformers
 import logging
 
@@ -12,10 +11,6 @@ os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
 
 transformers.logging.set_verbosity_error()
 logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
-
-# from sentence_transformers import SentenceTransformer
-
-# model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def has_marker(data, *markers):
@@ -38,15 +33,3 @@ def quality_check_stages(score):
             return message
 
     raise ValueError(f"Invalid quality check score: {score}% - expected between 0% and 100%")
-
-
-# def embed(text):
-#     """Encode a single text or list of texts into embeddings."""
-#     return model.encode(text, normalize_embeddings=True)
-
-
-# def cosine_similarity(text1, text2):
-#     """Compute cosine similarity between two texts efficiently."""
-#     # Encode both texts in a single batch for efficiency
-#     embeddings = model.encode([text1, text2], normalize_embeddings=True)
-#     return np.dot(embeddings[0], embeddings[1])

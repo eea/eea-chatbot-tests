@@ -5,3 +5,4 @@ reports
 config.json
 __pycache__
 !.gitignore
+pytestdebug.log
