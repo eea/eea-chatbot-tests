@@ -66,7 +66,7 @@ def _print_event(event: TestEvent, run: TestRunSummary):
         elif event.outcome == "skipped":
             run.skipped += 1
             run.current_test = None
-            return
+            status = console.info("SKIPPED")
         elif event.outcome == "failed":
             run.failed += 1
             status = console.error("FAILED")
@@ -74,7 +74,9 @@ def _print_event(event: TestEvent, run: TestRunSummary):
             status = console.warn(event.outcome.upper())
         duration = console.dim(f" ({event.duration_seconds:.2f}s)") if event.duration_seconds else ""
         console.writeln(f"  => {status}{duration}")
-        if event.message:
+        if event.outcome == "skipped" and event.message:
+            console.writeln(f"{' ' * 5}{event.message}")
+        elif event.message:
             console.writeln(f"{' ' * 5}{console.error('Error:')} {event.message}")
         run.current_test = None
 

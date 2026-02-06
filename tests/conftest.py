@@ -13,10 +13,7 @@ from chatbot_tests.page_objects import (
 from chatbot_tests.step import step
 
 tests_order = {
-    "basic": 1,
-    "feedback": 2,
-    "follow_up": 3,
-    "halloumi": 4,
+    "basic": 1
 }
 
 

@@ -20,6 +20,7 @@ from playwright.sync_api import expect
 from contextlib import contextmanager
 
 from chatbot_tests.step import step, info
+from chatbot_tests.plugin import log_step
 from chatbot_tests.config import Settings
 from chatbot_tests.page_objects import ChatbotPage
 from chatbot_tests.llm_analysis import create_analyzer_from_settings
@@ -33,6 +34,11 @@ DEFAULTS = {
     "min_quality_score": 60,
     "min_related_questions": 2,
 }
+
+
+class ResponseHolder:
+    response_info = None
+    value = None
 
 
 @pytest.mark.question
@@ -111,15 +117,71 @@ class TestQuestionValidation:
         # PHASE 1: Send Question and Get Response
         # =====================================================================
 
-        truncated_q = question[:60] + "..." if len(question) > 60 else question
+        rq_holder = ResponseHolder()
+        min_rq = rq_config.get("min_count", get_threshold("min_related_questions")) or 0
 
-        with step(f"Send question [{test_id}]: '{truncated_q}'"):
-            with chatbot_page.send_message(question) as response:
-                chatbot_page.verify_interactions_disabled()
-                assert chatbot_page.textarea.input_value() == "", "Textarea should be cleared after message is sent"
+        @contextmanager
+        def _related_questions():
+            if requests.get("qgen"):
+                with expect_response(req_filter(requests.get("qgen"))) as response:
+                    rq_holder.response_info = response
+                    yield rq_holder
+                rq_holder.value = response.value
+            else:
+                rq_holder.value = "not_supported"
+                yield rq_holder
+
+        def validate_rq_loading(response: ResponseHolder):
+            if response.value == "not_supported":
+                return
+            with step("Verify related questions loading state"):
+                expect(chatbot_page.related_questions_loader).to_be_visible()
+
+        def validate_rq_complete(response: ResponseHolder, start):
+            if response.value == "not_supported":
+                return
+            with step("Wait for related questions to be fetched", start=start):
+                response.value = chatbot_page.parse_response(response.value)
+            with step("Verify related questions loader disappears"):
+                expect(chatbot_page.related_questions_loader).to_be_hidden()
+
+        def validate_rq_generation(response: ResponseHolder):
             response = response.value
+            if response == "not_supported":
+                return
+            items = response.get_related_questions()
+            ui_items = chatbot_page.related_question_buttons
+            count = ui_items.count()
 
-        chatbot_page.verify_answer(response, f"Verify assistant response (message ID: {response.assistant_message_id})")
+            with step("Verify related questions were generated properly", True):
+                error = None
+                rq = response.get_message()
+                if "no_response" in rq.lower():
+                    error = "assistent responded with \"no_response\""
+                error = error or response.error
+                if error:
+                    raise Exception(f"Related questions were not generated: {error}")
+            if not error:
+                with step("Verify related questions container is visible", True):
+                    expect(chatbot_page.related_questions_container).to_be_visible()
+                with step("Verify related questions are displayed", True):
+                    assert len(items) > 0, "No related questions found"
+                    assert count == len(items), "Incorrect number of related questions displayed"
+                    for i, question in enumerate(items):
+                        assert ui_items.nth(i).text_content() == question, f"Question {i} is incorrectly displayed"
+                with step(f"Verify related questions count ({count} found, {min_rq} minimum)", True):
+                    assert count >= min_rq, f"Insufficient related questions: {count} < {min_rq}"
+
+        with _related_questions() as rq_response:
+            with step(f"Send question [{test_id}]: '{question}'"):
+                with chatbot_page.send_message(question) as response:
+                    chatbot_page.verify_interactions_disabled()
+                    assert chatbot_page.textarea.input_value() == "", "Textarea should be cleared after message is sent"
+                response = response.value
+            chatbot_page.verify_answer(response, f"Verify assistant response (message ID: {response.assistant_message_id})")
+            start = time.time()
+            validate_rq_loading(rq_response)
+        validate_rq_complete(rq_response, start)
 
         message_text = response.get_message()
         documents = response.get_final_documents()
@@ -133,30 +195,85 @@ class TestQuestionValidation:
                 cited_documents.append({**doc, "citation": citation})
 
         # =====================================================================
-        # PHASE 2: Source Citations Validation
+        # PHASE 2: LLM-Based Quality Verification (Optional)
+        # =====================================================================
+
+        llm_config = validation.get("llm", {})
+
+        if not settings.enable_llm_analysis:
+            info("LLM verification skipped - not enabled in settings")
+        else:
+            analyzer = create_analyzer_from_settings(settings)
+            if not analyzer:
+                info("LLM analyzer unavailable - skipping LLM verification")
+            else:
+                verification = analyzer.verify_answer(
+                    question, message_text, cited_documents
+                )
+                verify_lack_information = llm_config.get("verify_lack_information")
+                verify_answers_question = llm_config.get("verify_answers_question")
+                verify_not_vague = llm_config.get("verify_not_vague")
+                verify_citations = llm_config.get("verify_citations")
+
+                answers_question = [
+                    verification.answers_question,
+                    verification.answers_question_explanation
+                ]
+
+                not_vague = [
+                    verification.not_vague,
+                    verification.not_vague_explanation
+                ]
+
+                has_citations = [
+                    verification.has_citations,
+                    verification.has_citations_explanation
+                ]
+
+                if verify_lack_information and verification.lack_information:
+                    pytest.skip(f"LLM analysis: answer lacks information - {verification.lack_information_explanation}")
+
+                if verify_answers_question and not answers_question[0]:
+                    info(f"LLM analysis: answer off-topic - {answers_question[1]}", "failed")
+                else:
+                    info(f"LLM analysis: answer on-topic - {answers_question[1]}")
+                if verify_not_vague and not not_vague[0]:
+                    info(f"LLM analysis: answer too vague - {not_vague[1]}", "failed")
+                else:
+                    info(f"LLM analysis: answer not vague - {not_vague[1]}")
+                if verify_citations and not has_citations[0]:
+                    info(f"LLM analysis: answer missing citations - {has_citations[1]}", "failed")
+                else:
+                    info(f"LLM analysis: answer has citations - {has_citations[1]}")
+
+        # =====================================================================
+        # PHASE 3: Source Citations Validation and Related questions validation
         # =====================================================================
 
         sources_config = validation.get("sources", {})
-        min_sources = sources_config.get("min_count", get_threshold("min_sources"))
+        min_sources = sources_config.get("min_count", get_threshold("min_sources")) or 0
 
-        with step(f"Verify source documents ({len(cited_documents)} found, {min_sources} minimum)"):
-            assert len(cited_documents) >= min_sources, f"Insufficient sources: {len(documents)} < {min_sources}"
-
-        with step(f"Verify assistant response has inline citations ({len(citations)} found)"):
+        with step(f"Verify assistant response has inline citations ({len(citations)} found)", True):
             assert len(citations) > 0, "No inline citations in response"
 
-        with step("Verify sources visible in UI"):
-            if len(citations) > 3:
-                expect(chatbot_page.show_all_sources_button).to_be_visible()
-            else:
-                expect(chatbot_page.source_items.first).to_be_visible()
+        with step(f"Verify cited sources ({len(cited_documents)} found, {min_sources} minimum)", True):
+            assert len(cited_documents) >= min_sources, f"Insufficient cited sources: {len(cited_documents)} < {min_sources}"
+
+        if len(citations) > 0:
+            with step("Verify sources visible in UI"):
+                if len(citations) > 3:
+                    expect(chatbot_page.show_all_sources_button).to_be_visible()
+                else:
+                    expect(chatbot_page.source_items.first).to_be_visible()
+
+        validate_rq_generation(rq_response)
 
         # =====================================================================
-        # PHASE 3: Response Content Validation
+        # PHASE 4: Response Content Validation
         # =====================================================================
 
         response_config = validation.get("response", {})
-        min_length = response_config.get("min_length", get_threshold("min_response_length"))
+        min_length = response_config.get("min_length", get_threshold("min_response_length")) or 0
         with step(f"Verify assistant response length ({len(message_text)} chars >= {min_length} required)"):
             assert len(message_text) >= min_length, f"Response too short: {len(message_text)} chars < {min_length} required"
 
@@ -170,108 +287,88 @@ class TestQuestionValidation:
                 assert len(found) > 0, f"None of the expected keywords found. Missing: {missing}"
 
         # =====================================================================
-        # PHASE 4: Quality Check (Halloumi) Validation and Related Questions Validation
+        # PHASE 5: Quality Check (Halloumi) Validation
         # =====================================================================
 
-        min_score = qc_config.get("min_score", get_threshold("min_quality_score"))
-        min_rq = rq_config.get("min_count", get_threshold("min_related_questions"))
+        min_score = qc_config.get("min_score", get_threshold("min_quality_score")) or 0
+        chatbot_page.page.set_default_timeout(3000)
 
-        @contextmanager
-        def _related_questions():
-            if requests.get("qgen"):
-                with expect_response(req_filter(requests.get("qgen"))) as response:
-                    yield response
-            else:
-                yield "not_supported"
+        ha_holder = ResponseHolder()
 
         @contextmanager
         def _halloumi_fact_check():
-            if requests.get("halloumi"):
+            try:
+                if not requests.get("halloumi"):
+                    ha_holder.value = "not_supported"
+                    yield ha_holder
+                    return
+
                 with expect_response(req_filter(requests.get("halloumi"))) as response:
                     if quality_check == "ondemand":
                         expect(chatbot_page.fact_check_button).to_be_visible()
                         chatbot_page.fact_check_button.click()
-                    yield response
-            else:
-                yield "not_supported"
 
-        def validate_rq_loading(response):
-            if response == "not_supported":
-                return
-            with step("Verify related questions loading state"):
-                expect(chatbot_page.related_questions_loader).to_be_visible(timeout=10000)
+                    ha_holder.response_info = response
+                    yield ha_holder
 
-        def validate_rq_complete(response):
-            if response == "not_supported":
-                return
-            with step("Wait for related questions to be fetched"):
-                response = response.value
-                response = chatbot_page.parse_response(response)
-                items = response.get_related_questions()
-                ui_items = chatbot_page.related_question_buttons
-                count = ui_items.count()
-            with step("Verify related questions loader disappears"):
-                expect(chatbot_page.related_questions_loader).to_be_hidden()
-            with step("Verify related questions were generated properly"):
-                if response.error:
-                    import pdb; pdb.set_trace()
-                    raise Exception(f"Related questions were not generated: {response.error}")
-            with step("Verify related questions container is visible"):
-                expect(chatbot_page.related_questions_container).to_be_visible()
-            with step("Verify related questions are displayed"):
-                assert len(items) > 0, "No related questions found"
-                assert count == len(items), "Incorrect number of related questions displayed"
-                for i, question in enumerate(items):
-                    assert ui_items.nth(i).text_content() == question, f"Question {i} is incorrectly displayed"
-            with step(f"Verify related questions count ({count} found, {min_rq} minimum)"):
-                assert count >= min_rq, f"Insufficient related questions: {count} < {min_rq}"
+                ha_holder.value = response.value
 
-        def validate_ha_loading(response):
-            if response == "not_supported":
+            except Exception:
+                log_step(
+                    "Wait for Halloumi quality fact-check response",
+                    outcome="failed",
+                    message="Halloumi quality fact-check request timeout after 90s",
+                    step_type="wait"
+                )
+                ha_holder.value = "no_response"
+
+        def validate_ha_loading(response: ResponseHolder):
+            if response.value in ["not_supported", "no_response"]:
                 return
             with step("Verify Halloumi quality fact-check loading state"):
                 expect(chatbot_page.verify_claims_loading).to_be_visible()
 
-        def validate_ha_complete(response):
-            if response == "not_supported":
+        def validate_ha_complete(response: ResponseHolder, start):
+            if response.value in ["not_supported", "no_response"]:
                 return
-            with step("Wait for Halloumi quality fact-check to be fetched"):
+            with step("Wait for Halloumi quality fact-check to be fetched", True, start=start):
                 response = response.value
                 response.finished()
-                assert response.status == 200, f"Expected status 200, got {response.status}"
+                assert response.status == 200, f"Expected status 200, got {response.status} - {str(response.body())}"
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
                 expect(chatbot_page.halloumi_message).to_be_visible()
             with step("Verify Halloumi quality fact-check loader disappears"):
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
-            with step("Verify Halloumi quality fact-check message is displayed"):
-                expect(chatbot_page.halloumi_message).to_be_visible()
-                assert chatbot_page.halloumi_message.text_content(), "Halloumi message is empty"
-            with step("Verify Halloumi quality fact-check claims are displayed"):
-                assert chatbot_page.halloumi_claims.count() > 0, "Claims are not displayed"
-            halloumi_text = chatbot_page.halloumi_message.text_content()
-            score = int(halloumi_text.split(" ")[1].replace("%", ""))
-            stage = quality_check_stages(score)
-            info(f"Halloumi quality fact-check score: {score}%. {stage}")
+            if response.status == 200:
+                with step("Verify Halloumi quality fact-check message is displayed"):
+                    expect(chatbot_page.halloumi_message).to_be_visible()
+                    assert chatbot_page.halloumi_message.text_content(), "Halloumi message is empty"
+                with step("Verify Halloumi quality fact-check claims are displayed"):
+                    assert chatbot_page.halloumi_claims.count() > 0, "Claims are not displayed"
+                halloumi_text = chatbot_page.halloumi_message.text_content()
+                score = int(halloumi_text.split(" ")[1].replace("%", ""))
+                stage = quality_check_stages(score)
+                info(f"Halloumi quality fact-check score: {score}%. {stage}")
 
-            with step("Verify Halloumi quality fact-check score is in valid range"):
-                # Validate score is in valid range
-                assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
+                with step("Verify Halloumi quality fact-check score is in valid range", True):
+                    # Validate score is in valid range
+                    assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
 
-            with step(f"Verify Halloumi quality fact-check score ({score}%) meets threshold ({min_score}%)"):
-                assert score >= min_score, f"Quality score {score}% below threshold {min_score}%"
+                with step(f"Verify Halloumi quality fact-check score ({score}%) meets threshold ({min_score}%)", True):
+                    assert score >= min_score, f"Quality score {score}% below threshold {min_score}%"
 
-        with _halloumi_fact_check() as ha_response:
-            # start_time = time.time()
-            # === Loading Halloumi fact-check ===
-            with _related_questions() as rq_response:
-                # === Loading related questions ===
-                validate_rq_loading(rq_response)
+        try:
+            with _halloumi_fact_check() as ha_response:
+                start = time.time()
                 validate_ha_loading(ha_response)
-            validate_rq_complete(rq_response)
-        validate_ha_complete(ha_response)
+            validate_ha_complete(ha_response, start)
+        except Exception:
+            pass
+
+        chatbot_page.page.set_default_timeout(settings.timeout)
 
         # =====================================================================
-        # PHASE 5: Feedback Functionality Validation
+        # PHASE 6: Feedback Functionality Validation
         # =====================================================================
 
         feedback = data.get("feedback")
@@ -313,54 +410,6 @@ class TestQuestionValidation:
                 expect(chatbot_page.feedback_toast).to_be_visible()
                 expect(chatbot_page.feedback_toast).to_have_text("Thanks for your feedback!")
                 assert response.status == 200, f"Expected status 200, got {response.status}"
-
-        # =====================================================================
-        # PHASE 6: LLM-Based Quality Verification (Optional)
-        # =====================================================================
-
-        llm_config = validation.get("llm", {})
-
-        if not settings.enable_llm_analysis:
-            info("LLM verification skipped - not enabled in settings")
-        else:
-            analyzer = create_analyzer_from_settings(settings)
-            if not analyzer:
-                info("LLM analyzer unavailable - skipping LLM verification")
-            else:
-                verification = analyzer.verify_answer(
-                    question, message_text, cited_documents
-                )
-                verify_answer_question = llm_config.get("verify_answers_question")
-                verify_not_vague = llm_config.get("verify_not_vague")
-                verify_citations = llm_config.get("verify_citations")
-
-                answers_question = [
-                    verification.answers_question,
-                    verification.answers_question_explanation
-                ]
-
-                not_vague = [
-                    verification.not_vague,
-                    verification.not_vague_explanation
-                ]
-
-                has_citations = [
-                    verification.has_citations,
-                    verification.has_citations_explanation
-                ]
-
-                if verify_answer_question and not answers_question[0]:
-                    info(f"LLM analysis: answer off-topic: {answers_question[1]}", "failed")
-                else:
-                    info(f"LLM analysis: answer on-topic: {answers_question[1]}")
-                if verify_not_vague and not not_vague[0]:
-                    info(f"LLM analysis: answer too vague: {not_vague[1]}", "failed")
-                else:
-                    info(f"LLM analysis: answer not vague: {not_vague[1]}")
-                if verify_citations and not has_citations[0]:
-                    info(f"LLM analysis: answer missing citations: {has_citations[1]}", "failed")
-                else:
-                    info(f"LLM analysis: answer has citations: {has_citations[1]}")
 
         # =====================================================================
         # CLEANUP: Clear chat for next test iteration

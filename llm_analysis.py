@@ -22,6 +22,13 @@ except ImportError:
 class ResponseVerification(BaseModel):
     """Combined verification results from a single LLM call."""
 
+    lack_information: bool = Field(
+        description="Whether the response lacks sufficient information to answer the question"
+    )
+    lack_information_explanation: str = Field(
+        description="Brief explanation for the lack_information verdict"
+    )
+
     answers_question: bool = Field(
         description="Whether the response directly answers the question asked"
     )
@@ -235,15 +242,19 @@ VERIFY_ANSWER_PROMPT = """You are a QA analyst verifying chatbot responses for t
 
 Evaluate the response against these three criteria:
 
-1. **Answers Question**: Does the response directly address the question asked?
+1. **Lack Information**: Does the response lack sufficient information to answer the question?
+   - true if it doesn't provide enough information to answer the question
+   - false if it provides sufficient information to answer the question
+
+2. **Answers Question**: Does the response directly address the question asked?
    - true if it provides relevant information that answers what was asked
    - false if it's off-topic, vague, or doesn't address the question
 
-2. **Not Vague**: Is the response specific and informative?
+3. **Not Vague**: Is the response specific and informative?
    - true if it contains concrete facts, data, or actionable details
    - false if it uses generic statements like "it depends" or lacks substance
 
-3. **Has Citations**: Does the response properly cite sources?
+4. **Has Citations**: Does the response properly cite sources?
    - true if claims are attributed to specific documents/sources
    - false if it makes claims without citing where the information comes from
 

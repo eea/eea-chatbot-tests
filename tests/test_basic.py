@@ -536,11 +536,12 @@ class TestChatbotUI:
 
         info(f"Send message with special characters and unicode: {special_message}")
         with chatbot_page.send_message() as response:
-            with step("Verify user message displays special characters correctly"):
+            with step("Verify user message displays special characters correctly", True):
                 expect(chatbot_page.user_messages.last).to_be_visible()
+                expect(chatbot_page.user_messages.last).not_to_have_text("")
                 user_msg_text = chatbot_page.user_messages.last.text_content()
                 # Check key special characters are preserved
-                assert "CO₂" in user_msg_text or "CO2" in user_msg_text, "Subscript or CO2 should be in message"
+                assert "CO₂" in user_msg_text or "CO2" in user_msg_text, f"Subscript or CO2 should be in message"
                 assert "émissions" in user_msg_text or "emissions" in user_msg_text.lower(), "Accented characters should be preserved"
 
         response = response.value
