@@ -1,112 +1,255 @@
-body {
-  font-size: 11pt;
-  line-height: 1.6;
-  color: #333;
-  max-width: 100%;
+/* =============================================================
+   EEA Chatbot Test Report — PDF Stylesheet
+   Rendered via md2pdf (WeasyPrint)
+   ============================================================= */
+
+/* --- Page setup --- */
+@page {
+  size: A4;
+  margin: 25mm 20mm 25mm 20mm;
+
+  @bottom-center {
+    content: counter(page);
+    font-size: 9pt;
+    color: #999;
+  }
 }
 
+@page :first {
+  @bottom-center {
+    content: none;
+  }
+}
+
+/* --- Page header: logo + metadata --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 0 0 24px 0;
+}
+
+.eea-logo {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.run-metadata {
+  text-align: left;
+  font-size: 9.5pt;
+  line-height: 1.7;
+  color: #2c2c2c;
+}
+
+/* --- Base typography --- */
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.65;
+  color: #2c2c2c;
+}
+
+p {
+  margin: 0 0 10px 0;
+  orphans: 3;
+  widows: 3;
+}
+
+/* --- Headings --- */
 h1 {
   font-size: 22pt;
-  font-weight: 600;
-  color: #1a1a2e;
-  border-bottom: 2px solid #4a90a4;
-  padding-bottom: 8px;
-  margin-top: 24px;
+  font-weight: 700;
+  color: #1a3c5e;
+  border-bottom: 3px solid #2a7f9e;
+  padding-bottom: 10px;
+  margin: 0 0 20px 0;
 }
 
 h2 {
-  font-size: 16pt;
+  font-size: 15pt;
   font-weight: 600;
-  color: #2d3436;
-  margin-top: 20px;
-  margin-bottom: 12px;
+  color: #1a3c5e;
+  border-bottom: 1px solid #d0d7de;
+  padding-bottom: 6px;
+  margin: 28px 0 14px 0;
 }
 
 h3 {
-  font-size: 13pt;
+  font-size: 12pt;
   font-weight: 600;
-  color: #2d3436;
-  margin-top: 16px;
-  margin-bottom: 8px;
+  color: #2d4a6f;
+  margin: 20px 0 8px 0;
 }
 
-/* Tables */
+h4 {
+  font-size: 10.5pt;
+  font-weight: 600;
+  color: #3d5a80;
+  margin: 14px 0 6px 0;
+}
+
+/* --- Horizontal rules — subtle section dividers --- */
+hr {
+  border: none;
+  border-top: 1px solid #e1e4e8;
+  margin: 20px 0;
+}
+
+/* --- Tables --- */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 16px 0;
-  font-size: 10pt;
+  margin: 14px 0 18px 0;
+  font-size: 9.5pt;
+  line-height: 1.5;
 }
 
-th {
+thead th {
   background-color: #4a90a4;
-  color: white;
+  color: #ffffff;
   font-weight: 600;
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   text-align: left;
-  padding: 10px 12px;
+  padding: 10px 14px;
 }
 
 td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #ddd;
+  padding: 9px 14px;
+  border-bottom: 1px solid #e1e4e8;
   vertical-align: top;
+  color: #2c2c2c;
+}
+
+/* First column — often labels — slightly emphasized */
+td:first-child {
+  font-weight: 500;
+  color: #1a3c5e;
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: #f6f8fa;
 }
 
-/* Inline code and bold */
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- Lists --- */
+ul,
+ol {
+  margin: 8px 0 14px 0;
+  padding-left: 22px;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
+li > ul,
+li > ol {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* --- Inline code --- */
 code {
-  font-family: 'Courier New', monospace;
+  font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
   font-size: 9pt;
-  background-color: #f4f4f4;
-  padding: 2px 5px;
+  background-color: #f0f3f6;
+  padding: 2px 6px;
   border-radius: 3px;
+  border: 1px solid #e1e4e8;
+  color: #1a3c5e;
+  word-break: break-all;
 }
 
+/* --- Bold text --- */
 strong {
   font-weight: 600;
   color: #1a1a2e;
 }
 
-/* Horizontal rule */
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 24px 0;
-}
-
-/* Lists */
-ul,
-ol {
-  margin: 12px 0;
-  padding-left: 24px;
-}
-
-li {
-  margin-bottom: 6px;
-}
-
-/* Blockquotes (for callouts) */
+/* --- Blockquotes — callout style --- */
 blockquote {
-  border-left: 4px solid #4a90a4;
-  margin: 16px 0;
-  padding: 12px 16px;
-  background-color: #f8f9fa;
-  font-style: italic;
+  border-left: 4px solid #2a7f9e;
+  margin: 14px 0;
+  padding: 10px 16px;
+  background-color: #f0f7fa;
+  font-style: normal;
+  color: #2c2c2c;
 }
 
-/* Page breaks before major sections (optional) */
-h2 {
-  page-break-before: auto;
+blockquote p {
+  margin: 0;
+}
+
+/* --- Links --- */
+a {
+  color: #2a7f9e;
+  text-decoration: none;
+}
+
+/* =============================================================
+   Page break rules
+   ============================================================= */
+
+/* Prevent orphaned headings */
+h2,
+h3,
+h4 {
+  break-after: avoid;
   page-break-after: avoid;
 }
 
-/* Keep tables together */
-table,
-tr,
-td,
-th {
+/* Keep heading with following content */
+h2 + *,
+h3 + *,
+h2 + hr + *,
+h3 + hr + * {
+  break-before: avoid;
+  page-break-before: avoid;
+}
+
+/* Keep individual rows together, allow tables to span pages */
+tr {
   page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Repeat table headers on every page */
+thead {
+  display: table-header-group;
+}
+
+/* Avoid orphans and widows in paragraphs and list items */
+p,
+li {
+  orphans: 2;
+  widows: 2;
+}
+
+span.health {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #ffffff;
+  text-transform: capitalize;
+}
+
+span.health.healthy {
+  background-color: #28a745;
+}
+
+span.health.degraded {
+  background-color: #ffc107;
+}
+
+span.health.unstable {
+  background-color: #fd7e14;
+}
+
+span.health.critical {
+  background-color: #dc3545;
 }

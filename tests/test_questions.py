@@ -229,23 +229,22 @@ class TestQuestionValidation:
                 ]
 
                 if verify_lack_information and verification.lack_information:
-                    lack_info = f"LLM analysis: answer lacks information - {verification.lack_information_explanation}"
-                    llm_verdict(lack_info)
-                    pytest.skip(lack_info)
+                    llm_verdict('LLM analysis: answer lacks information', verification.lack_information_explanation)
+                    pytest.skip(f"LLM analysis: answer lacks information - {verification.lack_information_explanation}")
                 else:
-                    llm_verdict("LLM analysis: answer has sufficient information")
+                    llm_verdict("LLM analysis: answer has sufficient information", verification.lack_information_explanation)
                 if verify_answers_question and not answers_question[0]:
-                    llm_verdict(f"LLM analysis: answer off-topic - {answers_question[1]}", "failed")
+                    llm_verdict("LLM analysis: answer off-topic", answers_question[1], "failed")
                 else:
-                    llm_verdict(f"LLM analysis: answer on-topic - {answers_question[1]}")
+                    llm_verdict("LLM analysis: answer on-topic", answers_question[1])
                 if verify_not_vague and not not_vague[0]:
-                    llm_verdict(f"LLM analysis: answer too vague - {not_vague[1]}", "failed")
+                    llm_verdict("LLM analysis: answer too vague", not_vague[1], "failed")
                 else:
-                    llm_verdict(f"LLM analysis: answer not vague - {not_vague[1]}")
+                    llm_verdict("LLM analysis: answer not vague", not_vague[1])
                 if verify_citations and not has_citations[0]:
-                    llm_verdict(f"LLM analysis: answer missing citations - {has_citations[1]}", "failed")
+                    llm_verdict("LLM analysis: answer missing citations", has_citations[1], "failed")
                 else:
-                    llm_verdict(f"LLM analysis: answer has citations - {has_citations[1]}")
+                    llm_verdict("LLM analysis: answer has citations", has_citations[1])
 
         # =====================================================================
         # PHASE 3: Source Citations Validation and Related questions validation

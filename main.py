@@ -1,6 +1,7 @@
 """Main entry point for chatbot tests - CLI."""
 
 import argparse
+import base64
 import json
 import re
 import sys
@@ -74,12 +75,14 @@ def write_json(data: dict, output_path: Path) -> bool:
     return True
 
 
-def write_pdf(text_content: str, output_path: Path) -> bool:
+def write_pdf(text_content: str, output_path: Path,
+              metadata_html: str = "") -> bool:
     """Convert text content to PDF and write to file.
 
     Args:
         text_content: Text to convert (ANSI codes will be stripped)
         output_path: Path to write PDF file
+        metadata_html: Optional HTML for the header metadata
 
     Returns:
         True if successful, False otherwise
@@ -89,6 +92,26 @@ def write_pdf(text_content: str, output_path: Path) -> bool:
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         clean_text = strip_ansi(text_content)
+
+        # Build page header: metadata left, logo right
+        logo_path = Path(__file__).parent / "eea-logo.svg"
+        logo_html = ""
+        if logo_path.exists():
+            svg_b64 = base64.b64encode(
+                logo_path.read_bytes()
+            ).decode()
+            logo_html = (
+                '<img class="eea-logo" '
+                f'src="data:image/svg+xml;base64,{svg_b64}" />'
+            )
+        if metadata_html or logo_html:
+            header = (
+                '<div class="page-header">'
+                f'<div class="run-metadata">{metadata_html}</div>'
+                f'{logo_html}'
+                '</div>\n\n'
+            )
+            clean_text = header + clean_text
 
         md2pdf(output_path, raw=clean_text, css="styles.css")
 
@@ -137,6 +160,7 @@ def save_outputs(
     prefix: str,
     timestamp: int,
     llm_result: Optional[str] = None,
+    metadata_html: str = "",
 ):
     """Save JSON and optionally PDF outputs.
 
@@ -146,6 +170,7 @@ def save_outputs(
         prefix: Filename prefix (e.g., 'analysis', 'comparison')
         timestamp: Unix timestamp for filename
         llm_result: Optional LLM result to save as PDF
+        metadata_html: Optional HTML for the PDF header
     """
     # Save JSON
     json_path = reports_path / f"{prefix}_{timestamp}.json"
@@ -155,7 +180,7 @@ def save_outputs(
     # Save PDF if LLM result provided
     if llm_result:
         pdf_path = reports_path / f"{prefix}_{timestamp}.pdf"
-        if write_pdf(llm_result, pdf_path):
+        if write_pdf(llm_result, pdf_path, metadata_html):
             console.log(f"LLM {prefix} PDF written to: {pdf_path}")
 
 
@@ -250,7 +275,8 @@ def cli_analyze(args):
     """Analyze test results from JSONL file."""
     from chatbot_tests.analyze import (
         analyze_jsonl, print_summary, print_failures, print_steps,
-        print_by_marker, print_performance, print_insights, print_llm_verdicts
+        print_by_marker, print_performance, print_insights, print_llm_verdicts,
+        format_run_metadata_html, format_summary_md, format_performance_md, format_failures_md
     )
 
     if not load_config(args):
@@ -296,7 +322,20 @@ def cli_analyze(args):
             output_data["llm_analysis"] = llm_result
 
     # Save outputs
-    save_outputs(output_data, settings.reports_path, "analysis", timestamp, llm_result)
+    metadata_html = format_run_metadata_html(analysis)
+    pdf_content = llm_result
+    if pdf_content:
+        # Append data appendix sections to the PDF
+        appendix_sections = [
+            format_summary_md(analysis),
+            format_performance_md(analysis),
+            format_failures_md(analysis),
+        ]
+        appendix = "\n\n---\n\n".join(s for s in appendix_sections if s)
+        if appendix:
+            pdf_content += "\n\n---\n\n# Appendix\n\n" + appendix
+
+    save_outputs(output_data, settings.reports_path, "analysis", timestamp, pdf_content, metadata_html)
 
     return 0
 

@@ -225,6 +225,9 @@ class ComparisonResult:
     # LLM verdict trends
     llm_verdict_trends: Dict[str, List[Dict[str, int]]] = field(default_factory=dict)
 
+    # Cross-run test outcome matrix
+    test_outcomes: Dict[str, List[str]] = field(default_factory=dict)
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = {
@@ -253,13 +256,109 @@ class ComparisonResult:
                     "health_status": r.health_status,
                     "total_duration_seconds": round(r.total_duration_seconds, 3),
                     "avg_test_duration": round(r.avg_test_duration, 3),
+                    "tests": [
+                        self._build_test_summary(t, r)
+                        for t in r.tests
+                    ],
                 }
                 for r in self.runs
             ],
         }
         if self.llm_verdict_trends:
             result["llm_verdict_trends"] = self.llm_verdict_trends
+
+        if self.test_outcomes:
+            result["test_outcomes"] = self.test_outcomes
+
+        # Add failure context for regressions, fixes, and flaky tests
+        context = self._build_test_context()
+        if context:
+            result["test_context"] = context
+
         return result
+
+    def _build_test_summary(self, test: 'TestResult', run: 'AnalysisResult') -> Dict[str, Any]:
+        """Build a lightweight per-test summary for JSON output."""
+        summary: Dict[str, Any] = {
+            "name": test.name,
+            "outcome": test.outcome,
+        }
+        if test.warn:
+            summary["warn"] = True
+        if test.duration_seconds is not None:
+            summary["duration_seconds"] = round(test.duration_seconds, 2)
+        if test.markers:
+            summary["markers"] = test.markers
+
+        failed_steps = [
+            s.step_name for s in test.steps if s.outcome == "failed"
+        ]
+        if failed_steps:
+            summary["failed_steps"] = failed_steps
+
+        verdicts = run.llm_verdict_tests.get(test.name)
+        if verdicts:
+            summary["llm_verdicts"] = verdicts
+
+        return summary
+
+    def _build_test_context(self) -> Dict[str, Dict]:
+        """Build context details for regressions, fixes, and flaky tests.
+
+        Extracts markers, error messages, and failed step names
+        from the relevant runs so the LLM can analyze root causes.
+        """
+        names_of_interest = set(
+            self.regressions + self.fixes + self.flaky
+        )
+        if not names_of_interest:
+            return {}
+
+        context = {}
+        # Build a lookup of test details from the last run
+        last_run = self.runs[-1] if self.runs else None
+        first_run = self.runs[0] if self.runs else None
+
+        # Index tests by name for quick lookup
+        last_tests = {}
+        first_tests = {}
+        if last_run:
+            last_tests = {t.name: t for t in last_run.tests}
+        if first_run and first_run != last_run:
+            first_tests = {t.name: t for t in first_run.tests}
+
+        for name in names_of_interest:
+            info = {}
+
+            # Get details from last run (current state)
+            test = last_tests.get(name)
+            if test:
+                info["outcome"] = test.outcome
+                if test.markers:
+                    info["markers"] = test.markers
+                if test.message:
+                    info["error"] = test.message
+                failed_steps = [
+                    {
+                        "step": s.step_name,
+                        "error": s.message or "",
+                    }
+                    for s in test.steps
+                    if s.outcome == "failed"
+                ]
+                if failed_steps:
+                    info["failed_steps"] = failed_steps
+
+            # For fixes, also show what the previous error was
+            if name in self.fixes and first_tests.get(name):
+                prev = first_tests[name]
+                if prev.message:
+                    info["previous_error"] = prev.message
+
+            if info:
+                context[name] = info
+
+        return context
 
     def _build_executive_summary(self) -> Dict[str, Any]:
         """Build executive summary metrics for JSON output."""
@@ -595,6 +694,9 @@ def compare_runs(file_paths: List[Path]) -> ComparisonResult:
             comparison.flaky.append(test_name)
             flaky_count += 1
 
+    # Store test outcomes matrix
+    comparison.test_outcomes = dict(test_outcomes)
+
     # Calculate stability score (1-10)
     flaky_ratio = flaky_count / len(test_outcomes) if test_outcomes else 0
     stability_base = 10 - int(flaky_ratio * 10)
@@ -670,6 +772,18 @@ def _format_duration(seconds: float) -> str:
         mins = int(seconds // 60)
         secs = seconds % 60
         return f"{mins}m {secs:.0f}s"
+
+
+def _format_timestamp(iso_str: Optional[str]) -> str:
+    """Format ISO timestamp as human-readable string."""
+    if not iso_str:
+        return "N/A"
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(iso_str)
+        return dt.strftime("%B %d, %Y at %H:%M")
+    except (ValueError, TypeError):
+        return iso_str
 
 
 # =============================================================================
@@ -962,6 +1076,172 @@ def print_llm_verdicts(analysis: AnalysisResult) -> None:
             dims_str = ", ".join(failed_dims)
             print(f"  {console.error('-')} {test_name}: {console.dim(dimension_labels[dims_str])}")
 
+
+# =============================================================================
+# Markdown formatters (for PDF output)
+# =============================================================================
+
+def format_run_metadata_html(analysis: AnalysisResult) -> str:
+    """Return run metadata as HTML for the PDF header."""
+    lines = []
+    if analysis.source_file:
+        lines.append(
+            f"<strong>Source:</strong> <code>{analysis.source_file}</code>"
+        )
+    lines.append(
+        "<strong>Session:</strong> "
+        f"{_format_timestamp(analysis.session_start)}"
+    )
+    lines.append(
+        "<strong>Duration:</strong> "
+        f"{_format_duration(analysis.total_duration_seconds)}"
+    )
+    lines.append(
+        f"<strong>Health:</strong> <span class=\"health {analysis.health_status.lower()}\">{analysis.health_status}</span>"
+    )
+    return "<br>".join(lines)
+
+
+def format_summary_md(analysis: AnalysisResult) -> str:
+    """Return test run summary as markdown."""
+    total = analysis.total_tests
+    passed = analysis.passed_tests
+    failed = analysis.failed_tests
+    skipped = analysis.skipped_tests
+    evaluated = total - skipped
+
+    lines = ["## Test Run Summary", ""]
+
+    if analysis.source_file:
+        lines.append(f"**Source:** {analysis.source_file}  ")
+    lines.append(f"**Session:** {_format_timestamp(analysis.session_start)}  ")
+    lines.append(f"**Duration:** {_format_duration(analysis.total_duration_seconds)}  ")
+    lines.append(f"**Health:** {analysis.health_status.upper()}")
+    lines.append("")
+
+    lines.append("### Tests")
+    lines.append("")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| Total | {total} |")
+    lines.append(f"| Passed | {passed} |")
+    lines.append(f"| Failed | {failed} |")
+    lines.append(f"| Skipped | {skipped} |")
+    lines.append(f"| Evaluated (non-skipped) | {evaluated} |")
+    lines.append(f"| Pass rate | {analysis.pass_rate:.1f}% ({passed} passed / {evaluated} evaluated) |")
+    if analysis.passed_with_warnings:
+        lines.append(f"| Passed with warnings | {analysis.passed_with_warnings} |")
+
+    if analysis.total_steps > 0:
+        lines.append("")
+        lines.append("### Steps")
+        lines.append("")
+        lines.append("| Metric | Value |")
+        lines.append("|--------|-------|")
+        lines.append(f"| Total | {analysis.total_steps} |")
+        lines.append(f"| Passed | {analysis.passed_steps} |")
+        lines.append(f"| Failed | {analysis.failed_steps} |")
+        lines.append(f"| Pass rate | {analysis.step_pass_rate:.1f}% |")
+
+    return "\n".join(lines)
+
+
+def format_performance_md(analysis: AnalysisResult) -> str:
+    """Return performance analysis as markdown."""
+    lines = ["## Performance Analysis", ""]
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| Avg test duration | {_format_duration(analysis.avg_test_duration)} |")
+    lines.append(f"| Avg step duration | {_format_duration(analysis.avg_step_duration_ms / 1000)} |")
+    lines.append(f"| Avg steps per test | {analysis.avg_steps_per_test:.1f} steps |")
+
+    if analysis.slowest_tests:
+        lines.append("")
+        lines.append("### Slowest Tests")
+        lines.append("")
+        lines.append("| Test | Duration |")
+        lines.append("|------|----------|")
+        for name, duration in analysis.slowest_tests[:5]:
+            lines.append(f"| {name} | {_format_duration(duration)} |")
+
+    if analysis.fastest_tests:
+        lines.append("")
+        lines.append("### Fastest Tests")
+        lines.append("")
+        lines.append("| Test | Duration |")
+        lines.append("|------|----------|")
+        for name, duration in analysis.fastest_tests[:3]:
+            lines.append(f"| {name} | {_format_duration(duration)} |")
+
+    return "\n".join(lines)
+
+
+def format_failures_md(analysis: AnalysisResult) -> str:
+    """Return failure analysis as markdown."""
+    failed_tests = [t for t in analysis.tests if t.outcome == "failed"]
+    warning_tests = [t for t in analysis.tests if t.warn]
+
+    if not failed_tests:
+        return ""
+
+    lines = ["## Failure Details", ""]
+    lines.append(f"**Total failures:** {len(failed_tests)}  ")
+    lines.append(f"**Total warnings:** {len(warning_tests)}")
+
+    if analysis.failure_categories:
+        lines.append("")
+        lines.append("### By Category")
+        lines.append("")
+        lines.append("| Category | Count |")
+        lines.append("|----------|-------|")
+        for category, tests in sorted(
+            analysis.failure_categories.items(), key=lambda x: -len(x[1])
+        ):
+            lines.append(f"| {category} | {len(tests)} |")
+
+    if analysis.failing_steps:
+        lines.append("")
+        lines.append("### Most Failing Steps")
+        lines.append("")
+        lines.append("| Step | Failures |")
+        lines.append("|------|----------|")
+        for step_name, count in analysis.failing_steps[:5]:
+            lines.append(f"| {step_name} | {count} |")
+
+    lines.append("")
+    lines.append("### Failed Tests")
+    for test in failed_tests:
+        lines.append("")
+        lines.append(f"**{test.name}**")
+        lines.append("")
+        if test.message:
+            msg = test.message
+            lines.append(f"Error — `{msg}`")
+            lines.append("")
+        failed_steps = [s for s in test.steps if s.outcome == "failed"]
+        if failed_steps:
+            for step in failed_steps:
+                step_line = f"- Step — {step.step_name}"
+                if step.message:
+                    step_line += f" — `{step.message}`"
+                lines.append(step_line)
+
+    if warning_tests:
+        lines.append("")
+        lines.append("### Warning Tests")
+        for test in warning_tests:
+            lines.append("")
+            lines.append(f"**{test.name}**")
+            lines.append("")
+            failed_steps = [s for s in test.steps if s.outcome == "failed"]
+            if failed_steps:
+                for step in failed_steps:
+                    step_line = f"- Step — {step.step_name}"
+                    if step.message:
+                        step_line += f" — `{step.message}`"
+                    lines.append(step_line)
+
+    return "\n".join(lines)
 
 def _format_delta(value: float, is_inverse: bool = False, is_pp: bool = False) -> str:
     """Format a numeric delta with color and sign.

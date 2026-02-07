@@ -97,218 +97,220 @@ LLMException errors:
 
 REPORT_ANALYSIS_PROMPT = f"""{CHATBOT_CONTEXT}
 
-You are a senior QA automation engineer analyzing test results. Provide a thorough analysis.
+You are a senior QA analyst writing a test report analysis for a PDF document. Your analysis
+will be read by stakeholders, product owners, and developers. Provide professional, insightful
+analysis that adds real value beyond what the raw numbers show.
 
-## Step Types
+## What Makes Good Analysis
 
-Steps have a `step_type` field indicating their timing expectations:
+Good analysis identifies PATTERNS and MEANING — not just what happened, but WHY it matters.
 
-- **"action"**: Browser/API actions that SHOULD have timing measured (click, wait, send, etc.)
-- **"info"**: Informational logging that does NOT have timing - null/0 duration is EXPECTED and correct
-- **"wait"**: Async waits that SHOULD have timing measured
+- Instead of "12 Halloumi timeouts occurred" (the reader can count), explain what this pattern
+  reveals about the Halloumi service reliability and its impact on the user experience.
+- Instead of listing every passing test, highlight what the passing tests collectively demonstrate
+  about the chatbot's strengths.
+- Instead of "add retry logic", recommend specific thresholds, architectural changes, or
+  investigation steps tied to the evidence.
 
-**IMPORTANT**: Do NOT flag missing or zero timing on "info" type steps as a bug. These are
-intentionally untimed informational messages (e.g., "LLM analysis: answer on-topic").
+## Important Context
 
-## Step Timing Analysis Guidelines
+- Skipped tests are EXCLUDED from the pass rate denominator.
+  Pass rate = passed / (total - skipped). Always mention skips separately.
+- Steps with `step_type` "info" or "llm_verdict" intentionally have no timing — do not flag this.
+- Test durations of 20-60s are normal (real LLM calls with streaming). Only flag timing if
+  actual failures occurred due to timeouts.
 
-When analyzing step durations, understand the expected timing patterns:
+## Report Structure
 
-**Expected to be slow (5-30+ seconds):**
-- "Wait for assistant response" - LLM generates and streams response
-- "Send message" / "Send predefined message" - Includes full LLM round-trip
-- "Wait for response" - Streaming completion
-- "Verify Halloumi quality fact-check" - External API call
-- "Wait for related questions" - Additional LLM call
+### Executive Summary
 
-**Should be fast (<500ms):**
-- "Verify X is visible/hidden" - Simple DOM check
-- "Click X button" - User interaction
-- "Type message" / "Fill textarea" - Input simulation
-- "Verify textarea contains" - Value assertion
+A concise overview (3-4 sentences) suitable for a report introduction. State the overall
+health status with pass rate and skip count. Identify the most significant finding and its
+business impact.
 
-**No timing expected (info steps):**
-- "INFO: ..." messages
-- Status/result logging
+### Chatbot Strengths
 
-**No timing expected (llm_verdict steps):**
-- "LLM analysis: ..." results (external LLM quality assessments)
-- These have `step_type="llm_verdict"` and null duration - this is CORRECT
+What does this test run demonstrate is working well? Focus on capabilities, not individual
+test names. Examples of good insights:
+- "The chatbot consistently provides well-cited, on-topic responses across all tested domains"
+- "Error recovery works reliably — the UI handles network failures and API errors gracefully"
 
-**Analyze step timing to identify:**
-1. UI steps taking >1s may indicate rendering issues or flaky selectors
-2. Multiple slow "verify visible" steps in sequence may indicate poor page load
-3. If "Wait for response" steps are consistently >30s, backend may need optimization
-4. If fast steps (clicks, verifications) are slow, suspect frontend performance issues
-5. Info steps with null/0 timing are CORRECT - do not flag these
+Keep this to 3-5 bullet points of meaningful observations.
 
-## Skipped Tests and Pass Rate
+### Issues and Root Causes
 
-**IMPORTANT**: Skipped tests are EXCLUDED from the pass rate denominator.
-- Pass rate = passed / (total - skipped), NOT passed / total
-- When reporting counts, always mention skipped tests separately
-- Example: "58 of 59 evaluated tests passed (98.3%); 7 tests were skipped"
-- Do NOT say "58 of 66 tests passed" - this misrepresents the denominator
-- Skipped tests often indicate the LLM evaluator determined the chatbot response
-  lacked sufficient information ("LLM analysis: answer lacks information")
-- Skipped tests are NOT failures but they signal potential content gaps
+This is the most important section. Group related failures by their underlying cause,
+not by individual test. For each issue group:
 
-## Instructions
+1. Describe the issue pattern and scope (how many tests affected, which ones)
+2. Analyze the root cause based on the error messages and step details
+3. Assess the user impact — does this affect the core Q&A experience or auxiliary features?
+4. Note any correlations (e.g., failures clustered by topic, question length, or marker)
 
-Analyze the test report and provide:
+Do NOT list the same root cause multiple times for different test IDs.
 
-### Summary
-Brief overview (2-3 sentences) of what was tested and overall health status.
-Always state: X of Y evaluated tests passed (Z%); N tests were skipped.
+### Response Quality Assessment
 
-### Key Findings
+Analyze the LLM quality verdicts and Halloumi fact-check scores to assess the chatbot's
+response quality as a whole:
 
-#### Working Well
-- List specific features/tests that passed consistently
-- Note any performance improvements if comparing runs
+- What do the verdict pass rates reveal about the chatbot's knowledge coverage?
+- Are there topic areas where the chatbot struggles (look at markers, question content)?
+- What do skipped tests (insufficient information) tell us about knowledge base gaps?
+- How do Halloumi fact-check scores distribute? Are low scores concentrated in specific areas?
 
-#### Issues Detected
-- List specific failures with test names
-- Identify patterns in failures (e.g., all timeout issues, all UI failures)
-
-### Step Timing Analysis
-Analyze the step-level timing data:
-- Identify steps that are slower than expected for their type
-- Flag UI verification steps taking >1 second
-- Note if LLM response steps are within acceptable range (10-30s)
-- Highlight any patterns (e.g., all "verify visible" steps slow = page load issue)
+This section should read as a quality report on the chatbot's responses, not on the test framework.
 
 ### Risk Assessment
 
-Rate one of: Critical, High, Medium, or Low
+Rate: Critical, High, Medium, or Low
 
-Explain why based on:
-- Impact on core functionality (sending messages, receiving responses, citations)
-- Number and severity of failures
-- Whether failures affect user-facing features
-- Step timing anomalies that could affect user experience
-
-### LLM Quality Verdict Analysis
-If LLM verdict data is present in the report:
-- Analyze which dimensions have low pass rates (relevance, specificity, citations)
-- Identify if certain question domains/topics correlate with verdict failures
-- Note any "information" verdict failures (tests skipped due to insufficient information)
-- Correlate verdict failures with test outcomes - do verdict failures predict test failures?
-
-### Root Cause Analysis
-For each issue category, suggest probable causes:
-- Timeout failures → Check which step timed out (LLM response vs UI element)
-- Slow UI steps → Frontend rendering, heavy components, network latency for assets
-- Slow LLM steps → Expected if 10-30s, investigate if consistently >45s
-- Assertion failures → Backend changes, data format changes, race conditions
-- LLM Error failures → The chatbot's backend LLM failed to generate a response (LLMException).
-  This is a backend/infrastructure issue, not a test issue. Check if specific questions
-  consistently trigger this (may indicate prompt/context problems for those topics).
+Provide a clear rationale in 2-3 sentences. Focus on:
+- Whether core functionality (asking questions and getting useful answers) is at risk
+- Whether the issues found would be visible to end users
+- Whether the issues are intermittent or systematic
 
 ### Recommended Actions
 
-Prioritized list (most important first). For each action, state the priority level (Critical, High, Medium, Low) followed by the action and reference specific steps/tests.
+A numbered list of 3-5 concrete actions, ordered by priority. Each action must:
+- Start with a priority tag: [Critical], [High], [Medium], or [Low]
+- Be specific enough that someone can start working on it
+- Reference the evidence from this report (test IDs, error patterns)
+- Explain what success looks like
 
-### Quality Assessment
-What this report indicates about the chatbot's production readiness.
-Consider both functional correctness AND performance characteristics.
+Bad: "Improve Halloumi reliability"
+Good: "Increase the Halloumi fact-check timeout from 90s to 150s for tests with long responses
+(Q-007, Q-009, Q-018 all had response lengths >6000 chars), or implement async polling
+instead of synchronous waiting"
 
----
+### Production Readiness
 
-## Formatting Guidelines
+A brief assessment (1 paragraph) of the chatbot's readiness for production use based on
+this test run. Address:
+- Is the core Q&A experience reliable enough for users?
+- What is the biggest risk to user satisfaction?
+- What should be resolved before a wider rollout?
 
-- Use proper heading hierarchy (h2, h3, h4) - avoid bold text as pseudo-headings
-- Keep bullet points concise (under 100 characters per line when possible)
-- Use numbered lists for sequential steps or ranked items
-- Avoid inline formatting like `**Bold:** text` - use subheadings instead
-- Add blank lines between sections for readability
-- Keep paragraphs short (2-3 sentences max)
+## Formatting
 
-Be specific. Reference test names AND step names with their durations. Avoid generic advice."""
+- Use markdown headings (##, ###) — the output will be rendered in a PDF
+- Keep paragraphs short (2-3 sentences)
+- Use bullet points for lists, numbered lists for ordered/prioritized items
+- Reference test IDs (e.g., Q-029) and step names when citing evidence
+- Write in a professional, analytical tone suitable for a formal report"""
 
 
 COMPARISON_ANALYSIS_PROMPT = f"""{CHATBOT_CONTEXT}
 
-You are analyzing multiple test runs to identify trends and changes.
+You are a senior QA analyst writing a multi-run comparison analysis for a PDF report.
+The reader already has the raw comparison data (pass rates, regressions, fixes, flaky tests).
+Your job is to interpret the data and explain what the trends MEAN for the chatbot's health.
 
-## Instructions
+## Important Context
 
-Analyze the comparison data and provide:
+- Skipped tests are EXCLUDED from the pass rate denominator.
+  Pass rate = passed / (total - skipped). Always mention skips separately.
+- Test durations of 20-60s are normal (real LLM calls with streaming). Only flag duration
+  changes if they correlate with new failures.
+
+## Report Structure
 
 ### Executive Summary
 
-Start with a concise executive summary comparing the first and last runs. Present this as a
-markdown table with columns: Metric, First Run, Last Run, Delta. Include these metrics:
-- Total tests
-- Passed
-- Passed with warnings
-- Failed
-- Skipped
-- Pass rate (as percentage, delta in percentage points with "pp" suffix)
-- Total duration (in human-readable format like "1m 30s" or "45.2s")
-- Avg test duration (in seconds)
+Present a markdown table comparing the first and last runs:
 
-For the Delta column, use a "+" prefix for increases and "-" for decreases.
-After the table, add 2-3 sentences summarizing the overall direction and key takeaways.
+| Metric | First Run | Last Run | Delta |
+|--------|-----------|----------|-------|
 
-### Trend Summary
+Include: Total tests, Passed, Failed, Skipped, Pass rate (delta in "pp"), Total duration,
+Avg test duration. Use "+" prefix for increases, "-" for decreases.
 
-State the direction: Improving, Declining, or Stable.
+After the table, write 2-3 sentences interpreting the direction. Focus on what changed
+and whether it matters — not just restating the deltas.
 
-Explain based on pass rate changes between runs.
+### Trend Interpretation
 
-### Regression Analysis
+Go beyond "Improving/Declining/Stable". Analyze:
+- Is the trend consistent across runs or volatile?
+- Are pass rate changes driven by real fixes/regressions or by flaky tests oscillating?
+- Is the chatbot getting better, or are the same problems persisting?
 
-For each regression (tests that started failing), provide:
+### Regressions and Fixes
 
-1. Test name - What broke
-2. Probable cause - Based on test name and context
-3. Severity - Critical, High, Medium, or Low
-4. Suggested action - Specific fix to investigate
+For regressions (tests that started failing):
+- Group by likely root cause if multiple regressions share one
+- Assess severity: does this affect the core Q&A experience or auxiliary features?
+- Suggest specific investigation steps
 
-### Improvements
-Tests that started passing - what likely got fixed and why it matters.
+For fixes (tests that started passing):
+- What capability was restored?
+- Is the fix stable (consistent across recent runs) or potentially fragile?
 
-### Stability Assessment
+Skip this section if there are no regressions or fixes.
 
-#### Flaky Tests
-Tests with inconsistent results across runs:
-- For each flaky test, explain possible causes (timing issues, external dependencies, race conditions)
-- Recommend whether to fix, quarantine, or investigate further
+### Stability Analysis
 
-#### Stability Score Interpretation
-- 8-10: Reliable test suite
-- 5-7: Some instability, address flaky tests
-- 1-4: Significant reliability issues
+Analyze flaky tests (inconsistent results across runs):
+- Are flaky tests caused by external dependencies (Halloumi, LLM backend) or test issues?
+- Which flaky tests pose the highest risk to production confidence?
+- Are there patterns (e.g., all flaky tests involve the same step or service)?
 
-### LLM Quality Verdict Trends
+Interpret the stability score in context — what does it mean for this specific chatbot,
+not as a generic scale explanation.
+
+### Warning Trends
+
+If per-run test details are available, analyze tests that gained or lost warnings between runs:
+- Which tests went from clean pass to passed-with-warnings (or vice versa)?
+- Are new warnings concentrated in specific markers or question types?
+- Do warnings correlate with specific failed steps (e.g., Halloumi timeouts, citation checks)?
+
+Skip this section if there are no warning changes between runs.
+
+### Per-Test Outcome Analysis
+
+The cross-run test outcome matrix shows the outcome progression for every test that changed.
+Use it together with the Regressions, Fixes, and Flaky sections to identify:
+- Outcome trajectories (e.g., passed -> skipped vs failed -> passed)
+- Tests that were added or removed between runs (appearing as "missing")
+- Clusters of tests that changed outcome together (may share a root cause)
+
+Do NOT duplicate the flaky tests list — instead, add interpretation of the patterns.
+Skip this section if the outcome matrix is absent.
+
+### Response Quality Trends
+
 If LLM verdict trend data is available:
-- Analyze how each quality dimension (relevance, specificity, citations) changed across runs
-- Correlate verdict trends with pass rate trends - are improvements/regressions in pass rate
-  explained by changes in response quality?
-- Identify dimensions that are consistently low - these may need chatbot prompt tuning
-- Flag any dimensions where quality dropped between runs
+- How is the chatbot's response quality evolving across runs?
+- Are quality improvements/declines correlated with pass rate changes?
+- Which quality dimensions are consistently strong or weak?
+- Do knowledge base gaps (information sufficiency failures) persist across runs?
+- Use per-run LLM verdict details to identify specific tests that consistently fail
+  particular quality dimensions across runs
 
-### Recommendations
+This section should assess the chatbot's answer quality trajectory, not the test framework.
+Skip this section if no verdict trend data is available.
 
-Prioritized actions based on the comparison. Group by priority:
+### Recommended Actions
 
-1. Urgent - Critical regressions to fix
-2. Important - Flaky tests to stabilize
-3. Consider - Improvements to maintain
+A numbered list of 3-5 concrete actions, ordered by priority. Each action must:
+- Start with a priority tag: [Critical], [High], [Medium], or [Low]
+- Be tied to specific evidence from the comparison data
+- Be actionable — someone can start working on it immediately
 
----
+### Overall Assessment
 
-## Formatting Guidelines
+One paragraph: Based on the trend across runs, is the chatbot's reliability improving,
+stable, or degrading? What is the single most important thing to address before the
+next test run?
 
-- Use proper heading hierarchy (h2, h3, h4) - avoid bold text as pseudo-headings
-- Keep bullet points concise (under 100 characters per line when possible)
-- Use numbered lists for sequential steps or ranked items
-- Avoid inline formatting like `**Bold:** text` - use subheadings instead
-- Add blank lines between sections for readability
-- Keep paragraphs short (2-3 sentences max)
+## Formatting
 
-Be specific about test names and changes between runs."""
+- Use markdown headings (##, ###) — the output will be rendered in a PDF
+- Keep paragraphs short (2-3 sentences)
+- Use bullet points for lists, numbered lists for ordered/prioritized items
+- Reference specific test IDs when citing evidence
+- Write in a professional, analytical tone suitable for a formal report"""
 
 
 VERIFY_ANSWER_PROMPT = """You are a QA analyst verifying chatbot responses for the European Environment Agency.
@@ -483,7 +485,7 @@ class LLMAnalyzer:
         else:
             report_text = report_data
 
-        print(report_text)
+        # print(report_text)
 
         return self._analyze(
             REPORT_ANALYSIS_PROMPT,
@@ -503,6 +505,8 @@ class LLMAnalyzer:
             comparison_text = self._format_comparison_for_llm(comparison_data)
         else:
             comparison_text = comparison_data
+
+        print(comparison_text)
 
         return self._analyze(
             COMPARISON_ANALYSIS_PROMPT,
@@ -758,7 +762,7 @@ class LLMAnalyzer:
                 lines.append("Tests with failed verdicts:")
                 for test_name, verdicts in sorted(failed_tests.items()):
                     failed_dims = [dim for dim, passed in verdicts.items() if not passed]
-                    lines.append(f"- {test_name}: failed on {', '.join(failed_dims)}")
+                    lines.append(f"- {_clean_test_name(test_name)}: failed on {', '.join(failed_dims)}")
 
             lines.append("")
 
@@ -784,7 +788,7 @@ class LLMAnalyzer:
                     lines.append(f"Markers: {', '.join(test['markers'])}")
 
                 if test.get("message"):
-                    msg = test["message"][:300]
+                    msg = test["message"]
                     if icon == "FAIL":
                         lines.append(f"Error: {msg}")
                     elif icon == "SKIP":
@@ -807,12 +811,44 @@ class LLMAnalyzer:
                             dur = ""
                         lines.append(f"  [{s_icon}] {step['step_name']}{dur}")
                         if step.get("message") and step["outcome"] == "failed":
-                            msg = step["message"][:150]
+                            msg = step["message"]
                             lines.append(f"    Error: {msg}")
 
                 lines.append("")
 
         return "\n".join(lines)
+
+    def _format_test_change(
+        self,
+        name: str,
+        test_context: dict,
+        lines: list,
+        test_outcomes: Optional[dict] = None,
+    ) -> None:
+        """Format a regression/fix/flaky test with context details."""
+        ctx = test_context.get(name)
+        if not ctx:
+            lines.append(f"- {name}")
+            return
+
+        markers = ctx.get("markers", [])
+        marker_str = f" [{', '.join(markers)}]" if markers else ""
+        outcome = ctx.get("outcome", "")
+        progression = test_outcomes.get(name) if test_outcomes else None
+        prog_str = f" ({' -> '.join(progression)})" if progression else f" (last: {outcome})"
+        lines.append(f"- {name}{marker_str}{prog_str}")
+
+        if ctx.get("error"):
+            lines.append(f"  Error: {ctx['error']}")
+        if ctx.get("previous_error"):
+            lines.append(
+                f"  Previous error: {ctx['previous_error']}"
+            )
+        for fs in ctx.get("failed_steps", []):
+            step_line = f"  Failed step: {fs['step']}"
+            if fs.get("error"):
+                step_line += f" — {fs['error']}"
+            lines.append(step_line)
 
     def _format_comparison_for_llm(self, comparison_data: dict) -> str:
         """Format comparison data as structured text for LLM analysis.
@@ -865,36 +901,145 @@ class LLMAnalyzer:
             lines.append("## Individual Runs")
             for i, run in enumerate(runs, 1):
                 source = run.get("source_file", "Unknown")
+                total = run.get('total_tests', 0)
+                passed = run.get('passed_tests', 0)
+                passed_with_warnings = run.get('passed_with_warnings', 0)
+                failed = run.get('failed_tests', 0)
+                skipped = run.get('skipped_tests', 0)
+                evaluated = total - skipped
                 lines.append(f"### Run {i}: {source}")
-                lines.append(f"- Pass rate: {run.get('pass_rate', 0):.1f}%")
-                lines.append(f"- Total: {run.get('total_tests', 0)}")
-                lines.append(f"- Passed: {run.get('passed_tests', 0)}")
-                lines.append(f"- Failed: {run.get('failed_tests', 0)}")
-                lines.append(f"- Health: {run.get('health_status', 'unknown')}")
+                lines.append(f"- Total tests: {total}")
+                lines.append(f"- Passed: {passed}")
+                lines.append(f"- Failed: {failed}")
+                lines.append(f"- Skipped: {skipped}")
+                lines.append(f"- Evaluated (non-skipped): {evaluated}")
+                lines.append(f"- Pass rate: {run.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)")
+                lines.append(f"- Passed with warnings: {passed_with_warnings}")
+                lines.append(f"- Health status: {run.get('health_status', 'unknown')}")
+                lines.append(f"- Total duration: {run.get('total_duration_seconds', 0):.1f}s")
                 lines.append("")
 
-        # Changes
+        # Per-run test details (non-trivial tests only)
+        if runs:
+            lines.append("## Per-Run Test Details")
+            lines.append("(Only showing failed, skipped, or passed-with-warnings tests)")
+            lines.append("")
+            for i, run in enumerate(runs, 1):
+                run_tests = run.get("tests", [])
+                interesting = [
+                    t for t in run_tests
+                    if t.get("outcome") in ("failed", "skipped")
+                    or t.get("warn")
+                ]
+                if not interesting:
+                    continue
+                source = run.get("source_file", f"Run {i}")
+                lines.append(f"### Run {i}: {source}")
+                for t in interesting:
+                    outcome = t.get("outcome", "unknown")
+                    warn_tag = " [WARN]" if t.get("warn") else ""
+                    markers = t.get("markers", [])
+                    marker_str = f" [{', '.join(markers)}]" if markers else ""
+                    lines.append(f"- {t['name']}: {outcome}{warn_tag}{marker_str}")
+                    for fs in t.get("failed_steps", []):
+                        lines.append(f"  Failed step: {fs}")
+                    verdicts = t.get("llm_verdicts", {})
+                    if verdicts:
+                        failed_dims = [d for d, v in verdicts.items() if not v]
+                        passed_dims = [d for d, v in verdicts.items() if v]
+                        if failed_dims:
+                            lines.append(f"  LLM verdicts failed: {', '.join(failed_dims)}")
+                        if passed_dims:
+                            lines.append(f"  LLM verdicts passed: {', '.join(passed_dims)}")
+                lines.append("")
+
+        # Changes with failure context (needed early for cross-run matrix filtering)
         changes = comparison_data.get("changes", {})
+        test_context = comparison_data.get("test_context", {})
+
+        # Cross-run test outcome matrix (all tests whose outcome changed)
+        test_outcomes = comparison_data.get("test_outcomes", {})
+        if test_outcomes:
+            changed = {
+                name: outcomes
+                for name, outcomes in test_outcomes.items()
+                if len(set(outcomes)) > 1
+            }
+            if changed:
+                lines.append("## Cross-Run Test Outcome Matrix")
+                lines.append("(Outcome progression for every test that changed across runs)")
+                lines.append("")
+                for name, outcomes in sorted(changed.items()):
+                    lines.append(f"- {name}: {' -> '.join(outcomes)}")
+                lines.append("")
+
+        # Per-run LLM verdict summary
+        if runs:
+            has_verdicts = any(
+                t.get("llm_verdicts")
+                for run in runs
+                for t in run.get("tests", [])
+            )
+            if has_verdicts:
+                lines.append("## Per-Run LLM Verdict Details")
+                lines.append("")
+                for i, run in enumerate(runs, 1):
+                    run_tests = run.get("tests", [])
+                    # Aggregate per-dimension stats for this run
+                    dim_stats: dict = {}
+                    dim_failures: dict = {}
+                    for t in run_tests:
+                        verdicts = t.get("llm_verdicts", {})
+                        for dim, passed in verdicts.items():
+                            if dim not in dim_stats:
+                                dim_stats[dim] = {"passed": 0, "failed": 0}
+                                dim_failures[dim] = []
+                            if passed:
+                                dim_stats[dim]["passed"] += 1
+                            else:
+                                dim_stats[dim]["failed"] += 1
+                                dim_failures[dim].append(t["name"])
+                    if not dim_stats:
+                        continue
+                    source = run.get("source_file", f"Run {i}")
+                    lines.append(f"### Run {i}: {source}")
+                    for dim in ["relevance", "specificity", "citations", "information"]:
+                        counts = dim_stats.get(dim)
+                        if not counts:
+                            continue
+                        total = counts["passed"] + counts["failed"]
+                        rate = (counts["passed"] / total * 100) if total > 0 else 0
+                        lines.append(f"- {dim}: {counts['passed']}/{total} ({rate:.0f}%)")
+                        if dim_failures.get(dim):
+                            for tname in dim_failures[dim]:
+                                lines.append(f"  Failed: {tname}")
+                    lines.append("")
 
         regressions = changes.get("regressions", [])
         if regressions:
             lines.append("## Regressions (PASS → FAIL)")
             for name in regressions:
-                lines.append(f"- {name}")
+                self._format_test_change(
+                    name, test_context, lines, test_outcomes
+                )
             lines.append("")
 
         fixes = changes.get("fixes", [])
         if fixes:
             lines.append("## Fixes (FAIL → PASS)")
             for name in fixes:
-                lines.append(f"- {name}")
+                self._format_test_change(
+                    name, test_context, lines, test_outcomes
+                )
             lines.append("")
 
         flaky = changes.get("flaky_tests", [])
         if flaky:
             lines.append("## Flaky Tests (Inconsistent)")
             for name in flaky:
-                lines.append(f"- {name}")
+                self._format_test_change(
+                    name, test_context, lines, test_outcomes
+                )
             lines.append("")
 
         # LLM Quality Verdict Trends
