@@ -19,7 +19,7 @@ class TestEvent:
     message: str = None
     step_name: str = None
     markers: List[str] = None
-    step_type: str = None  # "action", "info", or "wait"
+    step_type: str = None  # "action", "info", "wait", or "llm_verdict"
 
     def to_dict(self):
         return {k: v for k, v in asdict(self).items() if v is not None}
@@ -118,7 +118,7 @@ def log_step(name: str, outcome: str = "passed", message: str = None, duration_m
         message: Optional error message
         duration_ms: Duration in milliseconds (if not using start_time)
         start_time: Start timestamp to calculate duration from
-        step_type: Type of step - "action" (timed), "info" (no timing), or "wait" (timed)
+        step_type: Type of step - "action" (timed), "info" (no timing), "wait" (timed), or "llm_verdict" (LLM quality assessment)
     """
     ms = int((time.time() - start_time) * 1000) if start_time else duration_ms
     if _current_plugin:

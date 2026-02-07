@@ -85,7 +85,7 @@ TestRunSummary returned with pass/fail counts
 |--------|---------|
 | `console.py` | ANSI color output, bypasses pytest capture with `os.write(1, ...)` |
 | `plugin.py` | Pytest plugin hooks, emits TestEvent via callbacks |
-| `step.py` | `step()` context manager with timing, `info()` for untimed logging |
+| `step.py` | `step()` context manager with timing, `info()` for untimed logging, `llm_verdict()` for LLM quality assessments |
 | `output.py` | JSONLWriter for real-time streaming to file |
 | `runner.py` | TestRunner class, builds pytest args, coordinates execution |
 | `main.py` | argparse CLI with run/analyze/compare subcommands |
@@ -104,9 +104,10 @@ Steps have types that indicate their timing expectations:
 | `action` | User interaction, browser action, API call | Yes |
 | `info` | Logging results/status, informational message | No |
 | `wait` | Waiting for async operations | Yes |
+| `llm_verdict` | LLM quality assessment of chatbot response | No |
 
 ```python
-from chatbot_tests.step import step, info
+from chatbot_tests.step import step, info, llm_verdict
 from playwright.sync_api import expect
 
 @pytest.mark.basic
@@ -122,8 +123,8 @@ class TestChatbotBasicFunctionality:
         # Informational logging (step_type="info", no timing)
         info("INFO: Feature X is enabled in block config")
 
-        # Log LLM analysis results (no timing expected)
-        info(f"LLM analysis: answer on-topic: {explanation}")
+        # Log LLM quality verdicts (step_type="llm_verdict", no timing)
+        llm_verdict(f"LLM analysis: answer on-topic - {explanation}")
 ```
 
 **`step()` context manager** (for timed actions):
@@ -135,8 +136,14 @@ class TestChatbotBasicFunctionality:
 **`info()` function** (for informational messages):
 - No timing measurement
 - Logs message to JSONL with `step_type="info"`
-- Use for status messages, configuration info, LLM analysis results
+- Use for status messages, configuration info
 - LLM analyzer understands these don't need timing
+
+**`llm_verdict()` function** (for LLM quality assessments):
+- No timing measurement
+- Logs message to JSONL with `step_type="llm_verdict"`
+- Use for external LLM quality evaluations of chatbot responses
+- Tracked separately in analysis for verdict pass rates
 
 ### Markers
 
@@ -167,6 +174,7 @@ Each line is a JSON object with `event_type`:
 {"event_type": "test_start", "nodeid": "tests/test_basic.py::TestChatbotBasicFunctionality::test_chatbot_loads[chromium]", "name": "test_chatbot_loads[chromium]", "markers": ["basic"]}
 {"event_type": "step", "nodeid": "...", "name": "test_chatbot_loads[chromium]", "outcome": "passed", "duration_ms": 6, "step_name": "Verify chat window is visible", "step_type": "action"}
 {"event_type": "step", "nodeid": "...", "name": "test_chatbot_loads[chromium]", "outcome": "passed", "step_name": "INFO: Feature enabled", "step_type": "info"}
+{"event_type": "step", "nodeid": "...", "name": "test_question_response[Q-001-chromium]", "outcome": "passed", "step_name": "LLM analysis: answer on-topic - ...", "step_type": "llm_verdict"}
 {"event_type": "test_end", "nodeid": "...", "name": "test_chatbot_loads[chromium]", "outcome": "passed", "duration_seconds": 4.804}
 {"event_type": "session_end", "timestamp": "2026-01-27T18:45:04.951433", "outcome": "passed"}
 ```
@@ -175,6 +183,7 @@ Step events include a `step_type` field:
 - `"action"`: Timed browser/API actions (duration_ms is measured)
 - `"info"`: Informational logging (duration_ms is null - this is expected)
 - `"wait"`: Async waits (duration_ms is measured)
+- `"llm_verdict"`: LLM quality assessments (duration_ms is null - this is expected)
 
 ## Configuration
 
@@ -264,22 +273,18 @@ def test_response_quality(self, chatbot_page: ChatbotPage):
 
         if analyzer:
             # Single LLM call for all verifications (returns JSON)
-            with step("Verify response quality (LLM)"):
-                verification = analyzer.verify_all(
-                    "What is air quality?",
-                    response.get_message(),
-                    response.get_final_documents()
-                )
+            # Single LLM call for all verifications (returns JSON)
+            verification = analyzer.verify_answer(
+                "What is air quality?",
+                response.get_message(),
+                response.get_final_documents()
+            )
 
-                errors = []
-                if not verification.answers_question:
-                    errors.append(f"Doesn't answer: {verification.answers_question_explanation}")
-                if not verification.not_vague:
-                    errors.append(f"Too vague: {verification.not_vague_explanation}")
-                if not verification.has_citations:
-                    errors.append(f"Missing citations: {verification.has_citations_explanation}")
-
-                assert not errors, f"LLM verification failed: {'; '.join(errors)}"
+            # Log verdicts using llm_verdict() for proper tracking
+            if verification.answers_question:
+                llm_verdict(f"LLM analysis: answer on-topic - {verification.answers_question_explanation}")
+            else:
+                llm_verdict(f"LLM analysis: answer off-topic - {verification.answers_question_explanation}", "failed")
 ```
 
 ### Report Analysis

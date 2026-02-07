@@ -545,7 +545,7 @@ class TestChatbotUI:
                 assert "émissions" in user_msg_text or "emissions" in user_msg_text.lower(), "Accented characters should be preserved"
 
         response = response.value
-        chatbot_page.verify_answer(response, f"Verify assistant response to special characters and unicode (message ID: {response.assistant_message_id})")
+        chatbot_page.verify_answer(response, "Verify assistant response to special characters and unicode")
 
         with step("Clear chat for next test"):
             chatbot_page.clear_chat_button.click()
@@ -567,7 +567,7 @@ class TestChatbotUI:
                 expect(chatbot_page.user_messages.last).to_be_visible()
 
         response = response.value
-        chatbot_page.verify_answer(response, f"Verify assistant response to long message (message ID: {response.assistant_message_id})")
+        chatbot_page.verify_answer(response, "Verify assistant response to long message")
 
 
 @pytest.mark.basic

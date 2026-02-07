@@ -516,11 +516,12 @@ class ChatbotPage:
         expect(self.textarea, "Textarea should be disabled while response is streaming").to_be_disabled()
 
     def verify_answer(self, response: StreamedResponse | None, description: str = ""):
-        with step(description or f"Verify assistant response (message ID: {response.assistant_message_id})"):
+        with step(description or "Verify assistant response"):
             if not response:
-                raise AssertionError("No response received")
-            expect(self.assistant_messages.last).to_be_visible()
+                raise Exception("No response received")
             assert response.assistant_message_id is not None, "Missing assistant message ID"
+            assert response.get_message() != "", "Response should not be empty"
+            expect(self.assistant_messages.last).to_be_visible()
             if response.error:
                 expect(self.message_error).to_be_visible()
                 expect(self.message_error).to_have_text(response.error)

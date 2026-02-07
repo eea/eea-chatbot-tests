@@ -250,7 +250,7 @@ def cli_analyze(args):
     """Analyze test results from JSONL file."""
     from chatbot_tests.analyze import (
         analyze_jsonl, print_summary, print_failures, print_steps,
-        print_by_marker, print_performance, print_insights
+        print_by_marker, print_performance, print_insights, print_llm_verdicts
     )
 
     if not load_config(args):
@@ -279,6 +279,10 @@ def cli_analyze(args):
         print_failures(analysis)
     if args.insights or show_all:
         print_insights(analysis)
+
+    # Always show LLM verdicts when present
+    if analysis.llm_verdicts:
+        print_llm_verdicts(analysis)
 
     # Prepare output data
     output_data = analysis.to_dict()

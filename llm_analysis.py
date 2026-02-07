@@ -68,7 +68,31 @@ Testing context:
 - LLM responses are STREAMED progressively in the browser UI (not instant)
 - Expected test durations: 20-60 seconds is NORMAL for tests involving real LLM calls
 - High step counts and streaming cause legitimate long test times - this is NOT a latency issue
-- Only flag performance as a concern if actual FAILURES occur due to timeouts"""
+- Only flag performance as a concern if actual FAILURES occur due to timeouts
+
+Test parametrization:
+- `test_question_response` is the main test - dynamically parametrized from fixture JSON files
+- Each fixture question becomes a separate test instance: test_question_response[Q-XXX-chromium]
+- Q-XXX is the question ID from the fixture; the actual question text appears in the "Send question" step
+- Each test instance runs 7 validation phases per question:
+  1. Send question and verify response received
+  2. LLM-based quality verification (if enabled)
+  3. Source citation validation and related questions validation
+  4. Response content validation (length, keywords)
+  5. Halloumi quality fact-check (if configured)
+  6. Feedback functionality (if enabled)
+  7. Chat cleanup
+
+LLM quality verdicts:
+- Steps with `step_type="llm_verdict"` are external LLM quality assessments of chatbot responses
+- These evaluate three dimensions: relevance (on-topic vs off-topic), specificity (not vague vs too vague), citations (has vs missing)
+- They do NOT have timing - null/0 duration is expected and correct
+- A test may be skipped with "LLM analysis: answer lacks information" - this means the LLM evaluator determined the chatbot response lacked sufficient information to evaluate
+
+LLMException errors:
+- `LLMException` means the chatbot's backend LLM failed to generate a response
+- Typically: "LLMException: Final answer is empty. Inference provider likely failed to provide content packets."
+- This is a backend/infrastructure issue, not a test framework issue"""
 
 
 REPORT_ANALYSIS_PROMPT = f"""{CHATBOT_CONTEXT}
@@ -105,8 +129,11 @@ When analyzing step durations, understand the expected timing patterns:
 
 **No timing expected (info steps):**
 - "INFO: ..." messages
-- "LLM analysis: ..." results
 - Status/result logging
+
+**No timing expected (llm_verdict steps):**
+- "LLM analysis: ..." results (external LLM quality assessments)
+- These have `step_type="llm_verdict"` and null duration - this is CORRECT
 
 **Analyze step timing to identify:**
 1. UI steps taking >1s may indicate rendering issues or flaky selectors
@@ -115,12 +142,24 @@ When analyzing step durations, understand the expected timing patterns:
 4. If fast steps (clicks, verifications) are slow, suspect frontend performance issues
 5. Info steps with null/0 timing are CORRECT - do not flag these
 
+## Skipped Tests and Pass Rate
+
+**IMPORTANT**: Skipped tests are EXCLUDED from the pass rate denominator.
+- Pass rate = passed / (total - skipped), NOT passed / total
+- When reporting counts, always mention skipped tests separately
+- Example: "58 of 59 evaluated tests passed (98.3%); 7 tests were skipped"
+- Do NOT say "58 of 66 tests passed" - this misrepresents the denominator
+- Skipped tests often indicate the LLM evaluator determined the chatbot response
+  lacked sufficient information ("LLM analysis: answer lacks information")
+- Skipped tests are NOT failures but they signal potential content gaps
+
 ## Instructions
 
 Analyze the test report and provide:
 
 ### Summary
 Brief overview (2-3 sentences) of what was tested and overall health status.
+Always state: X of Y evaluated tests passed (Z%); N tests were skipped.
 
 ### Key Findings
 
@@ -149,12 +188,22 @@ Explain why based on:
 - Whether failures affect user-facing features
 - Step timing anomalies that could affect user experience
 
+### LLM Quality Verdict Analysis
+If LLM verdict data is present in the report:
+- Analyze which dimensions have low pass rates (relevance, specificity, citations)
+- Identify if certain question domains/topics correlate with verdict failures
+- Note any "information" verdict failures (tests skipped due to insufficient information)
+- Correlate verdict failures with test outcomes - do verdict failures predict test failures?
+
 ### Root Cause Analysis
 For each issue category, suggest probable causes:
 - Timeout failures → Check which step timed out (LLM response vs UI element)
 - Slow UI steps → Frontend rendering, heavy components, network latency for assets
 - Slow LLM steps → Expected if 10-30s, investigate if consistently >45s
 - Assertion failures → Backend changes, data format changes, race conditions
+- LLM Error failures → The chatbot's backend LLM failed to generate a response (LLMException).
+  This is a backend/infrastructure issue, not a test issue. Check if specific questions
+  consistently trigger this (may indicate prompt/context problems for those topics).
 
 ### Recommended Actions
 
@@ -186,6 +235,22 @@ You are analyzing multiple test runs to identify trends and changes.
 
 Analyze the comparison data and provide:
 
+### Executive Summary
+
+Start with a concise executive summary comparing the first and last runs. Present this as a
+markdown table with columns: Metric, First Run, Last Run, Delta. Include these metrics:
+- Total tests
+- Passed
+- Passed with warnings
+- Failed
+- Skipped
+- Pass rate (as percentage, delta in percentage points with "pp" suffix)
+- Total duration (in human-readable format like "1m 30s" or "45.2s")
+- Avg test duration (in seconds)
+
+For the Delta column, use a "+" prefix for increases and "-" for decreases.
+After the table, add 2-3 sentences summarizing the overall direction and key takeaways.
+
 ### Trend Summary
 
 State the direction: Improving, Declining, or Stable.
@@ -215,6 +280,14 @@ Tests with inconsistent results across runs:
 - 8-10: Reliable test suite
 - 5-7: Some instability, address flaky tests
 - 1-4: Significant reliability issues
+
+### LLM Quality Verdict Trends
+If LLM verdict trend data is available:
+- Analyze how each quality dimension (relevance, specificity, citations) changed across runs
+- Correlate verdict trends with pass rate trends - are improvements/regressions in pass rate
+  explained by changes in response quality?
+- Identify dimensions that are consistently low - these may need chatbot prompt tuning
+- Flag any dimensions where quality dropped between runs
 
 ### Recommendations
 
@@ -508,12 +581,21 @@ class LLMAnalyzer:
 
         # Summary section
         summary = report_data.get("summary", {})
+        total = summary.get('total_tests', 0)
+        passed = summary.get('passed_tests', 0)
+        passed_with_warnings = summary.get('passed_with_warnings', 0)
+        failed = summary.get('failed_tests', 0)
+        skipped = summary.get('skipped_tests', 0)
+        evaluated = total - skipped
+
         lines.append("## Summary Statistics")
-        lines.append(f"- Total tests: {summary.get('total_tests', 0)}")
-        lines.append(f"- Passed: {summary.get('passed_tests', 0)}")
-        lines.append(f"- Failed: {summary.get('failed_tests', 0)}")
-        lines.append(f"- Skipped: {summary.get('skipped_tests', 0)}")
-        lines.append(f"- Pass rate: {summary.get('pass_rate', 0):.1f}%")
+        lines.append(f"- Total tests: {total}")
+        lines.append(f"- Passed: {passed}")
+        lines.append(f"- Failed: {failed}")
+        lines.append(f"- Skipped: {skipped}")
+        lines.append(f"- Evaluated (non-skipped): {evaluated}")
+        lines.append(f"- Pass rate: {summary.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)")
+        lines.append(f"- Passed with warnings: {passed_with_warnings}")
         lines.append(f"- Health status: {summary.get('health_status', 'unknown')}")
         lines.append(f"- Total duration: {summary.get('total_duration_seconds', 0):.1f}s")
         lines.append("")
@@ -553,8 +635,8 @@ class LLMAnalyzer:
                 step_type = step.get("step_type")
                 dur = step.get("duration_ms")
 
-                # Info steps don't have timing - skip timing analysis
-                if step_type == "info":
+                # Info and llm_verdict steps don't have timing - skip timing analysis
+                if step_type in ("info", "llm_verdict"):
                     info_steps.append((step_name, test.get("name", "")))
                     continue
 
@@ -624,12 +706,61 @@ class LLMAnalyzer:
                 lines.append("")
 
             # Most failing steps
-            failing_steps = failures.get("most_failing_steps", [])
+            failing_steps = failures.get("failing_steps", [])
             if failing_steps:
-                lines.append("## Most Failing Steps")
-                for step in failing_steps[:5]:
+                lines.append("## Failed Steps")
+                for step in failing_steps:
                     lines.append(f"- {step['step_name']}: {step['failure_count']} failure(s)")
                 lines.append("")
+
+        # LLM Quality Verdict Summary
+        llm_verdicts = report_data.get("llm_verdicts", {})
+        verdict_summary = llm_verdicts.get("summary", {})
+        if verdict_summary:
+            lines.append("## LLM Quality Verdict Summary")
+
+            dimension_labels = {
+                "relevance": "Relevance (on-topic)",
+                "specificity": "Specificity (not vague)",
+                "citations": "Citations",
+                "information": "Information sufficiency",
+            }
+            total_passed = 0
+            total_checked = 0
+
+            for dimension in ["relevance", "specificity", "citations", "information"]:
+                counts = verdict_summary.get(dimension)
+                if not counts:
+                    continue
+                passed = counts.get("passed", 0)
+                failed = counts.get("failed", 0)
+                total = passed + failed
+                rate = (passed / total * 100) if total > 0 else 0
+                total_passed += passed
+                total_checked += total
+
+                label = dimension_labels.get(dimension, dimension.capitalize())
+                lines.append(f"- {label}: {passed}/{total} passed ({rate:.0f}%)")
+
+            if total_checked > 0:
+                overall_rate = (total_passed / total_checked * 100)
+                lines.append("")
+                lines.append(f"Overall quality rate: {overall_rate:.1f}%")
+
+            verdict_tests = llm_verdicts.get("per_test", {})
+            failed_tests = {
+                name: verdicts
+                for name, verdicts in verdict_tests.items()
+                if any(not v for v in verdicts.values())
+            }
+            if failed_tests:
+                lines.append("")
+                lines.append("Tests with failed verdicts:")
+                for test_name, verdicts in sorted(failed_tests.items()):
+                    failed_dims = [dim for dim, passed in verdicts.items() if not passed]
+                    lines.append(f"- {test_name}: failed on {', '.join(failed_dims)}")
+
+            lines.append("")
 
         # Detailed test results
         tests = report_data.get("tests", [])
@@ -665,9 +796,11 @@ class LLMAnalyzer:
                     for step in steps:
                         s_icon = "PASS" if step["outcome"] == "passed" else "FAIL"
                         step_type = step.get("step_type", "action")
-                        # Info steps don't have timing - show [info] tag instead of duration
+                        # Info and llm_verdict steps don't have timing
                         if step_type == "info":
                             dur = " [info]"
+                        elif step_type == "llm_verdict":
+                            dur = " [llm_verdict]"
                         elif step.get('duration_ms') is not None:
                             dur = f" ({step.get('duration_ms', 0)}ms)"
                         else:
@@ -700,6 +833,23 @@ class LLMAnalyzer:
         lines.append(f"- Average pass rate: {summary.get('avg_pass_rate', 0):.1f}%")
         lines.append(f"- Stability score: {summary.get('stability_score', 0)}/10")
         lines.append("")
+
+        # Executive summary data (first vs last run)
+        exec_summary = comparison_data.get("executive_summary", {})
+        if exec_summary:
+            lines.append("## Executive Summary Data (First vs Last Run)")
+            lines.append(f"- First run: {exec_summary.get('first_run', 'N/A')}")
+            lines.append(f"- Last run: {exec_summary.get('last_run', 'N/A')}")
+            for metric in ["total_tests", "passed", "passed_with_warnings", "failed", "skipped"]:
+                data = exec_summary.get(metric, {})
+                lines.append(f"- {metric}: first={data.get('first', 'N/A')}, last={data.get('last', 'N/A')}, delta={data.get('delta', 0)}")
+            pr = exec_summary.get("pass_rate", {})
+            lines.append(f"- pass_rate: first={pr.get('first', 'N/A')}%, last={pr.get('last', 'N/A')}%, delta={pr.get('delta_pp', 0)} pp")
+            dur = exec_summary.get("total_duration_seconds", {})
+            lines.append(f"- total_duration_seconds: first={dur.get('first', 'N/A')}s, last={dur.get('last', 'N/A')}s, delta={dur.get('delta', 0)}s")
+            avg = exec_summary.get("avg_test_duration", {})
+            lines.append(f"- avg_test_duration: first={avg.get('first', 'N/A')}s, last={avg.get('last', 'N/A')}s, delta={avg.get('delta', 0)}s")
+            lines.append("")
 
         # Pass rate trend
         trend = comparison_data.get("pass_rate_trend", [])
@@ -745,6 +895,32 @@ class LLMAnalyzer:
             lines.append("## Flaky Tests (Inconsistent)")
             for name in flaky:
                 lines.append(f"- {name}")
+            lines.append("")
+
+        # LLM Quality Verdict Trends
+        verdict_trends = comparison_data.get("llm_verdict_trends", {})
+        if verdict_trends:
+            dimension_labels = {
+                "relevance": "Relevance (on-topic)",
+                "specificity": "Specificity (not vague)",
+                "citations": "Citations",
+                "information": "Information sufficiency",
+            }
+
+            lines.append("## LLM Quality Verdict Trends")
+            for dimension in ["relevance", "specificity", "citations", "information"]:
+                trend = verdict_trends.get(dimension)
+                if not trend:
+                    continue
+
+                label = dimension_labels.get(dimension, dimension.capitalize())
+                rates = []
+                for counts in trend:
+                    total = counts.get("passed", 0) + counts.get("failed", 0)
+                    rate = (counts.get("passed", 0) / total * 100) if total > 0 else 0
+                    rates.append(f"{rate:.0f}%")
+
+                lines.append(f"- {label}: {' -> '.join(rates)}")
             lines.append("")
 
         return "\n".join(lines)

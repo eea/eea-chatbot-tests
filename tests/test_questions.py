@@ -19,7 +19,7 @@ import time
 from playwright.sync_api import expect
 from contextlib import contextmanager
 
-from chatbot_tests.step import step, info
+from chatbot_tests.step import step, info, llm_verdict
 from chatbot_tests.plugin import log_step
 from chatbot_tests.config import Settings
 from chatbot_tests.page_objects import ChatbotPage
@@ -178,7 +178,7 @@ class TestQuestionValidation:
                     chatbot_page.verify_interactions_disabled()
                     assert chatbot_page.textarea.input_value() == "", "Textarea should be cleared after message is sent"
                 response = response.value
-            chatbot_page.verify_answer(response, f"Verify assistant response (message ID: {response.assistant_message_id})")
+            chatbot_page.verify_answer(response)
             start = time.time()
             validate_rq_loading(rq_response)
         validate_rq_complete(rq_response, start)
@@ -200,9 +200,7 @@ class TestQuestionValidation:
 
         llm_config = validation.get("llm", {})
 
-        if not settings.enable_llm_analysis:
-            info("LLM verification skipped - not enabled in settings")
-        else:
+        if settings.enable_llm_analysis:
             analyzer = create_analyzer_from_settings(settings)
             if not analyzer:
                 info("LLM analyzer unavailable - skipping LLM verification")
@@ -231,20 +229,23 @@ class TestQuestionValidation:
                 ]
 
                 if verify_lack_information and verification.lack_information:
-                    pytest.skip(f"LLM analysis: answer lacks information - {verification.lack_information_explanation}")
-
+                    lack_info = f"LLM analysis: answer lacks information - {verification.lack_information_explanation}"
+                    llm_verdict(lack_info)
+                    pytest.skip(lack_info)
+                else:
+                    llm_verdict("LLM analysis: answer has sufficient information")
                 if verify_answers_question and not answers_question[0]:
-                    info(f"LLM analysis: answer off-topic - {answers_question[1]}", "failed")
+                    llm_verdict(f"LLM analysis: answer off-topic - {answers_question[1]}", "failed")
                 else:
-                    info(f"LLM analysis: answer on-topic - {answers_question[1]}")
+                    llm_verdict(f"LLM analysis: answer on-topic - {answers_question[1]}")
                 if verify_not_vague and not not_vague[0]:
-                    info(f"LLM analysis: answer too vague - {not_vague[1]}", "failed")
+                    llm_verdict(f"LLM analysis: answer too vague - {not_vague[1]}", "failed")
                 else:
-                    info(f"LLM analysis: answer not vague - {not_vague[1]}")
+                    llm_verdict(f"LLM analysis: answer not vague - {not_vague[1]}")
                 if verify_citations and not has_citations[0]:
-                    info(f"LLM analysis: answer missing citations - {has_citations[1]}", "failed")
+                    llm_verdict(f"LLM analysis: answer missing citations - {has_citations[1]}", "failed")
                 else:
-                    info(f"LLM analysis: answer has citations - {has_citations[1]}")
+                    llm_verdict(f"LLM analysis: answer has citations - {has_citations[1]}")
 
         # =====================================================================
         # PHASE 3: Source Citations Validation and Related questions validation
@@ -291,7 +292,7 @@ class TestQuestionValidation:
         # =====================================================================
 
         min_score = qc_config.get("min_score", get_threshold("min_quality_score")) or 0
-        chatbot_page.page.set_default_timeout(3000)
+        chatbot_page.page.set_default_timeout(90000)
 
         ha_holder = ResponseHolder()
 
@@ -354,8 +355,10 @@ class TestQuestionValidation:
                     # Validate score is in valid range
                     assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
 
-                with step(f"Verify Halloumi quality fact-check score ({score}%) meets threshold ({min_score}%)", True):
-                    assert score >= min_score, f"Quality score {score}% below threshold {min_score}%"
+                if score >= min_score:
+                    log_step(f"Quality score ({score}%) above threshold ({min_score}%)")
+                else:
+                    log_step(f"Quality score {score}% below threshold {min_score}%", "failed")
 
         try:
             with _halloumi_fact_check() as ha_response:

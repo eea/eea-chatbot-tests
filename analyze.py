@@ -12,6 +12,26 @@ from chatbot_tests import console
 
 
 # =============================================================================
+# LLM Verdict Constants
+# =============================================================================
+
+LLM_VERDICT_PREFIX = "LLM analysis: "
+LLM_VERDICT_PATTERN = re.compile(
+    r"^LLM analysis: answer (on-topic|off-topic|not vague|too vague|has citations|missing citations|has sufficient information|lacks information) - (.+)$"
+)
+LLM_VERDICT_MAP = {
+    "on-topic": ("relevance", True),
+    "off-topic": ("relevance", False),
+    "not vague": ("specificity", True),
+    "too vague": ("specificity", False),
+    "has citations": ("citations", True),
+    "missing citations": ("citations", False),
+    "has sufficient information": ("information", True),
+    "lacks information": ("information", False)
+}
+
+
+# =============================================================================
 # Data Classes
 # =============================================================================
 
@@ -23,7 +43,7 @@ class StepResult:
     duration_ms: Optional[int] = None
     message: Optional[str] = None
     timestamp: Optional[str] = None
-    step_type: Optional[str] = None  # "action", "info", or "wait"
+    step_type: Optional[str] = None  # "action", "info", "wait", or "llm_verdict"
 
 
 @dataclass
@@ -32,6 +52,7 @@ class TestResult:
     nodeid: str
     name: str
     outcome: str
+    warn: bool = False
     duration_seconds: Optional[float] = None
     message: Optional[str] = None
     markers: List[str] = field(default_factory=list)
@@ -45,6 +66,7 @@ class AnalysisResult:
     # === Summary Statistics ===
     total_tests: int = 0
     passed_tests: int = 0
+    passed_with_warnings: int = 0
     failed_tests: int = 0
     skipped_tests: int = 0
 
@@ -66,12 +88,18 @@ class AnalysisResult:
 
     # === Failure Analysis ===
     failure_categories: Dict[str, List[str]] = field(default_factory=dict)
-    most_failing_steps: List[Tuple[str, int]] = field(default_factory=list)
+    failing_steps: List[Tuple[str, int]] = field(default_factory=list)
 
     # === Detailed Results ===
     tests: List[TestResult] = field(default_factory=list)
     tests_by_marker: Dict[str, List[TestResult]] = field(default_factory=dict)
     failed_test_names: List[str] = field(default_factory=list)
+
+    # === LLM Verdicts ===
+    llm_verdicts: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    # {"relevance": {"passed": 10, "failed": 2}, ...}
+    llm_verdict_tests: Dict[str, Dict[str, bool]] = field(default_factory=dict)
+    # {"test_question_response[Q-001-chromium]": {"relevance": True, ...}}
 
     # === Source ===
     source_file: Optional[str] = None
@@ -93,11 +121,12 @@ class AnalysisResult:
     @property
     def health_status(self) -> str:
         """Determine overall health based on pass rate."""
-        if self.pass_rate >= 95:
+        pass_rate = (self.pass_rate + self.step_pass_rate) / 2
+        if pass_rate >= 95:
             return "healthy"
-        elif self.pass_rate >= 80:
+        elif pass_rate >= 80:
             return "degraded"
-        elif self.pass_rate >= 50:
+        elif pass_rate >= 50:
             return "unstable"
         return "critical"
 
@@ -107,6 +136,7 @@ class AnalysisResult:
             "summary": {
                 "total_tests": self.total_tests,
                 "passed_tests": self.passed_tests,
+                "passed_with_warnings": self.passed_with_warnings,
                 "failed_tests": self.failed_tests,
                 "skipped_tests": self.skipped_tests,
                 "pass_rate": round(self.pass_rate, 2),
@@ -133,11 +163,15 @@ class AnalysisResult:
             "failures": {
                 "failed_tests": self.failed_test_names,
                 "failure_categories": self.failure_categories,
-                "most_failing_steps": [
+                "failing_steps": [
                     {"step_name": name, "failure_count": count}
-                    for name, count in self.most_failing_steps
+                    for name, count in self.failing_steps
                 ],
             },
+            "llm_verdicts": {
+                "summary": self.llm_verdicts,
+                "per_test": self.llm_verdict_tests,
+            } if self.llm_verdicts else {},
             "session": {
                 "start": self.session_start,
                 "end": self.session_end,
@@ -183,20 +217,24 @@ class ComparisonResult:
     fixes: List[str] = field(default_factory=list)
     flaky: List[str] = field(default_factory=list)
 
-    # NEW: Trend metrics
+    # Trend metrics
     trend_direction: str = "stable"  # "improving", "declining", "stable"
     avg_pass_rate: float = 0.0
     stability_score: int = 0  # 1-10
 
+    # LLM verdict trends
+    llm_verdict_trends: Dict[str, List[Dict[str, int]]] = field(default_factory=dict)
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
-        return {
+        result = {
             "summary": {
                 "run_count": len(self.runs),
                 "trend_direction": self.trend_direction,
                 "avg_pass_rate": round(self.avg_pass_rate, 2),
                 "stability_score": self.stability_score,
             },
+            "executive_summary": self._build_executive_summary(),
             "pass_rate_trend": [round(r, 2) for r in self.pass_rate_trend],
             "changes": {
                 "regressions": self.regressions,
@@ -209,11 +247,39 @@ class ComparisonResult:
                     "pass_rate": round(r.pass_rate, 2),
                     "total_tests": r.total_tests,
                     "passed_tests": r.passed_tests,
+                    "passed_with_warnings": r.passed_with_warnings,
                     "failed_tests": r.failed_tests,
+                    "skipped_tests": r.skipped_tests,
                     "health_status": r.health_status,
+                    "total_duration_seconds": round(r.total_duration_seconds, 3),
+                    "avg_test_duration": round(r.avg_test_duration, 3),
                 }
                 for r in self.runs
             ],
+        }
+        if self.llm_verdict_trends:
+            result["llm_verdict_trends"] = self.llm_verdict_trends
+        return result
+
+    def _build_executive_summary(self) -> Dict[str, Any]:
+        """Build executive summary metrics for JSON output."""
+        if len(self.runs) < 2:
+            return {}
+
+        first = self.runs[0]
+        last = self.runs[-1]
+
+        return {
+            "first_run": Path(first.source_file).name if first.source_file else "Run 1",
+            "last_run": Path(last.source_file).name if last.source_file else f"Run {len(self.runs)}",
+            "total_tests": {"first": first.total_tests, "last": last.total_tests, "delta": last.total_tests - first.total_tests},
+            "passed": {"first": first.passed_tests, "last": last.passed_tests, "delta": last.passed_tests - first.passed_tests},
+            "passed_with_warnings": {"first": first.passed_with_warnings, "last": last.passed_with_warnings, "delta": last.passed_with_warnings - first.passed_with_warnings},
+            "failed": {"first": first.failed_tests, "last": last.failed_tests, "delta": last.failed_tests - first.failed_tests},
+            "skipped": {"first": first.skipped_tests, "last": last.skipped_tests, "delta": last.skipped_tests - first.skipped_tests},
+            "pass_rate": {"first": round(first.pass_rate, 1), "last": round(last.pass_rate, 1), "delta_pp": round(last.pass_rate - first.pass_rate, 1)},
+            "total_duration_seconds": {"first": round(first.total_duration_seconds, 1), "last": round(last.total_duration_seconds, 1), "delta": round(last.total_duration_seconds - first.total_duration_seconds, 1)},
+            "avg_test_duration": {"first": round(first.avg_test_duration, 1), "last": round(last.avg_test_duration, 1), "delta": round(last.avg_test_duration - first.avg_test_duration, 1)},
         }
 
 
@@ -227,6 +293,10 @@ def _categorize_failure(message: Optional[str]) -> str:
         return "Unknown"
 
     message_lower = message.lower()
+
+    # LLM response errors
+    if "llmexception" in message_lower:
+        return "LLM Error"
 
     # Timeout-related
     if any(kw in message_lower for kw in ["timeout", "timed out", "exceeded"]):
@@ -279,7 +349,7 @@ def _calculate_performance_metrics(result: AnalysisResult) -> None:
     for test in result.tests:
         total_steps += len(test.steps)
         for step in test.steps:
-            if step.duration_ms:
+            if step.step_type not in ("info", "llm_verdict") and step.duration_ms:
                 all_step_durations.append(step.duration_ms)
             if step.outcome == "failed":
                 step_failure_counts[step.step_name] += 1
@@ -290,9 +360,20 @@ def _calculate_performance_metrics(result: AnalysisResult) -> None:
     if result.tests:
         result.avg_steps_per_test = total_steps / len(result.tests)
 
-    result.most_failing_steps = sorted(
+    result.failing_steps = sorted(
         step_failure_counts.items(), key=lambda x: x[1], reverse=True
-    )[:5]
+    )
+
+
+def _analyze_warnings(result: AnalysisResult) -> None:
+    result.passed_with_warnings = 0
+    for test in result.tests:
+        if test.outcome == "passed":
+            for step in test.steps:
+                if step.outcome == "failed":
+                    test.warn = True
+                    result.passed_with_warnings += 1
+                    break
 
 
 def _analyze_failures(result: AnalysisResult) -> None:
@@ -300,19 +381,14 @@ def _analyze_failures(result: AnalysisResult) -> None:
     categories: Dict[str, List[str]] = defaultdict(list)
 
     for test in result.tests:
-        if test.outcome != "failed":
+        if test.outcome != "failed" and not test.warn:
             continue
-
-        # Categorize by test error message
-        category = _categorize_failure(test.message)
-        categories[category].append(test.name)
 
         # Also check step failures
         for step in test.steps:
             if step.outcome == "failed":
                 step_category = _categorize_failure(step.message)
-                if step_category != category:
-                    categories[step_category].append(f"{test.name} > {step.step_name}")
+                categories[step_category].append(f"{test.name} > {step.step_name}")
 
     result.failure_categories = dict(categories)
 
@@ -365,15 +441,6 @@ def analyze_jsonl(file_path: Path) -> AnalysisResult:
                 nodeid = event.get("nodeid", "")
                 outcome = event.get("outcome", "unknown")
 
-                if outcome == "skipped":
-                    current_test = TestResult(
-                        nodeid=nodeid,
-                        name=event.get("name", ""),
-                        outcome="unknown",
-                        markers=event.get("markers", []) or [],
-                    )
-                    tests_by_nodeid[nodeid] = current_test
-
                 test = tests_by_nodeid.get(nodeid)
                 if test:
                     test.outcome = outcome
@@ -422,9 +489,42 @@ def analyze_jsonl(file_path: Path) -> AnalysisResult:
 
     # Calculate additional metrics
     _calculate_performance_metrics(result)
+    _analyze_warnings(result)
     _analyze_failures(result)
 
+    # Extract LLM verdicts
+    _extract_llm_verdicts(result)
+
     return result
+
+
+def _extract_llm_verdicts(result: AnalysisResult) -> None:
+    """Extract LLM quality verdicts from test steps and skipped tests."""
+    verdicts: Dict[str, Dict[str, int]] = {}
+    verdict_tests: Dict[str, Dict[str, bool]] = {}
+
+    for test in result.tests:
+        test_verdicts: Dict[str, bool] = {}
+
+        # Extract from steps (llm_verdict type, or info type with prefix for backward compat)
+        for s in test.steps:
+            if s.step_type == "llm_verdict":
+                match = LLM_VERDICT_PATTERN.match(s.step_name)
+                if match:
+                    verdict_key = match.group(1)
+                    if verdict_key in LLM_VERDICT_MAP:
+                        dimension, passed = LLM_VERDICT_MAP[verdict_key]
+
+                        if dimension not in verdicts:
+                            verdicts[dimension] = {"passed": 0, "failed": 0}
+                        verdicts[dimension]["passed" if passed else "failed"] += 1
+                        test_verdicts[dimension] = passed
+
+        if test_verdicts:
+            verdict_tests[test.name] = test_verdicts
+
+    result.llm_verdicts = verdicts
+    result.llm_verdict_tests = verdict_tests
 
 
 def compare_runs(file_paths: List[Path]) -> ComparisonResult:
@@ -500,6 +600,18 @@ def compare_runs(file_paths: List[Path]) -> ComparisonResult:
     stability_base = 10 - int(flaky_ratio * 10)
     regression_penalty = min(len(comparison.regressions), 3)
     comparison.stability_score = max(1, stability_base - regression_penalty)
+
+    # Build LLM verdict trends
+    all_dimensions: set = set()
+    for run in comparison.runs:
+        all_dimensions.update(run.llm_verdicts.keys())
+
+    if all_dimensions:
+        for dimension in sorted(all_dimensions):
+            comparison.llm_verdict_trends[dimension] = []
+            for run in comparison.runs:
+                counts = run.llm_verdicts.get(dimension, {"passed": 0, "failed": 0})
+                comparison.llm_verdict_trends[dimension].append(counts)
 
     return comparison
 
@@ -579,12 +691,21 @@ def print_summary(analysis: AnalysisResult) -> None:
     print(f"{console.label('Health:')} {_format_health(analysis.health_status)}")
 
     # Test Summary
+    total = analysis.total_tests
+    passed = analysis.passed_tests
+    passed_warns = analysis.passed_with_warnings
+    failed = analysis.failed_tests
+    skipped = analysis.skipped_tests
+    evaluated = total - skipped
+
     print(f"\n{console.bold('--- Test Summary ---')}")
-    print(f"  Total:     {analysis.total_tests}")
-    print(f"  Passed:    {console.success(str(analysis.passed_tests))}")
-    print(f"  Failed:    {console.error(str(analysis.failed_tests)) if analysis.failed_tests else '0'}")
-    print(f"  Skipped:   {console.dim(str(analysis.skipped_tests))}")
-    print(f"  Pass Rate: {_format_percentage(analysis.pass_rate)}")
+    print(f"  Total:                    {total}")
+    print(f"  Passed:                   {console.success(str(passed))}")
+    print(f"  Failed:                   {console.error(str(failed)) if failed else '0'}")
+    print(f"  Skipped:                  {console.dim(str(skipped))}")
+    print(f"  Evaluated (non-skipped):  {console.info(evaluated)}")
+    print(f"  Pass Rate:                {_format_percentage(analysis.pass_rate)} ({passed} passed / {evaluated} evaluated)")
+    print(f"  Passed with warnings:     {console.warn(str(passed_warns))}")
 
     # Step Summary
     if analysis.total_steps > 0:
@@ -603,7 +724,7 @@ def print_performance(analysis: AnalysisResult) -> None:
 
     print(f"\n{console.label('Timing:')}")
     print(f"  Avg test duration:  {_format_duration(analysis.avg_test_duration)}")
-    print(f"  Avg step duration:  {analysis.avg_step_duration_ms:.0f}ms")
+    print(f"  Avg step duration:  {analysis.avg_step_duration_ms:.0f}ms (action/wait steps only)")
     print(f"  Avg steps per test: {analysis.avg_steps_per_test:.1f}")
 
     if analysis.slowest_tests:
@@ -620,6 +741,7 @@ def print_performance(analysis: AnalysisResult) -> None:
 def print_failures(analysis: AnalysisResult) -> None:
     """Print detailed failure analysis."""
     failed_tests = [t for t in analysis.tests if t.outcome == "failed"]
+    warning_tests = [t for t in analysis.tests if t.warn]
 
     if not failed_tests:
         print(f"\n{console.success('No failures to report.')}")
@@ -627,6 +749,7 @@ def print_failures(analysis: AnalysisResult) -> None:
 
     print(f"\n{console.bold('--- Failure Analysis ---')}")
     print(f"Total failures: {console.error(str(len(failed_tests)))}")
+    print(f"Total warnings: {console.warn(str(len(warning_tests)))}")
 
     # Show by category
     if analysis.failure_categories:
@@ -637,9 +760,9 @@ def print_failures(analysis: AnalysisResult) -> None:
             print(f"  {console.error(category)}: {len(tests)} failure(s)")
 
     # Most failing steps
-    if analysis.most_failing_steps:
+    if analysis.failing_steps:
         print(f"\n{console.label('Most Failing Steps:')}")
-        for step_name, count in analysis.most_failing_steps[:5]:
+        for step_name, count in analysis.failing_steps[:5]:
             print(f"  {console.error(str(count))} failures: {step_name}")
 
     # Detailed failures
@@ -648,8 +771,7 @@ def print_failures(analysis: AnalysisResult) -> None:
         print(f"\n  {console.error('FAILED')}: {test.name}")
         if test.message:
             # Truncate long messages
-            msg = test.message[:200] + "..." if len(test.message) > 200 else test.message
-            print(f"    Error: {console.dim(msg)}")
+            print(f"    Error: {console.dim(test.message)}")
 
         failed_steps = [s for s in test.steps if s.outcome == "failed"]
         if failed_steps:
@@ -657,8 +779,21 @@ def print_failures(analysis: AnalysisResult) -> None:
             for step in failed_steps:
                 print(f"      - {step.step_name}")
                 if step.message:
-                    msg = step.message[:100] + "..." if len(step.message) > 100 else step.message
-                    print(f"        {console.dim(msg)}")
+                    print(f"        {console.dim(step.message)}")
+
+    print(f"\n{console.label('Warning Tests:')}")
+    for test in warning_tests:
+        print(f"\n  {console.warn('WARNING')}: {test.name}")
+        if test.message:
+            print(f"    Warning: {console.dim(test.message)}")
+
+        failed_steps = [s for s in test.steps if s.outcome == "failed"]
+        if failed_steps:
+            print(f"    Failed steps:")
+            for step in failed_steps:
+                print(f"      - {step.step_name}")
+                if step.message:
+                    print(f"        {console.dim(step.message)}")
 
 
 def print_steps(analysis: AnalysisResult) -> None:
@@ -673,9 +808,24 @@ def print_steps(analysis: AnalysisResult) -> None:
 
         if test.steps:
             for step in test.steps:
-                icon = console.success("+") if step.outcome == "passed" else console.error("x")
-                dur = f" ({step.duration_ms}ms)" if step.duration_ms else ""
-                print(f"    [{icon}] {step.step_name}{console.dim(dur)}")
+                step_type = step.step_type or "action"
+                if step_type == "llm_verdict":
+                    icon = console.success("*") if step.outcome == "passed" else console.error("*")
+                    tag = console.dim(" [llm]")
+                    dur = ""
+                elif step_type == "info":
+                    icon = console.success("+") if step.outcome == "passed" else console.error("x")
+                    tag = console.dim(" [info]")
+                    dur = ""
+                elif step_type == "wait":
+                    icon = console.success("+") if step.outcome == "passed" else console.error("x")
+                    tag = console.dim(" [wait]")
+                    dur = f" ({step.duration_ms}ms)" if step.duration_ms else ""
+                else:
+                    icon = console.success("+") if step.outcome == "passed" else console.error("x")
+                    tag = ""
+                    dur = f" ({step.duration_ms}ms)" if step.duration_ms else ""
+                print(f"    [{icon}] {step.step_name}{tag}{console.dim(dur)}")
                 if step.message and step.outcome == "failed":
                     msg = step.message[:80] + "..." if len(step.message) > 80 else step.message
                     print(f"        {console.dim(msg)}")
@@ -736,8 +886,8 @@ def print_insights(analysis: AnalysisResult) -> None:
     if analysis.failed_tests > 0:
         recommendations.append(f"Fix {analysis.failed_tests} failing test(s) before deployment")
 
-    if analysis.most_failing_steps:
-        step_name, count = analysis.most_failing_steps[0]
+    if analysis.failing_steps:
+        step_name, count = analysis.failing_steps[0]
         recommendations.append(f"Investigate '{step_name}' - most common failure point ({count} failures)")
 
     if analysis.pass_rate < 95:
@@ -760,6 +910,181 @@ def print_insights(analysis: AnalysisResult) -> None:
         print(f"\n{console.success('No immediate actions required.')}")
 
 
+def print_llm_verdicts(analysis: AnalysisResult) -> None:
+    """Print LLM quality verdict summary."""
+    if not analysis.llm_verdicts:
+        return
+
+    print(f"\n{console.bold('--- LLM Quality Verdicts ---')}")
+
+    # Per-category pass rates
+    total_passed = 0
+    total_checked = 0
+
+    dimension_labels = {
+        "relevance": "Relevance (on-topic)",
+        "specificity": "Specificity (not vague)",
+        "citations": "Citations",
+        "information": "Information sufficiency",
+    }
+
+    for dimension in ["relevance", "specificity", "citations", "information"]:
+        counts = analysis.llm_verdicts.get(dimension)
+        if not counts:
+            continue
+        passed = counts.get("passed", 0)
+        failed = counts.get("failed", 0)
+        total = passed + failed
+        rate = (passed / total * 100) if total > 0 else 0
+        total_passed += passed
+        total_checked += total
+
+        label = dimension_labels.get(dimension, dimension.capitalize())
+        rate_str = _format_percentage(rate)
+        print(f"  {label:30} {passed}/{total} ({rate_str})")
+
+    # Overall quality rate
+    if total_checked > 0:
+        overall_rate = (total_passed / total_checked * 100)
+        print(f"\n  {console.label('Overall quality rate:')} {_format_percentage(overall_rate)}")
+
+    # List tests with failed verdicts
+    failed_verdict_tests = {
+        name: verdicts
+        for name, verdicts in analysis.llm_verdict_tests.items()
+        if any(not v for v in verdicts.values())
+    }
+
+    if failed_verdict_tests:
+        print(f"\n{console.label('Tests with failed verdicts:')}")
+        for test_name, verdicts in sorted(failed_verdict_tests.items()):
+            failed_dims = [dim for dim, passed in verdicts.items() if not passed]
+            dims_str = ", ".join(failed_dims)
+            print(f"  {console.error('-')} {test_name}: {console.dim(dimension_labels[dims_str])}")
+
+
+def _format_delta(value: float, is_inverse: bool = False, is_pp: bool = False) -> str:
+    """Format a numeric delta with color and sign.
+
+    Args:
+        value: Delta value
+        is_inverse: If True, negative is good (e.g., fewer failures)
+        is_pp: If True, append 'pp' suffix (percentage points)
+    """
+    if value == 0:
+        return console.dim("0")
+
+    suffix = " pp" if is_pp else ""
+    sign = "+" if value > 0 else ""
+    formatted = f"{sign}{value:.1f}{suffix}" if isinstance(value, float) else f"{sign}{value}{suffix}"
+
+    positive_is_good = not is_inverse
+    if (value > 0 and positive_is_good) or (value < 0 and not positive_is_good):
+        return console.success(formatted)
+    else:
+        return console.error(formatted)
+
+
+def print_executive_summary(comparison: ComparisonResult) -> None:
+    """Print side-by-side executive summary table."""
+    if len(comparison.runs) < 2:
+        return
+
+    first = comparison.runs[0]
+    last = comparison.runs[-1]
+    first_label = Path(first.source_file).name if first.source_file else "Run 1"
+    last_label = Path(last.source_file).name if last.source_file else f"Run {len(comparison.runs)}"
+
+    print(f"\n{console.bold('--- Executive Summary ---')}")
+
+    # Table header
+    col1 = 22
+    col2 = max(len(first_label) + 2, 14)
+    col3 = max(len(last_label) + 2, 14)
+    col4 = 16
+
+    header = f"  {'Metric':<{col1}} {first_label:>{col2}} {last_label:>{col3}} {'Delta':>{col4}}"
+    print(f"\n{console.dim(header)}")
+    print(f"  {console.dim('-' * (col1 + col2 + col3 + col4 + 3))}")
+
+    def row(label, v1, v2, delta_str):
+        print(f"  {label:<{col1}} {str(v1):>{col2}} {str(v2):>{col3}} {delta_str:>{col4}}")
+
+    # Total tests
+    d = last.total_tests - first.total_tests
+    row("Total tests", first.total_tests, last.total_tests, _format_delta(d))
+
+    # Passed
+    d = last.passed_tests - first.passed_tests
+    row("Passed", first.passed_tests, last.passed_tests, _format_delta(d))
+
+    d = last.passed_with_warnings - first.passed_with_warnings
+    row("Passed with warnings", first.passed_with_warnings, last.passed_with_warnings, _format_delta(d))
+
+    # Failed
+    d = last.failed_tests - first.failed_tests
+    row("Failed", first.failed_tests, last.failed_tests, _format_delta(d, is_inverse=True))
+
+    # Skipped
+    d = last.skipped_tests - first.skipped_tests
+    row("Skipped", first.skipped_tests, last.skipped_tests, _format_delta(d))
+
+    # Pass rate
+    d = last.pass_rate - first.pass_rate
+    row("Pass rate", f"{first.pass_rate:.1f}%", f"{last.pass_rate:.1f}%", _format_delta(d, is_pp=True))
+
+    # Total duration
+    d = last.total_duration_seconds - first.total_duration_seconds
+    if d < 0:
+        delta_dur_colored = console.success(f"-{_format_duration(abs(d))}")
+    elif d > 0:
+        delta_dur_colored = console.error(f"+{_format_duration(abs(d))}")
+    else:
+        delta_dur_colored = console.dim("0")
+    row("Total duration", _format_duration(first.total_duration_seconds), _format_duration(last.total_duration_seconds), delta_dur_colored)
+
+    # Avg test duration
+    d = last.avg_test_duration - first.avg_test_duration
+    delta_avg = f"{'+' if d > 0 else ''}{d:.1f}s"
+    if d < 0:
+        delta_avg_colored = console.success(delta_avg)
+    elif d > 0:
+        delta_avg_colored = console.error(delta_avg)
+    else:
+        delta_avg_colored = console.dim("0")
+    row("Avg test duration", f"{first.avg_test_duration:.1f}s", f"{last.avg_test_duration:.1f}s", delta_avg_colored)
+
+
+def print_llm_verdict_trends(comparison: ComparisonResult) -> None:
+    """Print LLM quality verdict trends across runs."""
+    if not comparison.llm_verdict_trends:
+        return
+
+    print(f"\n{console.bold('--- LLM Quality Verdict Trends ---')}")
+
+    dimension_labels = {
+        "relevance": "Relevance (on-topic)",
+        "specificity": "Specificity (not vague)",
+        "citations": "Citations",
+        "information": "Information sufficiency",
+    }
+
+    for dimension in ["relevance", "specificity", "citations", "information"]:
+        trend = comparison.llm_verdict_trends.get(dimension)
+        if not trend:
+            continue
+
+        label = dimension_labels.get(dimension, dimension.capitalize())
+        rates = []
+        for counts in trend:
+            total = counts.get("passed", 0) + counts.get("failed", 0)
+            rate = (counts.get("passed", 0) / total * 100) if total > 0 else 0
+            rates.append(f"{rate:.0f}%")
+
+        trend_str = " -> ".join(rates)
+        print(f"  {label:30} {trend_str}")
+
+
 def print_comparison(comparison: ComparisonResult) -> None:
     """Print enhanced comparison results."""
     print("\n" + console.bold("=" * 60))
@@ -770,6 +1095,9 @@ def print_comparison(comparison: ComparisonResult) -> None:
     print(f"{console.label('Trend:')} {_format_trend(comparison.trend_direction)}")
     print(f"{console.label('Avg pass rate:')} {_format_percentage(comparison.avg_pass_rate)}")
     print(f"{console.label('Stability score:')} {comparison.stability_score}/10")
+
+    # Executive summary table
+    print_executive_summary(comparison)
 
     # Pass rate trend
     print(f"\n{console.bold('--- Pass Rate Trend ---')}")
@@ -816,5 +1144,8 @@ def print_comparison(comparison: ComparisonResult) -> None:
 
     if comparison.flaky:
         print(f"  {console.warn('Note')}: {len(comparison.flaky)} flaky test(s) need attention.")
+
+    # LLM verdict trends
+    print_llm_verdict_trends(comparison)
 
     print(console.bold("=" * 60))

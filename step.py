@@ -80,3 +80,16 @@ def info(message: str, outcome: str = "passed"):
         outcome: "passed" or "failed" (default: "passed")
     """
     log_step(message, outcome, step_type="info")
+
+
+def llm_verdict(message: str, outcome: str = "passed"):
+    """Log an LLM quality verdict step.
+
+    Use this for LLM-based quality assessments of chatbot responses.
+    These steps represent external LLM evaluations, not test infrastructure.
+
+    Args:
+        message: Verdict message (e.g., "LLM analysis: answer on-topic - ...")
+        outcome: "passed" or "failed" (default: "passed")
+    """
+    log_step(message, outcome, step_type="llm_verdict")
