@@ -941,7 +941,7 @@ def print_steps(analysis: AnalysisResult) -> None:
                     dur = f" ({step.duration_ms}ms)" if step.duration_ms else ""
                 print(f"    [{icon}] {step.step_name}{tag}{console.dim(dur)}")
                 if step.message and step.outcome == "failed":
-                    msg = step.message[:80] + "..." if len(step.message) > 80 else step.message
+                    msg = step.message
                     print(f"        {console.dim(msg)}")
         else:
             print(f"    {console.dim('(no steps)')}")

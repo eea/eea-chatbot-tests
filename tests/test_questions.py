@@ -318,7 +318,6 @@ class TestQuestionValidation:
                     "Wait for Halloumi quality fact-check response",
                     outcome="failed",
                     message="Halloumi quality fact-check request timeout after 90s",
-                    step_type="wait"
                 )
                 ha_holder.value = "no_response"
 
