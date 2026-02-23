@@ -124,6 +124,7 @@ class ChatbotPageSelectors:
     FACT_CHECK_BUTTON = ".halloumi-feedback-button .claims-btn"
     VERIFY_CLAIMS_LOADING = ".verify-claims"
     HALLOUMI_MESSAGE = ".claim-message .content"
+    EMPTY_HALLOUMI_MESSAGE = ".claim-message.claim-empty .content"
     CLAIMS = "span.claim"
     RETRY_BUTTON = "button:has-text('Retry Fact-check AI answer')"
 
@@ -379,6 +380,10 @@ class ChatbotPage:
     @property
     def halloumi_message(self) -> Locator:
         return self.assistant_messages.last.locator(self.selectors.HALLOUMI_MESSAGE)
+
+    @property
+    def empty_halloumi_message(self ) -> Locator:
+        return self.assistant_messages.last.locator(self.selectors.EMPTY_HALLOUMI_MESSAGE)
 
     @property
     def halloumi_claims(self) -> Locator:

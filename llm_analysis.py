@@ -5,6 +5,7 @@ for deeper insights into test results and chatbot response quality.
 """
 
 import json
+import re
 from typing import Optional, Union
 from pydantic import BaseModel, Field
 
@@ -506,7 +507,7 @@ class LLMAnalyzer:
         else:
             comparison_text = comparison_data
 
-        print(comparison_text)
+        # print(comparison_text)
 
         return self._analyze(
             COMPARISON_ANALYSIS_PROMPT,
@@ -571,6 +572,264 @@ class LLMAnalyzer:
                 return ("fast", is_anomalous)
 
         return ("unknown", False)
+
+    # Regex patterns for extracting test IDs and step details
+    _TEST_ID_RE = re.compile(r'\[(Q-\d+)')
+    _QUALITY_BELOW_RE = re.compile(r"Quality score (\d+)% below threshold (\d+)%")
+    _HALLOUMI_SCORE_RE = re.compile(r"Halloumi quality fact-check score: (\d+)%")
+    _INLINE_CITATIONS_RE = re.compile(r"has inline citations \(\d+ found\)")
+    _CITED_SOURCES_RE = re.compile(r"Verify cited sources \(\d+ found, \d+ minimum\)")
+
+    @staticmethod
+    def _extract_test_id(test_name: str) -> str:
+        """Extract Q-XXX ID from test name, falling back to full name."""
+        m = LLMAnalyzer._TEST_ID_RE.search(test_name)
+        return m.group(1) if m else test_name
+
+    def _categorize_failed_step(self, step_name: str, step_error: str) -> str:
+        """Categorize a failed step into a warning category.
+
+        Works with both report format (step_name/message) and comparison
+        format (step/error from lightweight summaries).
+        """
+        if self._QUALITY_BELOW_RE.search(step_name) or self._QUALITY_BELOW_RE.search(step_error):
+            return "Halloumi Below Threshold"
+        elif "halloumi" in step_name.lower() and ("timeout" in step_error.lower() or "timed out" in step_error.lower()):
+            return "Halloumi Timeout"
+        elif "related questions" in step_name.lower():
+            return "Related Questions"
+        elif self._INLINE_CITATIONS_RE.search(step_name) or self._CITED_SOURCES_RE.search(step_name):
+            return "Missing Citations"
+        elif self._INLINE_CITATIONS_RE.search(step_error) or self._CITED_SOURCES_RE.search(step_error):
+            return "Missing Citations"
+        return "Other"
+
+    def _build_warning_summary(self, tests: list[dict], lines: list[str], heading_level: str = "##") -> dict[str, list[str]]:
+        """Build warning summary for passed-with-warnings tests.
+
+        Handles two data shapes:
+        - Report format: tests with full step dicts (step_name, outcome, message, step_type)
+        - Comparison format: lightweight summaries with failed_steps: [{step, error}]
+
+        Returns the warning_categories dict for downstream use.
+        """
+        warning_categories: dict[str, list[str]] = {}
+
+        for test in tests:
+            if test.get("outcome") != "passed":
+                continue
+
+            test_id = self._extract_test_id(test.get("name", ""))
+
+            # Report format: full step dicts
+            if test.get("steps"):
+                failed_steps = [
+                    s for s in test.get("steps", [])
+                    if s.get("outcome") == "failed"
+                ]
+                if not failed_steps:
+                    continue
+                for s in failed_steps:
+                    sname = s.get("step_name", "")
+                    smsg = s.get("message", "")
+                    cat = self._categorize_failed_step(sname, smsg)
+                    warning_categories.setdefault(cat, [])
+                    if test_id not in warning_categories[cat]:
+                        warning_categories[cat].append(test_id)
+
+            # Comparison format: lightweight summaries with failed_steps dicts
+            elif test.get("failed_steps") or test.get("warn"):
+                fs_list = test.get("failed_steps", [])
+                if not fs_list and not test.get("warn"):
+                    continue
+                for fs in fs_list:
+                    if isinstance(fs, dict):
+                        sname = fs.get("step", "")
+                        smsg = fs.get("error", "")
+                    else:
+                        sname = str(fs)
+                        smsg = ""
+                    cat = self._categorize_failed_step(sname, smsg)
+                    warning_categories.setdefault(cat, [])
+                    if test_id not in warning_categories[cat]:
+                        warning_categories[cat].append(test_id)
+
+        if warning_categories:
+            lines.append(f"{heading_level} Warning Summary (Pre-Computed)")
+            lines.append("")
+            lines.append("Tests that passed overall but had failed steps, categorized by failure type:")
+            lines.append("")
+            lines.append("| Category | Count | Affected Tests |")
+            lines.append("|----------|-------|----------------|")
+            for cat in ["Halloumi Below Threshold", "Halloumi Timeout", "Related Questions", "Missing Citations", "Other"]:
+                ids = warning_categories.get(cat, [])
+                if ids:
+                    lines.append(f"| {cat} | {len(ids)} | {', '.join(ids)} |")
+            all_warn_ids = set()
+            for ids in warning_categories.values():
+                all_warn_ids.update(ids)
+            lines.append(f"| **Total unique tests with warnings** | **{len(all_warn_ids)}** | |")
+            lines.append("")
+            lines.append("NOTE: Use these pre-computed counts in your analysis. Do NOT manually recount from the detailed results below.")
+            lines.append("")
+
+        return warning_categories
+
+    def _build_halloumi_distribution(self, tests: list[dict], lines: list[str], heading_level: str = "##") -> list[tuple[str, int]]:
+        """Build Halloumi score distribution summary.
+
+        Handles two data shapes:
+        - Report format: full step dicts (searches step_name for score pattern)
+        - Comparison format: lightweight summaries with halloumi_scores: [str]
+
+        Returns the list of (test_id, score) tuples for downstream use.
+        """
+        halloumi_scores: list[tuple[str, int]] = []
+
+        for test in tests:
+            test_id = self._extract_test_id(test.get("name", ""))
+
+            # Report format: full step dicts
+            if test.get("steps"):
+                for s in test.get("steps", []):
+                    m = self._HALLOUMI_SCORE_RE.search(s.get("step_name", ""))
+                    if m:
+                        halloumi_scores.append((test_id, int(m.group(1))))
+
+            # Comparison format: pre-extracted halloumi_scores strings
+            elif test.get("halloumi_scores"):
+                for score_str in test["halloumi_scores"]:
+                    m = self._HALLOUMI_SCORE_RE.search(score_str)
+                    if m:
+                        halloumi_scores.append((test_id, int(m.group(1))))
+
+        if halloumi_scores:
+            scores = [sc for _, sc in halloumi_scores]
+            sorted_scores = sorted(scores)
+            n = len(sorted_scores)
+            median = sorted_scores[n // 2] if n % 2 == 1 else (sorted_scores[n // 2 - 1] + sorted_scores[n // 2]) / 2
+
+            lines.append(f"{heading_level} Halloumi Score Distribution (Pre-Computed)")
+            lines.append("")
+            lines.append(f"- Total scores: {n}")
+            lines.append(f"- Average: {sum(scores) / n:.1f}%")
+            lines.append(f"- Median: {median:.0f}%")
+            lines.append(f"- Range: {min(scores)}% - {max(scores)}%")
+            lines.append("")
+
+            # Distribution by stage
+            stage_ranges = [
+                (0, 19, "0-19% (Not supported)"),
+                (20, 39, "20-39% (Mostly not supported)"),
+                (40, 79, "40-79% (Partially supported)"),
+                (80, 94, "80-94% (Mostly supported)"),
+                (95, 100, "95-100% (Fully supported)"),
+            ]
+            lines.append("| Score Range | Count | Tests |")
+            lines.append("|-------------|-------|-------|")
+            for low, high, label in stage_ranges:
+                matching = [(tid, sc) for tid, sc in halloumi_scores if low <= sc <= high]
+                if matching:
+                    test_list = ", ".join(f"{tid} ({sc}%)" for tid, sc in matching)
+                    lines.append(f"| {label} | {len(matching)} | {test_list} |")
+                else:
+                    lines.append(f"| {label} | 0 | |")
+            lines.append("")
+
+            # Cumulative counts so the LLM doesn't have to sum ranges
+            ge80 = sum(1 for sc in scores if sc >= 80)
+            ge60 = sum(1 for sc in scores if sc >= 60)
+            lt60 = sum(1 for sc in scores if sc < 60)
+            lines.append("Cumulative:")
+            lines.append(f"- Tests >= 80%: {ge80} ({ge80 / n * 100:.1f}%)")
+            lines.append(f"- Tests >= 60%: {ge60} ({ge60 / n * 100:.1f}%)")
+            lines.append(f"- Tests < 60% (below acceptance threshold): {lt60} ({lt60 / n * 100:.1f}%)")
+            lines.append("")
+            lines.append("NOTE: Use these pre-computed distributions and cumulative counts in your analysis. Do NOT manually recount from the detailed results below.")
+            lines.append("")
+
+        return halloumi_scores
+
+    def _build_halloumi_facts(self, warning_categories: dict[str, list[str]], halloumi_scores: list[tuple[str, int]], lines: list[str], heading_level: str = "##") -> None:
+        """Add explicit 'Key Halloumi facts' block to prevent LLM conflation.
+
+        Separates the two Halloumi warning categories (Below Threshold vs Timeout)
+        with exact counts and test IDs, making it unambiguous for the LLM.
+        """
+        below = warning_categories.get("Halloumi Below Threshold", [])
+        timeouts = warning_categories.get("Halloumi Timeout", [])
+
+        if not below and not timeouts and not halloumi_scores:
+            return
+
+        lines.append(f"{heading_level} Key Halloumi Facts")
+        lines.append("")
+        lines.append("IMPORTANT: The following are DIFFERENT categories — do not conflate them:")
+        lines.append("")
+
+        if below:
+            lines.append(f"1. **Halloumi Below Threshold**: {len(below)} test(s) had Halloumi quality scores below the acceptance threshold.")
+            lines.append(f"   - Affected: {', '.join(below)}")
+            # Show actual scores for below-threshold tests
+            below_set = set(below)
+            below_scores = [(tid, sc) for tid, sc in halloumi_scores if tid in below_set]
+            if below_scores:
+                score_details = ", ".join(f"{tid}: {sc}%" for tid, sc in below_scores)
+                lines.append(f"   - Scores: {score_details}")
+        else:
+            lines.append("1. **Halloumi Below Threshold**: 0 tests — no quality scores fell below the acceptance threshold.")
+
+        if timeouts:
+            lines.append(f"2. **Halloumi Timeout**: {len(timeouts)} test(s) had Halloumi fact-check timeouts (the service did not respond in time).")
+            lines.append(f"   - Affected: {', '.join(timeouts)}")
+        else:
+            lines.append("2. **Halloumi Timeout**: 0 tests — no Halloumi timeouts occurred.")
+
+        lines.append("")
+
+    def _build_citation_facts(self, warning_categories: dict[str, list[str]], llm_verdicts: Optional[dict], total_tests: int, lines: list[str], heading_level: str = "##") -> None:
+        """Add explicit 'Key Citation Facts' block to prevent LLM hallucination.
+
+        Extracts citation data from two independent sources:
+        1. Warning categories — structural check (inline citation step failures)
+        2. LLM verdicts — semantic check (LLM citation dimension pass/fail)
+
+        Args:
+            warning_categories: Dict from _build_warning_summary()
+            llm_verdicts: Dict from report_data["llm_verdicts"] (None for comparison format)
+            total_tests: Number of evaluated (non-skipped) tests
+            lines: Output lines list to append to
+            heading_level: Markdown heading level
+        """
+        missing = warning_categories.get("Missing Citations", [])
+        verdict_summary = (llm_verdicts or {}).get("summary", {})
+        citation_verdicts = verdict_summary.get("citations", {})
+
+        if not missing and not citation_verdicts and total_tests == 0:
+            return
+
+        lines.append(f"{heading_level} Key Citation Facts")
+        lines.append("")
+        lines.append("IMPORTANT: Citation STEP failures and LLM citation VERDICTS are DIFFERENT measures — do not conflate them.")
+        lines.append("")
+
+        successful = total_tests - len(missing)
+        if missing:
+            lines.append(f"1. **Citation step failures** (structural check — missing inline citations in HTML): {len(missing)} test(s)")
+            lines.append(f"   - Affected: {', '.join(missing)}")
+            lines.append(f"   - Tests with successful citation steps: {successful} out of {total_tests}")
+        else:
+            lines.append(f"1. **Citation step failures**: 0 — all {total_tests} tests passed the structural citation check.")
+
+        if citation_verdicts:
+            v_passed = citation_verdicts.get("passed", 0)
+            v_failed = citation_verdicts.get("failed", 0)
+            v_total = v_passed + v_failed
+            lines.append(f"2. **LLM citation verdicts** (semantic check — LLM evaluated whether response cites sources): {v_passed}/{v_total} passed")
+        else:
+            lines.append("2. **LLM citation verdicts**: not available for this run.")
+
+        lines.append("")
 
     def _format_report_for_llm(self, report_data: dict) -> str:
         """Format report data as structured text for LLM analysis.
@@ -762,12 +1021,19 @@ class LLMAnalyzer:
                 lines.append("Tests with failed verdicts:")
                 for test_name, verdicts in sorted(failed_tests.items()):
                     failed_dims = [dim for dim, passed in verdicts.items() if not passed]
-                    lines.append(f"- {_clean_test_name(test_name)}: failed on {', '.join(failed_dims)}")
+                    lines.append(f"- {self._extract_test_id(test_name)}: failed on {', '.join(failed_dims)}")
 
             lines.append("")
 
-        # Detailed test results
+        # Warning Summary + Halloumi Distribution + Key Halloumi Facts + Citation Facts
         tests = report_data.get("tests", [])
+        warning_categories = self._build_warning_summary(tests, lines)
+        halloumi_scores = self._build_halloumi_distribution(tests, lines)
+        self._build_halloumi_facts(warning_categories, halloumi_scores, lines)
+        total_evaluated = summary.get("total_tests", 0) - summary.get("skipped_tests", 0)
+        self._build_citation_facts(warning_categories, llm_verdicts, total_evaluated, lines)
+
+        # Detailed test results
         if tests:
             lines.append("## Detailed Test Results")
             lines.append("")
@@ -942,7 +1208,13 @@ class LLMAnalyzer:
                     marker_str = f" [{', '.join(markers)}]" if markers else ""
                     lines.append(f"- {t['name']}: {outcome}{warn_tag}{marker_str}")
                     for fs in t.get("failed_steps", []):
-                        lines.append(f"  Failed step: {fs}")
+                        if isinstance(fs, dict):
+                            step_line = f"  Failed step: {fs.get('step', '')}"
+                            if fs.get("error"):
+                                step_line += f" — {fs['error']}"
+                            lines.append(step_line)
+                        else:
+                            lines.append(f"  Failed step: {fs}")
                     verdicts = t.get("llm_verdicts", {})
                     if verdicts:
                         failed_dims = [d for d, v in verdicts.items() if not v]
@@ -952,6 +1224,29 @@ class LLMAnalyzer:
                         if passed_dims:
                             lines.append(f"  LLM verdicts passed: {', '.join(passed_dims)}")
                 lines.append("")
+
+        # Per-run Warning Summary + Halloumi Distribution
+        if runs:
+            for i, run in enumerate(runs, 1):
+                run_tests = run.get("tests", [])
+                if not run_tests:
+                    continue
+                source = run.get("source_file", f"Run {i}")
+                # Check if this run has any warnings or halloumi data worth showing
+                has_warnings = any(
+                    t.get("warn") or t.get("failed_steps")
+                    for t in run_tests if t.get("outcome") == "passed"
+                )
+                has_halloumi = any(
+                    t.get("halloumi_scores") for t in run_tests
+                )
+                if has_warnings or has_halloumi:
+                    lines.append(f"## Run {i} Aggregated Summaries: {source}")
+                    lines.append("")
+                    warning_cats = self._build_warning_summary(run_tests, lines, heading_level="###")
+                    halloumi_scores = self._build_halloumi_distribution(run_tests, lines, heading_level="###")
+                    self._build_halloumi_facts(warning_cats, halloumi_scores, lines, heading_level="###")
+                    self._build_citation_facts(warning_cats, None, len(run_tests), lines, heading_level="###")
 
         # Changes with failure context (needed early for cross-run matrix filtering)
         changes = comparison_data.get("changes", {})

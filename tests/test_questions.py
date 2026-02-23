@@ -16,6 +16,7 @@ Features tested per question:
 import pytest
 import json
 import time
+import pdb
 from playwright.sync_api import expect
 from contextlib import contextmanager
 
@@ -160,12 +161,15 @@ class TestQuestionValidation:
                     error = "assistent responded with \"no_response\""
                 error = error or response.error
                 if error:
+                    # pdb.set_trace()
                     raise Exception(f"Related questions were not generated: {error}")
             if not error:
                 with step("Verify related questions container is visible", True):
                     expect(chatbot_page.related_questions_container).to_be_visible()
                 with step("Verify related questions are displayed", True):
                     assert len(items) > 0, "No related questions found"
+                    # if count != len(items):
+                        # pdb.set_trace()
                     assert count == len(items), "Incorrect number of related questions displayed"
                     for i, question in enumerate(items):
                         assert ui_items.nth(i).text_content() == question, f"Question {i} is incorrectly displayed"
@@ -242,6 +246,7 @@ class TestQuestionValidation:
                 else:
                     llm_verdict("LLM analysis: answer not vague", not_vague[1])
                 if verify_citations and not has_citations[0]:
+                    # pdb.set_trace()
                     llm_verdict("LLM analysis: answer missing citations", has_citations[1], "failed")
                 else:
                     llm_verdict("LLM analysis: answer has citations", has_citations[1])
@@ -254,9 +259,13 @@ class TestQuestionValidation:
         min_sources = sources_config.get("min_count", get_threshold("min_sources")) or 0
 
         with step(f"Verify assistant response has inline citations ({len(citations)} found)", True):
+            # if len(citations) == 0:
+                # pdb.set_trace()
             assert len(citations) > 0, "No inline citations in response"
 
         with step(f"Verify cited sources ({len(cited_documents)} found, {min_sources} minimum)", True):
+            # if len(cited_documents) < min_sources:
+                # pdb.set_trace()
             assert len(cited_documents) >= min_sources, f"Insufficient cited sources: {len(cited_documents)} < {min_sources}"
 
         if len(citations) > 0:
@@ -298,8 +307,9 @@ class TestQuestionValidation:
         @contextmanager
         def _halloumi_fact_check():
             try:
-                if not requests.get("halloumi"):
+                if not requests.get("halloumi") or len(citations) == 0:
                     ha_holder.value = "not_supported"
+                    expect(chatbot_page.fact_check_button).to_be_hidden()
                     yield ha_holder
                     return
 
@@ -313,12 +323,13 @@ class TestQuestionValidation:
 
                 ha_holder.value = response.value
 
-            except Exception:
+            except Exception as e:
                 log_step(
                     "Wait for Halloumi quality fact-check response",
                     outcome="failed",
                     message="Halloumi quality fact-check request timeout after 90s",
                 )
+                # pdb.set_trace()
                 ha_holder.value = "no_response"
 
         def validate_ha_loading(response: ResponseHolder):
@@ -333,6 +344,8 @@ class TestQuestionValidation:
             with step("Wait for Halloumi quality fact-check to be fetched", True, start=start):
                 response = response.value
                 response.finished()
+                if response.status != 200:
+                    pdb.set_trace()
                 assert response.status == 200, f"Expected status 200, got {response.status} - {str(response.body())}"
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
                 expect(chatbot_page.halloumi_message).to_be_visible()
@@ -343,6 +356,9 @@ class TestQuestionValidation:
                     expect(chatbot_page.halloumi_message).to_be_visible()
                     assert chatbot_page.halloumi_message.text_content(), "Halloumi message is empty"
                 with step("Verify Halloumi quality fact-check claims are displayed"):
+                    is_empty = chatbot_page.empty_halloumi_message.count() > 0
+                    if is_empty:
+                        raise Exception(chatbot_page.empty_halloumi_message.text_content())
                     assert chatbot_page.halloumi_claims.count() > 0, "Claims are not displayed"
                 halloumi_text = chatbot_page.halloumi_message.text_content()
                 score = int(halloumi_text.split(" ")[1].replace("%", ""))
@@ -356,6 +372,7 @@ class TestQuestionValidation:
                 if score >= min_score:
                     log_step(f"Quality score ({score}%) above threshold ({min_score}%)")
                 else:
+                    # pdb.set_trace()
                     log_step(f"Quality score {score}% below threshold {min_score}%", "failed")
 
         try:

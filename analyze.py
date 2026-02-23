@@ -291,10 +291,19 @@ class ComparisonResult:
             summary["markers"] = test.markers
 
         failed_steps = [
-            s.step_name for s in test.steps if s.outcome == "failed"
+            {"step": s.step_name, "error": s.message or ""}
+            for s in test.steps if s.outcome == "failed"
         ]
         if failed_steps:
             summary["failed_steps"] = failed_steps
+
+        halloumi_scores = [
+            s.step_name for s in test.steps
+            if s.step_type == "info"
+            and "Halloumi quality fact-check score:" in s.step_name
+        ]
+        if halloumi_scores:
+            summary["halloumi_scores"] = halloumi_scores
 
         verdicts = run.llm_verdict_tests.get(test.name)
         if verdicts:

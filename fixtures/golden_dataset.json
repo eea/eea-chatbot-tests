@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "metadata": {
     "description": "Golden dataset for EEA Chatbot comprehensive validation",
-    "lastUpdated": "2026-02-04",
+    "lastUpdated": "2026-02-20",
     "maintainer": "Miu Razvan"
   },
   "validation_thresholds": {
@@ -38,6 +38,7 @@
       "priority": "medium",
       "question": "How does SatCen use AI and Big Data for Earth observation?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -47,6 +48,7 @@
       "priority": "medium",
       "question": "What is the relationship between SatCen and the European Commission in the context of the EU Space Programme?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy",
@@ -58,6 +60,7 @@
       "priority": "medium",
       "question": "How does AI4Copernicus contribute to the development of AI solutions for societal challenges?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "ai"
       ]
@@ -67,6 +70,7 @@
       "priority": "medium",
       "question": "What kind of technologies does SatCen use to provide strategic intelligence in a complex global security environment?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -76,6 +80,7 @@
       "priority": "medium",
       "question": "What is the relationship between SatCen and the European Space Agency?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -85,6 +90,7 @@
       "priority": "medium",
       "question": "How does SatCen collaborate with other EU agencies like EMSA and Frontex?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -94,6 +100,7 @@
       "priority": "low",
       "question": "What kind of work do physicists do at SatCen?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -103,6 +110,7 @@
       "priority": "medium",
       "question": "What is the goal of the Big Data in Secure Societies workshops?",
       "markers": [
+        "set_1_50",
         "security"
       ]
     },
@@ -111,6 +119,7 @@
       "priority": "medium",
       "question": "How does the EU use geospatial products and services to support border management?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy"
@@ -121,6 +130,7 @@
       "priority": "medium",
       "question": "What is the relationship between SatCen and NATO in terms of surveillance and security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -130,6 +140,7 @@
       "priority": "high",
       "question": "What is the significance of space for EU security and defence?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy"
@@ -140,6 +151,7 @@
       "priority": "medium",
       "question": "How does SatCen use satellite data to support EU policies?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy"
@@ -150,6 +162,7 @@
       "priority": "high",
       "question": "How does SatCen contribute to the monitoring of climate change and its impact on security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "climate"
@@ -160,6 +173,7 @@
       "priority": "medium",
       "question": "What is the Big Data from Space Conference about?",
       "markers": [
+        "set_1_50",
         "satellite"
       ]
     },
@@ -168,6 +182,7 @@
       "priority": "medium",
       "question": "What is the purpose of the IntSen² project in the context of European defence and security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -177,6 +192,7 @@
       "priority": "medium",
       "question": "How does SatCen use geospatial intelligence to address security challenges?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -186,6 +202,7 @@
       "priority": "medium",
       "question": "How does SatCen contribute to Space Surveillance and Tracking activities?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -195,6 +212,7 @@
       "priority": "medium",
       "question": "How can satellite imagery be used to monitor refugee camps?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -204,6 +222,7 @@
       "priority": "medium",
       "question": "What is the role of SatCen in European strategic priorities?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy"
@@ -214,6 +233,7 @@
       "priority": "medium",
       "question": "What is the significance of SatCen's geospatial analysis in supporting EU decision-making?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "policy"
@@ -224,6 +244,7 @@
       "priority": "high",
       "question": "What is the significance of SatCen's cooperation with the Commission under the Copernicus Programme?",
       "markers": [
+        "set_1_50",
         "satellite",
         "copernicus"
       ]
@@ -233,6 +254,7 @@
       "priority": "high",
       "question": "What is the goal of the joint ESA-SatCen large-scale pilot on climate security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "climate",
         "security"
@@ -243,6 +265,7 @@
       "priority": "medium",
       "question": "How does the EU SST system track and survey space objects orbiting the Earth?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -252,6 +275,7 @@
       "priority": "medium",
       "question": "What kind of intelligence analysis does SatCen provide?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -261,6 +285,7 @@
       "priority": "medium",
       "question": "What is the Digital Twin Earth concept and its application in security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -270,6 +295,7 @@
       "priority": "medium",
       "question": "What is the main objective of Operation EUNAVFOR MED IRINI?",
       "markers": [
+        "set_1_50",
         "security",
         "policy"
       ]
@@ -279,6 +305,7 @@
       "priority": "medium",
       "question": "How does SatCen leverage technology and innovation to improve geospatial services?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -288,6 +315,7 @@
       "priority": "medium",
       "question": "How does the ENTRUSTED project contribute to the future of EU GOVSATCOM?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -297,6 +325,7 @@
       "priority": "high",
       "question": "What are the advantages of using Synthetic Aperture Radar (SAR) imagery in defense and security?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security",
         "technical"
@@ -307,6 +336,7 @@
       "priority": "medium",
       "question": "How does SatCen contribute to crisis management and military operations?",
       "markers": [
+        "set_1_50",
         "satellite",
         "security"
       ]
@@ -316,6 +346,7 @@
       "priority": "medium",
       "question": "What is the difference between relative and absolute orbit numbers in Sentinel-1 products?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -325,6 +356,7 @@
       "priority": "medium",
       "question": "How does Sentinel-5P measure aerosol layer height?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -334,6 +366,7 @@
       "priority": "low",
       "question": "What factors affect the multiplication factor for processing units?",
       "markers": [
+        "set_1_50",
         "technical"
       ]
     },
@@ -342,6 +375,7 @@
       "priority": "medium",
       "question": "What is the effect of the incidence angle on Sentinel-1 data quality?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -351,6 +385,7 @@
       "priority": "high",
       "question": "How does vegetation affect the Earth's climate system?",
       "markers": [
+        "set_1_50",
         "climate",
         "biodiversity"
       ]
@@ -360,6 +395,7 @@
       "priority": "medium",
       "question": "What kind of information does the Copernicus SEA service provide to decision makers?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "marine"
       ]
@@ -369,6 +405,7 @@
       "priority": "medium",
       "question": "How does SatCen use artificial intelligence in its operations?",
       "markers": [
+        "set_1_50",
         "satellite",
         "ai"
       ]
@@ -378,6 +415,7 @@
       "priority": "medium",
       "question": "What is the purpose of reprocessing operations in Copernicus?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "technical"
       ]
@@ -387,6 +425,7 @@
       "priority": "high",
       "question": "How can I use Sentinel-5P data to compare NO2 pollution statistics for different cities?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "air_quality",
         "technical"
@@ -397,6 +436,7 @@
       "priority": "medium",
       "question": "What are the components of the Level-2 Ocean (OCN) products derived from Level-1 SAR data?",
       "markers": [
+        "set_1_50",
         "marine",
         "technical"
       ]
@@ -406,6 +446,7 @@
       "priority": "medium",
       "question": "What is the difference between experimental and non-experimental collections in the openEO federation?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "technical"
       ]
@@ -415,6 +456,7 @@
       "priority": "medium",
       "question": "What could be causing missing points in my process result when using Copernicus Vegetation Indices?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "technical"
       ]
@@ -424,6 +466,7 @@
       "priority": "high",
       "question": "What is the difference between Sentinel-2 L1C and L2A products?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -433,6 +476,7 @@
       "priority": "high",
       "question": "What are the benefits of using the openEO API for Earth observation data analysis?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "technical"
       ]
@@ -442,6 +486,7 @@
       "priority": "medium",
       "question": "What is the difference between sigma0 and gamma0 in Sentinel-1 data?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -451,6 +496,7 @@
       "priority": "medium",
       "question": "What is the difference between MSI and L2A satellite data?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -460,6 +506,7 @@
       "priority": "medium",
       "question": "What is the difference between the Low-Resolution Mode and Synthetic Aperture Radar mode in altimetry?",
       "markers": [
+        "set_1_50",
         "satellite",
         "technical"
       ]
@@ -469,6 +516,7 @@
       "priority": "medium",
       "question": "What atmospheric conditions can be measured using Sentinel-2 data?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -478,6 +526,7 @@
       "priority": "medium",
       "question": "What is the optical design of the MultiSpectral Instrument on Sentinel-2?",
       "markers": [
+        "set_1_50",
         "sentinel",
         "technical"
       ]
@@ -487,8 +536,1457 @@
       "priority": "low",
       "question": "What is the status of the checksum issue in the Copernicus Data Space Ecosystem?",
       "markers": [
+        "set_1_50",
         "copernicus",
         "technical"
+      ]
+    },
+    {
+      "id": "Q-051",
+      "priority": "medium",
+      "question": "What is the difference between a push and pull subscription?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-052",
+      "priority": "medium",
+      "question": "What are the available APIs for accessing Copernicus data?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-053",
+      "priority": "medium",
+      "question": "How do I calculate the Enhanced Vegetation Index using Sentinel-2 data?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-054",
+      "priority": "medium",
+      "question": "How does the altimeter determine the surface type of a given area?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-055",
+      "priority": "low",
+      "question": "What is the advantage of using a rank composite over compositing per band?",
+      "markers": [
+        "set_51_100",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-056",
+      "priority": "medium",
+      "question": "What is the relationship between cloud top pressure and ozone columns above clouds?",
+      "markers": [
+        "set_51_100",
+        "atmosphere",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-057",
+      "priority": "medium",
+      "question": "What is the purpose of retracking in altimetry processing?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-058",
+      "priority": "low",
+      "question": "How are the GCPs selected for the Copernicus Sentinel-2 GRI as Databases of GCPs in Level-1B and Level-1C?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-059",
+      "priority": "low",
+      "question": "What is the difference between S3_Object_defined and S3_Object_found?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-060",
+      "priority": "medium",
+      "question": "What is required to develop an openEO algorithm and share it as a service?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-061",
+      "priority": "medium",
+      "question": "How does Sentinel-1 use dual polarisation for enhanced analysis of backscattering properties?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-062",
+      "priority": "medium",
+      "question": "What is the difference between TOA radiances and TOA brightness temperatures in SLSTR products?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-063",
+      "priority": "medium",
+      "question": "What cloud infrastructure does Copernicus Data Space Ecosystem use?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-064",
+      "priority": "low",
+      "question": "What is the effect of detector saturation on image quality?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-065",
+      "priority": "medium",
+      "question": "What causes Sentinel-1 data to become corrupted during download?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-066",
+      "priority": "medium",
+      "question": "What is the difference between a personal account and a service account in openEO?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-067",
+      "priority": "low",
+      "question": "What causes a ClassCastException in a Spark job using openEO?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-068",
+      "priority": "low",
+      "question": "How are dark pixels used in the calibration process of OLCI detectors?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-069",
+      "priority": "medium",
+      "question": "Are there any plans to release new Sentinel missions data in the near future?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-070",
+      "priority": "low",
+      "question": "What is the difference between geodetic latitude and projected coordinates?",
+      "markers": [
+        "set_51_100",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-071",
+      "priority": "low",
+      "question": "What is the latest update on the BIOPAR process in OpenEO?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-072",
+      "priority": "low",
+      "question": "What are common errors encountered when using the load_stac process with AWS and Hadoop?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-073",
+      "priority": "medium",
+      "question": "What is the difference between mosaicking by orbit and mosaicking by tile?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-074",
+      "priority": "medium",
+      "question": "What are the criteria for failed general quality in Sentinel-2 L2A products?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-075",
+      "priority": "medium",
+      "question": "Can Sentinel-2 L2A products have negative reflectance values?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-076",
+      "priority": "medium",
+      "question": "What is the Batch Statistical API used for?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-077",
+      "priority": "medium",
+      "question": "What is the difference between Single Look Complex and other SAR data products?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-078",
+      "priority": "medium",
+      "question": "What is the difference between the QUICKLOOK and PRODUCT assets in Sentinel-1 data?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-079",
+      "priority": "medium",
+      "question": "What are the differences between Sentinel-3A and -3B Ocean and Land Colour Imager processing baselines?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-080",
+      "priority": "medium",
+      "question": "What are the benefits of using synthetic aperture radar imaging?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-081",
+      "priority": "medium",
+      "question": "What is the role of the Sentinel missions in monitoring the Arctic environment?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-082",
+      "priority": "medium",
+      "question": "What is the syntax for filtering products by multiple attributes in the Copernicus catalogue?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-083",
+      "priority": "medium",
+      "question": "What is the difference between SAR_SC_GEC and SAR_SC_MGD data?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-084",
+      "priority": "high",
+      "question": "What is the Copernicus Data Space Ecosystem?",
+      "markers": [
+        "set_51_100",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-085",
+      "priority": "medium",
+      "question": "What is the openEO Web Editor used for?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-086",
+      "priority": "medium",
+      "question": "What is the relationship between xcube and xarray?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-087",
+      "priority": "medium",
+      "question": "What are the capabilities of the openEO API for accessing and processing Earth Observation data?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-088",
+      "priority": "medium",
+      "question": "What is the biogeochemistry of the Mediterranean Sea?",
+      "markers": [
+        "set_51_100",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-089",
+      "priority": "medium",
+      "question": "What is an evalscript and how is it used?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-090",
+      "priority": "medium",
+      "question": "How does the S5P processor handle cloud retrieval?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-091",
+      "priority": "medium",
+      "question": "What are the benefits of using Copernicus data for Earth observation?",
+      "markers": [
+        "set_51_100",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-092",
+      "priority": "medium",
+      "question": "How can we balance economic development with ocean conservation?",
+      "markers": [
+        "set_51_100",
+        "marine",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-093",
+      "priority": "medium",
+      "question": "What is the impact of the Nepal earthquake on the ground deformation in Kathmandu?",
+      "markers": [
+        "set_51_100",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-094",
+      "priority": "medium",
+      "question": "What are the available parameters for searching Sentinel-1 data?",
+      "markers": [
+        "set_51_100",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-095",
+      "priority": "medium",
+      "question": "What is the difference between LRM and SAR operating modes in altimetry?",
+      "markers": [
+        "set_51_100",
+        "satellite",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-096",
+      "priority": "low",
+      "question": "How can I reduce environmental impact while sailing?",
+      "markers": [
+        "set_51_100",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-097",
+      "priority": "low",
+      "question": "How can I use Earth observation data for storytelling?",
+      "markers": [
+        "set_51_100",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-098",
+      "priority": "medium",
+      "question": "How does the Copernicus Data Space Ecosystem support data traceability and reproducibility?",
+      "markers": [
+        "set_51_100",
+        "copernicus",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-099",
+      "priority": "medium",
+      "question": "How can we separate anthropogenic CO2 emissions from biogenic fluxes?",
+      "markers": [
+        "set_51_100",
+        "atmosphere",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-100",
+      "priority": "high",
+      "question": "What are the consequences of rising global temperatures?",
+      "markers": [
+        "set_51_100",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-101",
+      "priority": "medium",
+      "question": "What are the effects of a tropical cyclone on a community?",
+      "markers": [
+        "set_101_150",
+        "emergency",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-102",
+      "priority": "high",
+      "question": "What is the purpose of the Sentinel-1 mission?",
+      "markers": [
+        "set_101_150",
+        "sentinel"
+      ]
+    },
+    {
+      "id": "Q-103",
+      "priority": "medium",
+      "question": "What is the role of Copernicus in marine conservation?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-104",
+      "priority": "medium",
+      "question": "What kind of applications and services are supported by Copernicus data and information?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-105",
+      "priority": "high",
+      "question": "What is the role of Copernicus in disaster management?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-106",
+      "priority": "medium",
+      "question": "What is the role of Copernicus Relays in the EU Space programme?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-107",
+      "priority": "medium",
+      "question": "What types of disasters can be supported by Copernicus Risk and Recovery Mapping?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-108",
+      "priority": "medium",
+      "question": "What is the significance of the Baltic Sea in European maritime affairs?",
+      "markers": [
+        "set_101_150",
+        "marine",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-109",
+      "priority": "medium",
+      "question": "How can ecosystem-based management of aquaculture be achieved using marine data?",
+      "markers": [
+        "set_101_150",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-110",
+      "priority": "medium",
+      "question": "How do satellite sensors detect and forecast hazardous sea ice conditions?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-111",
+      "priority": "high",
+      "question": "What is the purpose of the Copernicus Services?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-112",
+      "priority": "high",
+      "question": "How does the Sentinel-5P mission impact air quality forecasts?",
+      "markers": [
+        "set_101_150",
+        "sentinel",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-113",
+      "priority": "high",
+      "question": "What is the Tropomi instrument on the Sentinel-5P satellite used for?",
+      "markers": [
+        "set_101_150",
+        "sentinel",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-114",
+      "priority": "medium",
+      "question": "What are the benefits of Earth observation for humanity?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-115",
+      "priority": "high",
+      "question": "What role does Copernicus play in monitoring wildfires?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-116",
+      "priority": "medium",
+      "question": "How do firefighters use satellite imagery to monitor wildfires?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-117",
+      "priority": "medium",
+      "question": "How does Copernicus help in search and rescue operations at sea?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-118",
+      "priority": "medium",
+      "question": "How can satellite imagery help in managing natural disasters?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-119",
+      "priority": "medium",
+      "question": "How can satellite data help track ocean pollution?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-120",
+      "priority": "high",
+      "question": "How does the Copernicus Marine Service support ocean health?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-121",
+      "priority": "high",
+      "question": "What is the impact of climate change on ecosystems?",
+      "markers": [
+        "set_101_150",
+        "climate",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-122",
+      "priority": "medium",
+      "question": "What types of disasters can the Copernicus EMS Risk and Recovery Mapping module support?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-123",
+      "priority": "medium",
+      "question": "How can satellite imagery be used to monitor lakes and water bodies?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-124",
+      "priority": "medium",
+      "question": "How can satellite data help monitor geological hazards?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-125",
+      "priority": "medium",
+      "question": "How does Copernicus respond to earthquakes and floods?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-126",
+      "priority": "medium",
+      "question": "How does the Sentinel-6/Jason CS satellite monitor sea level?",
+      "markers": [
+        "set_101_150",
+        "sentinel",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-127",
+      "priority": "low",
+      "question": "What is the role of the Laser Communication Terminal in Sentinel-1?",
+      "markers": [
+        "set_101_150",
+        "sentinel",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-128",
+      "priority": "high",
+      "question": "What kind of climate data does the Copernicus Climate Change Service provide?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-129",
+      "priority": "medium",
+      "question": "What is the impact of water hyacinth on Lake Naivasha in Kenya?",
+      "markers": [
+        "set_101_150",
+        "biodiversity",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-130",
+      "priority": "medium",
+      "question": "What is the importance of land cover classification for understanding climate change?",
+      "markers": [
+        "set_101_150",
+        "land",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-131",
+      "priority": "medium",
+      "question": "What are the benefits of open-access satellite data for biodiversity research and conservation?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-132",
+      "priority": "medium",
+      "question": "Can volcanic eruptions trigger tsunamis?",
+      "markers": [
+        "set_101_150",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-133",
+      "priority": "high",
+      "question": "How does ocean warming affect sea levels and marine ecosystems?",
+      "markers": [
+        "set_101_150",
+        "marine",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-134",
+      "priority": "high",
+      "question": "What is Copernicus doing to address climate change?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-135",
+      "priority": "medium",
+      "question": "What are the benefits of the Sentinel-2 mission for environmental monitoring?",
+      "markers": [
+        "set_101_150",
+        "sentinel"
+      ]
+    },
+    {
+      "id": "Q-136",
+      "priority": "low",
+      "question": "What does the Sahara desert look like from space?",
+      "markers": [
+        "set_101_150",
+        "satellite"
+      ]
+    },
+    {
+      "id": "Q-137",
+      "priority": "medium",
+      "question": "Can weather forecasts predict air quality?",
+      "markers": [
+        "set_101_150",
+        "atmosphere",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-138",
+      "priority": "medium",
+      "question": "What are the benefits of using Copernicus marine products?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "marine"
+      ]
+    },
+    {
+      "id": "Q-139",
+      "priority": "medium",
+      "question": "How does the Copernicus program use satellite imagery to track environmental changes?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-140",
+      "priority": "medium",
+      "question": "What are the potential uses of Copernicus data in different sectors?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-141",
+      "priority": "medium",
+      "question": "What is the role of the European Space Agency in the Copernicus program?",
+      "markers": [
+        "set_101_150",
+        "copernicus",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-142",
+      "priority": "medium",
+      "question": "How does the Copernicus program benefit the environment in countries like Kenya?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-143",
+      "priority": "medium",
+      "question": "How does satellite imagery help in disaster management?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q-144",
+      "priority": "high",
+      "question": "How does air pollution affect human health and the environment?",
+      "markers": [
+        "set_101_150",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-145",
+      "priority": "medium",
+      "question": "How does Earth observation contribute to science and society?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-146",
+      "priority": "low",
+      "question": "How do satellites help track water hyacinth plagues in lakes?",
+      "markers": [
+        "set_101_150",
+        "satellite",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-147",
+      "priority": "high",
+      "question": "What is happening to the ice sheet in Greenland?",
+      "markers": [
+        "set_101_150",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-148",
+      "priority": "high",
+      "question": "What is the impact of climate change on freshwater resources?",
+      "markers": [
+        "set_101_150",
+        "climate",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-149",
+      "priority": "medium",
+      "question": "How can crop monitoring systems help with food security?",
+      "markers": [
+        "set_101_150",
+        "land"
+      ]
+    },
+    {
+      "id": "Q-150",
+      "priority": "medium",
+      "question": "What is the economic value of Copernicus Sentinel data?",
+      "markers": [
+        "set_101_150",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-151",
+      "priority": "high",
+      "question": "What role does the Copernicus Programme play in understanding and adapting to climate change?",
+      "markers": [
+        "set_151_200",
+        "copernicus",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-152",
+      "priority": "medium",
+      "question": "What kind of data does the Copernicus project provide?",
+      "markers": [
+        "set_151_200",
+        "copernicus"
+      ]
+    },
+    {
+      "id": "Q-153",
+      "priority": "medium",
+      "question": "How can a green economy strategy be integrated into national decision-making?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-154",
+      "priority": "medium",
+      "question": "What are the requirements for sampling frequency in EU water directives?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-155",
+      "priority": "medium",
+      "question": "What is the EU's progress in reducing transport emissions?",
+      "markers": [
+        "set_151_200",
+        "air_quality",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-156",
+      "priority": "medium",
+      "question": "How is the quality of freshwater fish affected by water pollution?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-157",
+      "priority": "medium",
+      "question": "What is the impact of transport on air quality in Europe?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-158",
+      "priority": "medium",
+      "question": "What is the role of the European Environment Agency in risk management?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-159",
+      "priority": "medium",
+      "question": "How is the CORINE Biotopes database related to the NATURA 2000 Network?",
+      "markers": [
+        "set_151_200",
+        "land",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-160",
+      "priority": "medium",
+      "question": "What organisations are responsible for environmental assessments in different countries?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-161",
+      "priority": "high",
+      "question": "What is the European Environment Agency's role in addressing climate change?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-162",
+      "priority": "high",
+      "question": "What are the main threats to Europe's ecosystems and biodiversity?",
+      "markers": [
+        "set_151_200",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-163",
+      "priority": "high",
+      "question": "Can renewable energy help the EU achieve carbon neutrality?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-164",
+      "priority": "medium",
+      "question": "What air pollutants are typically measured in regional monitoring networks?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-165",
+      "priority": "medium",
+      "question": "How effective are Environmental Agreements in achieving environmental goals?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-166",
+      "priority": "medium",
+      "question": "How does the EU address climate change and energy in the industrial sector?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-167",
+      "priority": "medium",
+      "question": "How does the uneven distribution of precipitation impact water availability in semi-arid areas?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-168",
+      "priority": "medium",
+      "question": "How do dams affect river ecosystems?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "biodiversity"
+      ]
+    },
+    {
+      "id": "Q-169",
+      "priority": "medium",
+      "question": "How does nitrate pollution affect the environment and human health?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-170",
+      "priority": "medium",
+      "question": "What are the most harmful chemicals and how can we avoid them?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-171",
+      "priority": "high",
+      "question": "What are the economic impacts of climate-related extremes in Europe?",
+      "markers": [
+        "set_151_200",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-172",
+      "priority": "medium",
+      "question": "What are the health effects of ozone concentrations above the threshold values?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-173",
+      "priority": "medium",
+      "question": "What are the main pollutants affecting the environment in Europe?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-174",
+      "priority": "medium",
+      "question": "What are the effects of cadmium on the environment?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-175",
+      "priority": "high",
+      "question": "What are the health effects of exposure to high levels of PM2.5 and PM10?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-176",
+      "priority": "high",
+      "question": "What are the effects of warming, acidification, and oxygen levels on Europe's seas?",
+      "markers": [
+        "set_151_200",
+        "marine",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-177",
+      "priority": "medium",
+      "question": "What are the sources of pollution in European bathing waters?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-178",
+      "priority": "medium",
+      "question": "How does the EU ensure the quality of environmental information made available to the public?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-179",
+      "priority": "high",
+      "question": "What are the estimated annual deaths in the EU due to exposure to air pollutants?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-180",
+      "priority": "medium",
+      "question": "What international agreements exist for monitoring surface waters in Europe?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-181",
+      "priority": "high",
+      "question": "How does air pollution affect human health in Europe?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-182",
+      "priority": "medium",
+      "question": "How does climate change affect soil health in Europe?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "land"
+      ]
+    },
+    {
+      "id": "Q-183",
+      "priority": "high",
+      "question": "What are the effects of climate change on Europe's seas and coasts?",
+      "markers": [
+        "set_151_200",
+        "marine",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-184",
+      "priority": "medium",
+      "question": "How is Europe tracking its progress towards climate and energy goals?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-185",
+      "priority": "high",
+      "question": "How can forest restoration help address climate change and biodiversity loss?",
+      "markers": [
+        "set_151_200",
+        "biodiversity",
+        "climate"
+      ]
+    },
+    {
+      "id": "Q-186",
+      "priority": "medium",
+      "question": "Can the EU reduce its consumption footprint while still growing its economy?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-187",
+      "priority": "medium",
+      "question": "How has the amount of waste sent to landfills changed in the EU since 2010?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-188",
+      "priority": "medium",
+      "question": "How are sampling sites chosen for river monitoring programs?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "technical"
+      ]
+    },
+    {
+      "id": "Q-189",
+      "priority": "medium",
+      "question": "What percentage of Europe's freshwater resources are used by humans?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-190",
+      "priority": "high",
+      "question": "How does the EU plan to achieve its zero pollution ambition and reduce the negative impacts of air pollution on human health and the environment?",
+      "markers": [
+        "set_151_200",
+        "air_quality",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-191",
+      "priority": "medium",
+      "question": "What are the environmental impacts of petroleum industries on freshwater ecosystems?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-192",
+      "priority": "medium",
+      "question": "How do chemicals in the environment affect water quality and ecosystems?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-193",
+      "priority": "medium",
+      "question": "What does a just transition to sustainability look like?",
+      "markers": [
+        "set_151_200",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-194",
+      "priority": "medium",
+      "question": "What are the main challenges facing inland waterways in the EU?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-195",
+      "priority": "medium",
+      "question": "How can the EU's Common Agricultural Policy support sustainable agriculture?",
+      "markers": [
+        "set_151_200",
+        "land",
+        "policy"
+      ]
+    },
+    {
+      "id": "Q-196",
+      "priority": "medium",
+      "question": "What are the health risks associated with high ozone concentrations?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-197",
+      "priority": "medium",
+      "question": "What are the effects of microplastics from textiles on the environment?",
+      "markers": [
+        "set_151_200",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-198",
+      "priority": "high",
+      "question": "How does climate change affect water use in the EU?",
+      "markers": [
+        "set_151_200",
+        "climate",
+        "water"
+      ]
+    },
+    {
+      "id": "Q-199",
+      "priority": "medium",
+      "question": "What are the main differences in emissions between Western and Eastern European countries?",
+      "markers": [
+        "set_151_200",
+        "air_quality"
+      ]
+    },
+    {
+      "id": "Q-200",
+      "priority": "medium",
+      "question": "How do countries monitor the water quality of their lakes and marine waters?",
+      "markers": [
+        "set_151_200",
+        "water",
+        "marine"
       ]
     }
   ]

@@ -115,14 +115,6 @@ class StreamedResponse:
 
         message = self.get_message()
 
-        match = re.search(r'\[[\s\S]*?\]', message)
-
-        if match:
-            try:
-                return json.loads(match.group(0))
-            except json.JSONDecodeError:
-                return parse_lines(match.group(0))
-
         return parse_lines(message)
 
     @classmethod
