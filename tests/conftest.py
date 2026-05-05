@@ -112,14 +112,13 @@ def chatbot_page(page: Page, settings) -> ChatbotPage:
         **parse_qs(url.query),
         "playwright": "yes",
     }))
-    page.goto(urlunparse(url))
-
     with page.expect_response(
         lambda r: "/_da/persona/" in r.url
     ) as response_info:
-        response = response_info.value
-        response.finished()
-        assistant = Assistant.model_validate(response.json())
+        page.goto(urlunparse(url))
+    response = response_info.value
+    response.finished()
+    assistant = Assistant.model_validate(response.json())
 
     page.locator(ChatbotPageSelectors.CHAT_WINDOW).wait_for(state="visible")
 

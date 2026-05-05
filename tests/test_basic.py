@@ -43,13 +43,19 @@ class TestChatbotUI:
             info("INFO: Chatbot block is configured to not show starter messages")
 
         # === Assistant ===
-        with step("Verify assistant title matches configured name"):
-            title = chatbot_page.messages.locator("h2")
-            expect(title).to_have_text(chatbot_page.assistant.name)
+        if chatbot_page.block_config.get("showAssistantTitle"):
+            with step("Verify assistant title matches configured name"):
+                title = chatbot_page.messages.locator("h2")
+                expect(title).to_have_text(chatbot_page.assistant.name)
+        else:
+            info("INFO: Chatbot block is configured to hide assistant title")
 
-        with step("Verify assistant description matches configured text"):
-            description = chatbot_page.messages.locator("p")
-            expect(description).to_have_text(chatbot_page.assistant.description)
+        if chatbot_page.block_config.get("showAssistantDescription"):
+            with step("Verify assistant description matches configured text"):
+                description = chatbot_page.messages.locator("p")
+                expect(description).to_have_text(chatbot_page.assistant.description)
+        else:
+            info("INFO: Chatbot block is configured to hide assistant description")
 
         # === Fact-Check Toggle (optional - may not be configured) ===
         if quality_check == "ondemand_toggle":

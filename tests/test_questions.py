@@ -344,8 +344,8 @@ class TestQuestionValidation:
             with step("Wait for Halloumi quality fact-check to be fetched", True, start=start):
                 response = response.value
                 response.finished()
-                if response.status != 200:
-                    pdb.set_trace()
+                # if response.status != 200:
+                #     pdb.set_trace()
                 assert response.status == 200, f"Expected status 200, got {response.status} - {str(response.body())}"
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
                 expect(chatbot_page.halloumi_message).to_be_visible()

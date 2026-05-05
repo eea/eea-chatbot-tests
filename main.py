@@ -310,6 +310,14 @@ def cli_analyze(args):
     if analysis.llm_verdicts:
         print_llm_verdicts(analysis)
 
+    # HTML report
+    if getattr(args, 'html', False):
+        from chatbot_tests.html_report import generate_html
+        html_path = settings.reports_path / f"report_{timestamp}.html"
+        html_path.parent.mkdir(parents=True, exist_ok=True)
+        html_path.write_text(generate_html(analysis), encoding="utf-8")
+        console.log(f"HTML report written to: {html_path}")
+
     # Prepare output data
     output_data = analysis.to_dict()
     llm_result = None
@@ -411,6 +419,7 @@ def main():
     analyze_parser.add_argument("--insights", action="store_true", help="Show auto-generated insights")
     analyze_parser.add_argument("--all", action="store_true", help="Show all analysis sections")
     analyze_parser.add_argument("--llm", action="store_true", help="Use LLM for analysis (also generates PDF)")
+    analyze_parser.add_argument("--html", action="store_true", help="Generate HTML report")
     analyze_parser.set_defaults(func=cli_analyze)
 
     # Compare command
