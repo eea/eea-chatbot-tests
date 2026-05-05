@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Main test runner service
+  tests:
+    build: .
+    image: eea-chatbot-tests
+    volumes:
+      - ./reports:/app/reports
+    env_file:
+      - .env
+    # Runs basic and question tests with color output by default
+    command: ["chatbot_tests", "run", "-m", "basic,question", "--color"]
+
+  # Service for analyzing results
+  analyze:
+    image: eea-chatbot-tests
+    profiles: ["tools"]
+    volumes:
+      - ./reports:/app/reports
+    env_file:
+      - .env
+    # Example usage:
+    # docker-compose run --rm analyze chatbot_tests analyze /app/reports/your_report.jsonl --all
+    entrypoint: ["chatbot_tests", "analyze"]
+
+  # Service for comparing results
+  compare:
+    image: eea-chatbot-tests
+    profiles: ["tools"]
+    volumes:
+      - ./reports:/app/reports
+    env_file:
+      - .env
+    # Example usage:
+    # docker-compose run --rm compare /app/reports/run1.jsonl /app/reports/run2.jsonl --llm
+    entrypoint: ["chatbot_tests", "compare"]
