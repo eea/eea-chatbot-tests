@@ -261,6 +261,40 @@ make compare    Compare test runs (FILES="path1 path2")
 make help       Show available targets
 ```
 
+## Docker Usage
+
+The project is fully dockerized for easy execution without local dependencies.
+
+### Configuration (`.env`)
+Before running, copy the example environment file:
+```bash
+cp .env.example .env
+```
+Edit `.env` to configure your test settings (URLs, timeouts, LLM keys). Docker Compose will automatically inject these variables into the containers.
+
+### Running Tests
+To start the test suite using your `.env` configuration (by default running the `basic` and `question` tests with color output):
+```bash
+docker-compose up tests
+```
+If you need to override the default command (e.g., to run different markers):
+```bash
+docker-compose run --rm tests chatbot_tests run -m always --color
+```
+
+### Analysis and Comparison Tools
+The `analyze` and `compare` services are placed under the `tools` profile to prevent them from starting automatically. Run them on-demand:
+
+**Analyze a specific test report:**
+```bash
+docker-compose run --rm analyze /app/reports/test_run_1234567890.jsonl --all
+```
+
+**Compare two test reports:**
+```bash
+docker-compose run --rm compare /app/reports/run1.jsonl /app/reports/run2.jsonl --llm
+```
+
 ## Documentation
 
 - **[GUIDE.md](GUIDE.md)** — Detailed guide for writing tests, page object reference, fixture format, LLM verification patterns
