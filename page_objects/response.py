@@ -159,8 +159,11 @@ class StreamedResponse:
                     },
                 }
             chunks.append(chunk)
-            if "ind" in chunk:
-                ind = chunk["ind"]
+
+         #   {"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "stop", "stop_reason": null}}
+            placement = chunk.get("placement", {})
+            if "tab_index" in placement:
+                ind = placement["tab_index"]
                 if "obj" in chunk and chunk["obj"].get("type") == "stop":
                     stopped = True
                 if ind not in grouped:

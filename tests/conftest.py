@@ -66,12 +66,22 @@ def load_all_fixtures():
     return all_test_cases
 
 
+@pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    """Launch arguments for the browser."""
+    return {
+        **browser_type_launch_args,
+        "args": browser_type_launch_args.get("args", []) + ["--disable-web-security"],
+    }
+
+
 @pytest.fixture
 def context(browser):
     """Create a new browser context with clipboard permissions."""
     context = browser.new_context(
         permissions=["clipboard-read", "clipboard-write"],
-        viewport={ 'width': 1650, 'height': 950 }
+        viewport={ 'width': 1650, 'height': 950 },
+        ignore_https_errors=True
     )
     yield context
     context.close()

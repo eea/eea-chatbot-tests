@@ -15,6 +15,7 @@ from chatbot_tests.utils import quality_check_stages
 class TestChatbotUI:
     """UI tests that verify the chatbot interface renders correctly."""
 
+    @pytest.mark.passed
     def test_initial_ui_state_and_configuration(self, chatbot_page: ChatbotPage):
         """Verify the chatbot UI loads correctly with all initial elements.
 
@@ -102,6 +103,7 @@ class TestChatbotUI:
         else:
             info("INFO: Chatbot block is configured to never go into deep research")
 
+    @pytest.mark.passed
     def test_user_input_interactions(self, chatbot_page: ChatbotPage):
         """Verify user can interact with input elements.
 
@@ -248,6 +250,7 @@ class TestChatbotUI:
             expect(chatbot_page.user_messages.last).to_be_visible()
             expect(chatbot_page.user_messages.last).to_contain_text(test_message)
 
+    @pytest.mark.failed
     def test_message_actions(self, chatbot_page: ChatbotPage):
         """Verify user can interact with message actions.
 
@@ -376,6 +379,7 @@ class TestChatbotUI:
         with step("Re-open feedback modal to verify button still works"):
             chatbot_page.dislike_button.click()
 
+    @pytest.mark.failed
     def test_loading_states(self, chatbot_page: ChatbotPage):
         """Verify all loading states during a single response flow.
 
@@ -431,6 +435,7 @@ class TestChatbotUI:
                 expect(chatbot_page.multi_tool_header).to_have_attribute(
                     "aria-expanded", "true"
                 )
+            #import pdb; pdb.set_trace()
 
             with step("Verify active step indicator exists"):
                 expect(chatbot_page.multi_tool_active_item).to_be_visible()
@@ -460,6 +465,7 @@ class TestChatbotUI:
         with step("Verify assistant message is visible"):
             expect(chatbot_page.assistant_messages.first).to_be_visible()
 
+    @pytest.mark.passed
     def test_message_sending_and_conversation_flow(self, chatbot_page: ChatbotPage):
         """Verify message sending methods and conversation flow work correctly.
 
@@ -525,6 +531,7 @@ class TestChatbotUI:
             last_assistant = chatbot_page.assistant_messages.last
             expect(last_assistant).to_be_visible()
 
+    @pytest.mark.passed
     def test_input_edge_cases(self, chatbot_page: ChatbotPage):
         """Verify edge cases in message input are handled correctly.
 
@@ -581,6 +588,7 @@ class TestChatbotUI:
 class TestResponseSources:
     """Tests for source document handling in responses."""
 
+    @pytest.mark.failed
     def test_sources_in_response_and_ui(self, chatbot_page: ChatbotPage):
         """Verify sources are present in response data and displayed in UI."""
 
@@ -656,6 +664,7 @@ class TestResponseSources:
 class TestRelatedQuestions:
     """Tests for related questions functionality."""
 
+    @pytest.mark.failed
     def test_related_questions_displayed(self, chatbot_page: ChatbotPage):
         """Verify related questions are displayed after response."""
 
@@ -710,6 +719,7 @@ class TestRelatedQuestions:
 class TestHalloumiFactCheck:
     """Tests for Halloumi fact-check functionality."""
 
+    @pytest.mark.passed
     def test_halloumi_quality_fact_check(self, chatbot_page: ChatbotPage):
         """Verify fact-check button appears and executes successfully.
 
@@ -809,6 +819,7 @@ class TestHalloumiFactCheck:
 class TestErrorHandling:
     """Tests for error handling and display."""
 
+    @pytest.mark.failed
     def test_network_error_displays_gracefully(self, chatbot_page: ChatbotPage):
         """Verify network errors are displayed with appropriate error UI."""
 
@@ -839,6 +850,7 @@ class TestErrorHandling:
         with step("Clean up route"):
             chatbot_page.page.unroute("**/chat/send-message")
 
+    @pytest.mark.failed
     def test_api_error_response_handled(self, chatbot_page: ChatbotPage):
         """Verify API error responses (5xx) display appropriate error message."""
 
@@ -875,6 +887,7 @@ class TestErrorHandling:
         with step("Clean up route"):
             chatbot_page.page.unroute("**/chat/send-message")
 
+    @pytest.mark.passed
     def test_malformed_response_handled(self, chatbot_page: ChatbotPage):
         """Verify malformed responses are handled gracefully without crashing."""
 
@@ -914,6 +927,7 @@ class TestErrorHandling:
         with step("Clean up route"):
             chatbot_page.page.unroute("**/chat/send-message")
 
+    @pytest.mark.passed
     def test_empty_response_handled(self, chatbot_page: ChatbotPage):
         """Verify empty responses are handled gracefully."""
 
@@ -945,6 +959,7 @@ class TestErrorHandling:
         with step("Clean up route"):
             chatbot_page.page.unroute("**/chat/send-message")
 
+    @pytest.mark.failed
     def test_error_recovery_allows_new_message(self, chatbot_page: ChatbotPage):
         """Verify user can send a new message after an error."""
 
@@ -982,6 +997,7 @@ class TestErrorHandling:
 class TestDeepResearch:
     """Tests for deep research functionality."""
 
+    @pytest.mark.failed
     def test_deep_research_toggle_affects_request(self, chatbot_page: ChatbotPage):
         """Verify deep research toggle sends correct API parameters."""
 
@@ -1030,6 +1046,7 @@ class TestDeepResearch:
             reasoning = response.get_reasoning()
             assert len(reasoning) > 0, "Expected reasoning data"
 
+    @pytest.mark.failed
     def test_deep_research_toggle_off(self, chatbot_page: ChatbotPage):
         """Verify no reasoning data when deep research is OFF."""
 

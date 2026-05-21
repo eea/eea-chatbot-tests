@@ -564,7 +564,7 @@ class ChatbotPage:
         holder = ResponseHolder()
 
         with self.page.expect_response(
-            lambda r: "/_da/chat/send-message" in r.url
+            lambda r: "/_da/chat/send-chat-message" in r.url
         ) as response_info:
             if enter:
                 self.textarea.press("Enter")
@@ -572,7 +572,6 @@ class ChatbotPage:
                 self.submit_button.click()
             holder.response_info = response_info
             yield holder
-
         holder.value = self.parse_response(response_info.value)
 
     # === Actions ===
@@ -596,7 +595,7 @@ class ChatbotPage:
         self.validate_predefined_message_in_ui(index, message)
 
         with self.page.expect_response(
-            lambda r: "/_da/chat/send-message" in r.url
+            lambda r: "/_da/chat/send-chat-message" in r.url
         ) as response_info:
             self.starter_messages.nth(index).click()
             holder.response_info = response_info
@@ -613,7 +612,7 @@ class ChatbotPage:
         holder = ResponseHolder()
 
         with self.page.expect_response(
-            lambda r: "/_da/chat/send-message" in r.url
+            lambda r: "/_da/chat/send-chat-message" in r.url
         ) as response_info:
             self.related_question_buttons.nth(index).click()
             holder.response_info = response_info
@@ -645,7 +644,7 @@ class ChatbotPage:
         holder = ResponseHolder()
 
         with self.page.expect_response(
-            lambda r: "/_rq/chat/send-message" in r.url
+            lambda r: "/_rq/chat/send-chat-message" in r.url
         ) as response_info:
             holder.response_info = response_info
             yield holder
