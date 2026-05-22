@@ -7,10 +7,12 @@ for deeper insights into test results and chatbot response quality.
 import json
 import re
 from typing import Optional, Union
+
 from pydantic import BaseModel, Field
 
 try:
     import litellm
+
     LITELLM_AVAILABLE = True
 except ImportError:
     LITELLM_AVAILABLE = False
@@ -19,6 +21,7 @@ except ImportError:
 # =============================================================================
 # Structured Output Models
 # =============================================================================
+
 
 class ResponseVerification(BaseModel):
     """Combined verification results from a single LLM call."""
@@ -341,6 +344,7 @@ Return your evaluation as JSON with boolean verdicts and brief explanations (1-2
 # LLM Analyzer Class
 # =============================================================================
 
+
 class LLMAnalyzer:
     """Analyzes chatbot responses and test reports using an LLM."""
 
@@ -348,7 +352,7 @@ class LLMAnalyzer:
         self,
         model: str = "Inhouse-LLM/gpt-oss-120b",
         base_url: Optional[str] = None,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
     ):
         if not LITELLM_AVAILABLE:
             raise ImportError(
@@ -386,7 +390,7 @@ class LLMAnalyzer:
         self,
         system_prompt: str,
         user_prompt: str,
-        response_format: Optional[type] = None
+        response_format: Optional[type] = None,
     ) -> str:
         """Execute LLM completion.
 
@@ -403,9 +407,9 @@ class LLMAnalyzer:
         response = litellm.completion(
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": user_prompt},
             ],
-            **kwargs
+            **kwargs,
         )
 
         return response.choices[0].message.content
@@ -449,15 +453,13 @@ class LLMAnalyzer:
         if final_documents:
             user_prompt += f"\n\nCited sources available: {len(final_documents)}"
             for doc in final_documents:
-                citation_num = doc.get("citation", {}).get("citation_num")
+                citation_number = doc.get("citation", {}).get("citation_number")
                 content = doc.get("content") or doc.get("blurb", "")
-                user_prompt += f"\n- [{citation_num}]: {content}"
+                user_prompt += f"\n- [{citation_number}]: {content}"
 
         try:
             result = self._call_llm(
-                VERIFY_ANSWER_PROMPT,
-                user_prompt,
-                response_format=ResponseVerification
+                VERIFY_ANSWER_PROMPT, user_prompt, response_format=ResponseVerification
             )
             # litellm with response_format returns parsed object or string
             if isinstance(result, str):
@@ -488,10 +490,7 @@ class LLMAnalyzer:
 
         # print(report_text)
 
-        return self._analyze(
-            REPORT_ANALYSIS_PROMPT,
-            f"Test Report:\n\n{report_text}"
-        )
+        return self._analyze(REPORT_ANALYSIS_PROMPT, f"Test Report:\n\n{report_text}")
 
     def analyze_test_comparison(self, comparison_data: Union[str, dict]) -> str:
         """Analyze a comparison of multiple test runs.
@@ -510,8 +509,7 @@ class LLMAnalyzer:
         # print(comparison_text)
 
         return self._analyze(
-            COMPARISON_ANALYSIS_PROMPT,
-            f"Comparison Data:\n\n{comparison_text}"
+            COMPARISON_ANALYSIS_PROMPT, f"Comparison Data:\n\n{comparison_text}"
         )
 
     # =========================================================================
@@ -546,10 +544,12 @@ class LLMAnalyzer:
         "capture",
         "clean up",
         "remove",
-        "ensure"
+        "ensure",
     ]
 
-    def _classify_step_timing(self, step_name: str, duration_ms: int) -> tuple[str, bool]:
+    def _classify_step_timing(
+        self, step_name: str, duration_ms: int
+    ) -> tuple[str, bool]:
         """Classify a step and determine if its timing is anomalous.
 
         Returns:
@@ -574,7 +574,7 @@ class LLMAnalyzer:
         return ("unknown", False)
 
     # Regex patterns for extracting test IDs and step details
-    _TEST_ID_RE = re.compile(r'\[(Q-\d+)')
+    _TEST_ID_RE = re.compile(r"\[(Q-\d+)")
     _QUALITY_BELOW_RE = re.compile(r"Quality score (\d+)% below threshold (\d+)%")
     _HALLOUMI_SCORE_RE = re.compile(r"Halloumi quality fact-check score: (\d+)%")
     _INLINE_CITATIONS_RE = re.compile(r"has inline citations \(\d+ found\)")
@@ -592,19 +592,29 @@ class LLMAnalyzer:
         Works with both report format (step_name/message) and comparison
         format (step/error from lightweight summaries).
         """
-        if self._QUALITY_BELOW_RE.search(step_name) or self._QUALITY_BELOW_RE.search(step_error):
+        if self._QUALITY_BELOW_RE.search(step_name) or self._QUALITY_BELOW_RE.search(
+            step_error
+        ):
             return "Halloumi Below Threshold"
-        elif "halloumi" in step_name.lower() and ("timeout" in step_error.lower() or "timed out" in step_error.lower()):
+        elif "halloumi" in step_name.lower() and (
+            "timeout" in step_error.lower() or "timed out" in step_error.lower()
+        ):
             return "Halloumi Timeout"
         elif "related questions" in step_name.lower():
             return "Related Questions"
-        elif self._INLINE_CITATIONS_RE.search(step_name) or self._CITED_SOURCES_RE.search(step_name):
+        elif self._INLINE_CITATIONS_RE.search(
+            step_name
+        ) or self._CITED_SOURCES_RE.search(step_name):
             return "Missing Citations"
-        elif self._INLINE_CITATIONS_RE.search(step_error) or self._CITED_SOURCES_RE.search(step_error):
+        elif self._INLINE_CITATIONS_RE.search(
+            step_error
+        ) or self._CITED_SOURCES_RE.search(step_error):
             return "Missing Citations"
         return "Other"
 
-    def _build_warning_summary(self, tests: list[dict], lines: list[str], heading_level: str = "##") -> dict[str, list[str]]:
+    def _build_warning_summary(
+        self, tests: list[dict], lines: list[str], heading_level: str = "##"
+    ) -> dict[str, list[str]]:
         """Build warning summary for passed-with-warnings tests.
 
         Handles two data shapes:
@@ -624,8 +634,7 @@ class LLMAnalyzer:
             # Report format: full step dicts
             if test.get("steps"):
                 failed_steps = [
-                    s for s in test.get("steps", [])
-                    if s.get("outcome") == "failed"
+                    s for s in test.get("steps", []) if s.get("outcome") == "failed"
                 ]
                 if not failed_steps:
                     continue
@@ -657,25 +666,39 @@ class LLMAnalyzer:
         if warning_categories:
             lines.append(f"{heading_level} Warning Summary (Pre-Computed)")
             lines.append("")
-            lines.append("Tests that passed overall but had failed steps, categorized by failure type:")
+            lines.append(
+                "Tests that passed overall but had failed steps, categorized by failure type:"
+            )
             lines.append("")
             lines.append("| Category | Count | Affected Tests |")
             lines.append("|----------|-------|----------------|")
-            for cat in ["Halloumi Below Threshold", "Halloumi Timeout", "Related Questions", "Missing Citations", "Other"]:
+            for cat in [
+                "Halloumi Below Threshold",
+                "Halloumi Timeout",
+                "Related Questions",
+                "Missing Citations",
+                "Other",
+            ]:
                 ids = warning_categories.get(cat, [])
                 if ids:
                     lines.append(f"| {cat} | {len(ids)} | {', '.join(ids)} |")
             all_warn_ids = set()
             for ids in warning_categories.values():
                 all_warn_ids.update(ids)
-            lines.append(f"| **Total unique tests with warnings** | **{len(all_warn_ids)}** | |")
+            lines.append(
+                f"| **Total unique tests with warnings** | **{len(all_warn_ids)}** | |"
+            )
             lines.append("")
-            lines.append("NOTE: Use these pre-computed counts in your analysis. Do NOT manually recount from the detailed results below.")
+            lines.append(
+                "NOTE: Use these pre-computed counts in your analysis. Do NOT manually recount from the detailed results below."
+            )
             lines.append("")
 
         return warning_categories
 
-    def _build_halloumi_distribution(self, tests: list[dict], lines: list[str], heading_level: str = "##") -> list[tuple[str, int]]:
+    def _build_halloumi_distribution(
+        self, tests: list[dict], lines: list[str], heading_level: str = "##"
+    ) -> list[tuple[str, int]]:
         """Build Halloumi score distribution summary.
 
         Handles two data shapes:
@@ -707,7 +730,11 @@ class LLMAnalyzer:
             scores = [sc for _, sc in halloumi_scores]
             sorted_scores = sorted(scores)
             n = len(sorted_scores)
-            median = sorted_scores[n // 2] if n % 2 == 1 else (sorted_scores[n // 2 - 1] + sorted_scores[n // 2]) / 2
+            median = (
+                sorted_scores[n // 2]
+                if n % 2 == 1
+                else (sorted_scores[n // 2 - 1] + sorted_scores[n // 2]) / 2
+            )
 
             lines.append(f"{heading_level} Halloumi Score Distribution (Pre-Computed)")
             lines.append("")
@@ -728,7 +755,9 @@ class LLMAnalyzer:
             lines.append("| Score Range | Count | Tests |")
             lines.append("|-------------|-------|-------|")
             for low, high, label in stage_ranges:
-                matching = [(tid, sc) for tid, sc in halloumi_scores if low <= sc <= high]
+                matching = [
+                    (tid, sc) for tid, sc in halloumi_scores if low <= sc <= high
+                ]
                 if matching:
                     test_list = ", ".join(f"{tid} ({sc}%)" for tid, sc in matching)
                     lines.append(f"| {label} | {len(matching)} | {test_list} |")
@@ -743,14 +772,24 @@ class LLMAnalyzer:
             lines.append("Cumulative:")
             lines.append(f"- Tests >= 80%: {ge80} ({ge80 / n * 100:.1f}%)")
             lines.append(f"- Tests >= 60%: {ge60} ({ge60 / n * 100:.1f}%)")
-            lines.append(f"- Tests < 60% (below acceptance threshold): {lt60} ({lt60 / n * 100:.1f}%)")
+            lines.append(
+                f"- Tests < 60% (below acceptance threshold): {lt60} ({lt60 / n * 100:.1f}%)"
+            )
             lines.append("")
-            lines.append("NOTE: Use these pre-computed distributions and cumulative counts in your analysis. Do NOT manually recount from the detailed results below.")
+            lines.append(
+                "NOTE: Use these pre-computed distributions and cumulative counts in your analysis. Do NOT manually recount from the detailed results below."
+            )
             lines.append("")
 
         return halloumi_scores
 
-    def _build_halloumi_facts(self, warning_categories: dict[str, list[str]], halloumi_scores: list[tuple[str, int]], lines: list[str], heading_level: str = "##") -> None:
+    def _build_halloumi_facts(
+        self,
+        warning_categories: dict[str, list[str]],
+        halloumi_scores: list[tuple[str, int]],
+        lines: list[str],
+        heading_level: str = "##",
+    ) -> None:
         """Add explicit 'Key Halloumi facts' block to prevent LLM conflation.
 
         Separates the two Halloumi warning categories (Below Threshold vs Timeout)
@@ -764,30 +803,49 @@ class LLMAnalyzer:
 
         lines.append(f"{heading_level} Key Halloumi Facts")
         lines.append("")
-        lines.append("IMPORTANT: The following are DIFFERENT categories — do not conflate them:")
+        lines.append(
+            "IMPORTANT: The following are DIFFERENT categories — do not conflate them:"
+        )
         lines.append("")
 
         if below:
-            lines.append(f"1. **Halloumi Below Threshold**: {len(below)} test(s) had Halloumi quality scores below the acceptance threshold.")
+            lines.append(
+                f"1. **Halloumi Below Threshold**: {len(below)} test(s) had Halloumi quality scores below the acceptance threshold."
+            )
             lines.append(f"   - Affected: {', '.join(below)}")
             # Show actual scores for below-threshold tests
             below_set = set(below)
-            below_scores = [(tid, sc) for tid, sc in halloumi_scores if tid in below_set]
+            below_scores = [
+                (tid, sc) for tid, sc in halloumi_scores if tid in below_set
+            ]
             if below_scores:
                 score_details = ", ".join(f"{tid}: {sc}%" for tid, sc in below_scores)
                 lines.append(f"   - Scores: {score_details}")
         else:
-            lines.append("1. **Halloumi Below Threshold**: 0 tests — no quality scores fell below the acceptance threshold.")
+            lines.append(
+                "1. **Halloumi Below Threshold**: 0 tests — no quality scores fell below the acceptance threshold."
+            )
 
         if timeouts:
-            lines.append(f"2. **Halloumi Timeout**: {len(timeouts)} test(s) had Halloumi fact-check timeouts (the service did not respond in time).")
+            lines.append(
+                f"2. **Halloumi Timeout**: {len(timeouts)} test(s) had Halloumi fact-check timeouts (the service did not respond in time)."
+            )
             lines.append(f"   - Affected: {', '.join(timeouts)}")
         else:
-            lines.append("2. **Halloumi Timeout**: 0 tests — no Halloumi timeouts occurred.")
+            lines.append(
+                "2. **Halloumi Timeout**: 0 tests — no Halloumi timeouts occurred."
+            )
 
         lines.append("")
 
-    def _build_citation_facts(self, warning_categories: dict[str, list[str]], llm_verdicts: Optional[dict], total_tests: int, lines: list[str], heading_level: str = "##") -> None:
+    def _build_citation_facts(
+        self,
+        warning_categories: dict[str, list[str]],
+        llm_verdicts: Optional[dict],
+        total_tests: int,
+        lines: list[str],
+        heading_level: str = "##",
+    ) -> None:
         """Add explicit 'Key Citation Facts' block to prevent LLM hallucination.
 
         Extracts citation data from two independent sources:
@@ -810,22 +868,32 @@ class LLMAnalyzer:
 
         lines.append(f"{heading_level} Key Citation Facts")
         lines.append("")
-        lines.append("IMPORTANT: Citation STEP failures and LLM citation VERDICTS are DIFFERENT measures — do not conflate them.")
+        lines.append(
+            "IMPORTANT: Citation STEP failures and LLM citation VERDICTS are DIFFERENT measures — do not conflate them."
+        )
         lines.append("")
 
         successful = total_tests - len(missing)
         if missing:
-            lines.append(f"1. **Citation step failures** (structural check — missing inline citations in HTML): {len(missing)} test(s)")
+            lines.append(
+                f"1. **Citation step failures** (structural check — missing inline citations in HTML): {len(missing)} test(s)"
+            )
             lines.append(f"   - Affected: {', '.join(missing)}")
-            lines.append(f"   - Tests with successful citation steps: {successful} out of {total_tests}")
+            lines.append(
+                f"   - Tests with successful citation steps: {successful} out of {total_tests}"
+            )
         else:
-            lines.append(f"1. **Citation step failures**: 0 — all {total_tests} tests passed the structural citation check.")
+            lines.append(
+                f"1. **Citation step failures**: 0 — all {total_tests} tests passed the structural citation check."
+            )
 
         if citation_verdicts:
             v_passed = citation_verdicts.get("passed", 0)
             v_failed = citation_verdicts.get("failed", 0)
             v_total = v_passed + v_failed
-            lines.append(f"2. **LLM citation verdicts** (semantic check — LLM evaluated whether response cites sources): {v_passed}/{v_total} passed")
+            lines.append(
+                f"2. **LLM citation verdicts** (semantic check — LLM evaluated whether response cites sources): {v_passed}/{v_total} passed"
+            )
         else:
             lines.append("2. **LLM citation verdicts**: not available for this run.")
 
@@ -844,11 +912,11 @@ class LLMAnalyzer:
 
         # Summary section
         summary = report_data.get("summary", {})
-        total = summary.get('total_tests', 0)
-        passed = summary.get('passed_tests', 0)
-        passed_with_warnings = summary.get('passed_with_warnings', 0)
-        failed = summary.get('failed_tests', 0)
-        skipped = summary.get('skipped_tests', 0)
+        total = summary.get("total_tests", 0)
+        passed = summary.get("passed_tests", 0)
+        passed_with_warnings = summary.get("passed_with_warnings", 0)
+        failed = summary.get("failed_tests", 0)
+        skipped = summary.get("skipped_tests", 0)
         evaluated = total - skipped
 
         lines.append("## Summary Statistics")
@@ -857,10 +925,14 @@ class LLMAnalyzer:
         lines.append(f"- Failed: {failed}")
         lines.append(f"- Skipped: {skipped}")
         lines.append(f"- Evaluated (non-skipped): {evaluated}")
-        lines.append(f"- Pass rate: {summary.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)")
+        lines.append(
+            f"- Pass rate: {summary.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)"
+        )
         lines.append(f"- Passed with warnings: {passed_with_warnings}")
         lines.append(f"- Health status: {summary.get('health_status', 'unknown')}")
-        lines.append(f"- Total duration: {summary.get('total_duration_seconds', 0):.1f}s")
+        lines.append(
+            f"- Total duration: {summary.get('total_duration_seconds', 0):.1f}s"
+        )
         lines.append("")
 
         # Step summary
@@ -875,8 +947,12 @@ class LLMAnalyzer:
         performance = report_data.get("performance", {})
         if performance:
             lines.append("## Performance")
-            lines.append(f"- Avg test duration: {performance.get('avg_test_duration_seconds', 0):.2f}s")
-            lines.append(f"- Avg step duration: {performance.get('avg_step_duration_ms', 0):.0f}ms")
+            lines.append(
+                f"- Avg test duration: {performance.get('avg_test_duration_seconds', 0):.2f}s"
+            )
+            lines.append(
+                f"- Avg step duration: {performance.get('avg_step_duration_ms', 0):.0f}ms"
+            )
 
             slowest = performance.get("slowest_tests", [])
             if slowest:
@@ -913,7 +989,9 @@ class LLMAnalyzer:
                 elif expected_type == "fast":
                     fast_steps_all.append((step_name, dur, test.get("name", "")))
                     if is_anomalous:
-                        slow_steps_anomalous.append((step_name, dur, test.get("name", "")))
+                        slow_steps_anomalous.append(
+                            (step_name, dur, test.get("name", ""))
+                        )
 
         lines.append("## Step Timing Analysis")
         lines.append("")
@@ -922,7 +1000,9 @@ class LLMAnalyzer:
         if info_steps:
             lines.append("### Info Steps (no timing expected)")
             lines.append(f"- Count: {len(info_steps)}")
-            lines.append("- These are informational logging messages - null/0 duration is CORRECT")
+            lines.append(
+                "- These are informational logging messages - null/0 duration is CORRECT"
+            )
             lines.append("")
 
         # LLM/API steps (expected to be slow)
@@ -932,8 +1012,8 @@ class LLMAnalyzer:
             min_llm = min(s[1] for s in slow_steps_expected)
             lines.append("### LLM/API Steps (expected slow)")
             lines.append(f"- Count: {len(slow_steps_expected)}")
-            lines.append(f"- Avg duration: {avg_llm/1000:.1f}s")
-            lines.append(f"- Range: {min_llm/1000:.1f}s - {max_llm/1000:.1f}s")
+            lines.append(f"- Avg duration: {avg_llm / 1000:.1f}s")
+            lines.append(f"- Range: {min_llm / 1000:.1f}s - {max_llm / 1000:.1f}s")
             if max_llm > 45000:
                 lines.append("- WARNING: Some LLM steps exceed 45s")
             lines.append("")
@@ -946,7 +1026,9 @@ class LLMAnalyzer:
             lines.append(f"- Avg duration: {avg_ui:.0f}ms")
 
             if slow_steps_anomalous:
-                lines.append(f"- ANOMALIES: {len(slow_steps_anomalous)} UI steps took >2s:")
+                lines.append(
+                    f"- ANOMALIES: {len(slow_steps_anomalous)} UI steps took >2s:"
+                )
                 for step_name, dur, test_name in slow_steps_anomalous[:5]:
                     lines.append(f"  - '{step_name}' took {dur}ms in {test_name}")
             lines.append("")
@@ -973,7 +1055,9 @@ class LLMAnalyzer:
             if failing_steps:
                 lines.append("## Failed Steps")
                 for step in failing_steps:
-                    lines.append(f"- {step['step_name']}: {step['failure_count']} failure(s)")
+                    lines.append(
+                        f"- {step['step_name']}: {step['failure_count']} failure(s)"
+                    )
                 lines.append("")
 
         # LLM Quality Verdict Summary
@@ -1006,7 +1090,7 @@ class LLMAnalyzer:
                 lines.append(f"- {label}: {passed}/{total} passed ({rate:.0f}%)")
 
             if total_checked > 0:
-                overall_rate = (total_passed / total_checked * 100)
+                overall_rate = total_passed / total_checked * 100
                 lines.append("")
                 lines.append(f"Overall quality rate: {overall_rate:.1f}%")
 
@@ -1020,8 +1104,12 @@ class LLMAnalyzer:
                 lines.append("")
                 lines.append("Tests with failed verdicts:")
                 for test_name, verdicts in sorted(failed_tests.items()):
-                    failed_dims = [dim for dim, passed in verdicts.items() if not passed]
-                    lines.append(f"- {self._extract_test_id(test_name)}: failed on {', '.join(failed_dims)}")
+                    failed_dims = [
+                        dim for dim, passed in verdicts.items() if not passed
+                    ]
+                    lines.append(
+                        f"- {self._extract_test_id(test_name)}: failed on {', '.join(failed_dims)}"
+                    )
 
             lines.append("")
 
@@ -1030,8 +1118,12 @@ class LLMAnalyzer:
         warning_categories = self._build_warning_summary(tests, lines)
         halloumi_scores = self._build_halloumi_distribution(tests, lines)
         self._build_halloumi_facts(warning_categories, halloumi_scores, lines)
-        total_evaluated = summary.get("total_tests", 0) - summary.get("skipped_tests", 0)
-        self._build_citation_facts(warning_categories, llm_verdicts, total_evaluated, lines)
+        total_evaluated = summary.get("total_tests", 0) - summary.get(
+            "skipped_tests", 0
+        )
+        self._build_citation_facts(
+            warning_categories, llm_verdicts, total_evaluated, lines
+        )
 
         # Detailed test results
         if tests:
@@ -1071,7 +1163,7 @@ class LLMAnalyzer:
                             dur = " [info]"
                         elif step_type == "llm_verdict":
                             dur = " [llm_verdict]"
-                        elif step.get('duration_ms') is not None:
+                        elif step.get("duration_ms") is not None:
                             dur = f" ({step.get('duration_ms', 0)}ms)"
                         else:
                             dur = ""
@@ -1101,15 +1193,15 @@ class LLMAnalyzer:
         marker_str = f" [{', '.join(markers)}]" if markers else ""
         outcome = ctx.get("outcome", "")
         progression = test_outcomes.get(name) if test_outcomes else None
-        prog_str = f" ({' -> '.join(progression)})" if progression else f" (last: {outcome})"
+        prog_str = (
+            f" ({' -> '.join(progression)})" if progression else f" (last: {outcome})"
+        )
         lines.append(f"- {name}{marker_str}{prog_str}")
 
         if ctx.get("error"):
             lines.append(f"  Error: {ctx['error']}")
         if ctx.get("previous_error"):
-            lines.append(
-                f"  Previous error: {ctx['previous_error']}"
-            )
+            lines.append(f"  Previous error: {ctx['previous_error']}")
         for fs in ctx.get("failed_steps", []):
             step_line = f"  Failed step: {fs['step']}"
             if fs.get("error"):
@@ -1142,15 +1234,29 @@ class LLMAnalyzer:
             lines.append("## Executive Summary Data (First vs Last Run)")
             lines.append(f"- First run: {exec_summary.get('first_run', 'N/A')}")
             lines.append(f"- Last run: {exec_summary.get('last_run', 'N/A')}")
-            for metric in ["total_tests", "passed", "passed_with_warnings", "failed", "skipped"]:
+            for metric in [
+                "total_tests",
+                "passed",
+                "passed_with_warnings",
+                "failed",
+                "skipped",
+            ]:
                 data = exec_summary.get(metric, {})
-                lines.append(f"- {metric}: first={data.get('first', 'N/A')}, last={data.get('last', 'N/A')}, delta={data.get('delta', 0)}")
+                lines.append(
+                    f"- {metric}: first={data.get('first', 'N/A')}, last={data.get('last', 'N/A')}, delta={data.get('delta', 0)}"
+                )
             pr = exec_summary.get("pass_rate", {})
-            lines.append(f"- pass_rate: first={pr.get('first', 'N/A')}%, last={pr.get('last', 'N/A')}%, delta={pr.get('delta_pp', 0)} pp")
+            lines.append(
+                f"- pass_rate: first={pr.get('first', 'N/A')}%, last={pr.get('last', 'N/A')}%, delta={pr.get('delta_pp', 0)} pp"
+            )
             dur = exec_summary.get("total_duration_seconds", {})
-            lines.append(f"- total_duration_seconds: first={dur.get('first', 'N/A')}s, last={dur.get('last', 'N/A')}s, delta={dur.get('delta', 0)}s")
+            lines.append(
+                f"- total_duration_seconds: first={dur.get('first', 'N/A')}s, last={dur.get('last', 'N/A')}s, delta={dur.get('delta', 0)}s"
+            )
             avg = exec_summary.get("avg_test_duration", {})
-            lines.append(f"- avg_test_duration: first={avg.get('first', 'N/A')}s, last={avg.get('last', 'N/A')}s, delta={avg.get('delta', 0)}s")
+            lines.append(
+                f"- avg_test_duration: first={avg.get('first', 'N/A')}s, last={avg.get('last', 'N/A')}s, delta={avg.get('delta', 0)}s"
+            )
             lines.append("")
 
         # Pass rate trend
@@ -1167,11 +1273,11 @@ class LLMAnalyzer:
             lines.append("## Individual Runs")
             for i, run in enumerate(runs, 1):
                 source = run.get("source_file", "Unknown")
-                total = run.get('total_tests', 0)
-                passed = run.get('passed_tests', 0)
-                passed_with_warnings = run.get('passed_with_warnings', 0)
-                failed = run.get('failed_tests', 0)
-                skipped = run.get('skipped_tests', 0)
+                total = run.get("total_tests", 0)
+                passed = run.get("passed_tests", 0)
+                passed_with_warnings = run.get("passed_with_warnings", 0)
+                failed = run.get("failed_tests", 0)
+                skipped = run.get("skipped_tests", 0)
                 evaluated = total - skipped
                 lines.append(f"### Run {i}: {source}")
                 lines.append(f"- Total tests: {total}")
@@ -1179,23 +1285,29 @@ class LLMAnalyzer:
                 lines.append(f"- Failed: {failed}")
                 lines.append(f"- Skipped: {skipped}")
                 lines.append(f"- Evaluated (non-skipped): {evaluated}")
-                lines.append(f"- Pass rate: {run.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)")
+                lines.append(
+                    f"- Pass rate: {run.get('pass_rate', 0):.1f}% ({passed} passed / {evaluated} evaluated)"
+                )
                 lines.append(f"- Passed with warnings: {passed_with_warnings}")
                 lines.append(f"- Health status: {run.get('health_status', 'unknown')}")
-                lines.append(f"- Total duration: {run.get('total_duration_seconds', 0):.1f}s")
+                lines.append(
+                    f"- Total duration: {run.get('total_duration_seconds', 0):.1f}s"
+                )
                 lines.append("")
 
         # Per-run test details (non-trivial tests only)
         if runs:
             lines.append("## Per-Run Test Details")
-            lines.append("(Only showing failed, skipped, or passed-with-warnings tests)")
+            lines.append(
+                "(Only showing failed, skipped, or passed-with-warnings tests)"
+            )
             lines.append("")
             for i, run in enumerate(runs, 1):
                 run_tests = run.get("tests", [])
                 interesting = [
-                    t for t in run_tests
-                    if t.get("outcome") in ("failed", "skipped")
-                    or t.get("warn")
+                    t
+                    for t in run_tests
+                    if t.get("outcome") in ("failed", "skipped") or t.get("warn")
                 ]
                 if not interesting:
                     continue
@@ -1220,9 +1332,13 @@ class LLMAnalyzer:
                         failed_dims = [d for d, v in verdicts.items() if not v]
                         passed_dims = [d for d, v in verdicts.items() if v]
                         if failed_dims:
-                            lines.append(f"  LLM verdicts failed: {', '.join(failed_dims)}")
+                            lines.append(
+                                f"  LLM verdicts failed: {', '.join(failed_dims)}"
+                            )
                         if passed_dims:
-                            lines.append(f"  LLM verdicts passed: {', '.join(passed_dims)}")
+                            lines.append(
+                                f"  LLM verdicts passed: {', '.join(passed_dims)}"
+                            )
                 lines.append("")
 
         # Per-run Warning Summary + Halloumi Distribution
@@ -1235,18 +1351,25 @@ class LLMAnalyzer:
                 # Check if this run has any warnings or halloumi data worth showing
                 has_warnings = any(
                     t.get("warn") or t.get("failed_steps")
-                    for t in run_tests if t.get("outcome") == "passed"
+                    for t in run_tests
+                    if t.get("outcome") == "passed"
                 )
-                has_halloumi = any(
-                    t.get("halloumi_scores") for t in run_tests
-                )
+                has_halloumi = any(t.get("halloumi_scores") for t in run_tests)
                 if has_warnings or has_halloumi:
                     lines.append(f"## Run {i} Aggregated Summaries: {source}")
                     lines.append("")
-                    warning_cats = self._build_warning_summary(run_tests, lines, heading_level="###")
-                    halloumi_scores = self._build_halloumi_distribution(run_tests, lines, heading_level="###")
-                    self._build_halloumi_facts(warning_cats, halloumi_scores, lines, heading_level="###")
-                    self._build_citation_facts(warning_cats, None, len(run_tests), lines, heading_level="###")
+                    warning_cats = self._build_warning_summary(
+                        run_tests, lines, heading_level="###"
+                    )
+                    halloumi_scores = self._build_halloumi_distribution(
+                        run_tests, lines, heading_level="###"
+                    )
+                    self._build_halloumi_facts(
+                        warning_cats, halloumi_scores, lines, heading_level="###"
+                    )
+                    self._build_citation_facts(
+                        warning_cats, None, len(run_tests), lines, heading_level="###"
+                    )
 
         # Changes with failure context (needed early for cross-run matrix filtering)
         changes = comparison_data.get("changes", {})
@@ -1262,7 +1385,9 @@ class LLMAnalyzer:
             }
             if changed:
                 lines.append("## Cross-Run Test Outcome Matrix")
-                lines.append("(Outcome progression for every test that changed across runs)")
+                lines.append(
+                    "(Outcome progression for every test that changed across runs)"
+                )
                 lines.append("")
                 for name, outcomes in sorted(changed.items()):
                     lines.append(f"- {name}: {' -> '.join(outcomes)}")
@@ -1271,9 +1396,7 @@ class LLMAnalyzer:
         # Per-run LLM verdict summary
         if runs:
             has_verdicts = any(
-                t.get("llm_verdicts")
-                for run in runs
-                for t in run.get("tests", [])
+                t.get("llm_verdicts") for run in runs for t in run.get("tests", [])
             )
             if has_verdicts:
                 lines.append("## Per-Run LLM Verdict Details")
@@ -1304,7 +1427,9 @@ class LLMAnalyzer:
                             continue
                         total = counts["passed"] + counts["failed"]
                         rate = (counts["passed"] / total * 100) if total > 0 else 0
-                        lines.append(f"- {dim}: {counts['passed']}/{total} ({rate:.0f}%)")
+                        lines.append(
+                            f"- {dim}: {counts['passed']}/{total} ({rate:.0f}%)"
+                        )
                         if dim_failures.get(dim):
                             for tname in dim_failures[dim]:
                                 lines.append(f"  Failed: {tname}")
@@ -1314,27 +1439,21 @@ class LLMAnalyzer:
         if regressions:
             lines.append("## Regressions (PASS → FAIL)")
             for name in regressions:
-                self._format_test_change(
-                    name, test_context, lines, test_outcomes
-                )
+                self._format_test_change(name, test_context, lines, test_outcomes)
             lines.append("")
 
         fixes = changes.get("fixes", [])
         if fixes:
             lines.append("## Fixes (FAIL → PASS)")
             for name in fixes:
-                self._format_test_change(
-                    name, test_context, lines, test_outcomes
-                )
+                self._format_test_change(name, test_context, lines, test_outcomes)
             lines.append("")
 
         flaky = changes.get("flaky_tests", [])
         if flaky:
             lines.append("## Flaky Tests (Inconsistent)")
             for name in flaky:
-                self._format_test_change(
-                    name, test_context, lines, test_outcomes
-                )
+                self._format_test_change(name, test_context, lines, test_outcomes)
             lines.append("")
 
         # LLM Quality Verdict Trends
@@ -1370,6 +1489,7 @@ class LLMAnalyzer:
 # Factory Function
 # =============================================================================
 
+
 def create_analyzer_from_settings(settings) -> Optional[LLMAnalyzer]:
     """Create an LLMAnalyzer from settings if enabled.
 
@@ -1394,5 +1514,5 @@ def create_analyzer_from_settings(settings) -> Optional[LLMAnalyzer]:
     return LLMAnalyzer(
         model=settings.llm_model,
         base_url=settings.llm_url,
-        api_key=settings.llm_api_key
+        api_key=settings.llm_api_key,
     )

@@ -13,20 +13,18 @@ Features tested per question:
 6. LLM-based quality verification (if enabled)
 """
 
-import pytest
 import json
 import time
-import pdb
-from playwright.sync_api import expect
 from contextlib import contextmanager
 
-from chatbot_tests.step import step, info, llm_verdict
-from chatbot_tests.plugin import log_step
+import pytest
 from chatbot_tests.config import Settings
-from chatbot_tests.page_objects import ChatbotPage
 from chatbot_tests.llm_analysis import create_analyzer_from_settings
+from chatbot_tests.page_objects import ChatbotPage
+from chatbot_tests.plugin import log_step
+from chatbot_tests.step import info, llm_verdict, step
 from chatbot_tests.utils import quality_check_stages
-
+from playwright.sync_api import expect
 
 # Default thresholds when not specified in fixture
 DEFAULTS = {
@@ -51,7 +49,9 @@ class TestQuestionValidation:
     skipping with info log when features are not enabled.
     """
 
-    def test_question_response(self, chatbot_page: ChatbotPage, data: dict, settings: Settings):
+    def test_question_response(
+        self, chatbot_page: ChatbotPage, data: dict, settings: Settings
+    ):
         """Comprehensively validate chatbot response for a question.
 
         Executes all validation phases in order:
@@ -88,31 +88,47 @@ class TestQuestionValidation:
         qgen_assistant = chatbot_page.block_config.get("qgenAsistantId")
 
         if not qgen_enabled:
-            info("INFO: Chatbot block configuration does not have related questions generation enabled")
+            info(
+                "INFO: Chatbot block configuration does not have related questions generation enabled"
+            )
         elif not qgen_assistant:
-            info("INFO: Chatbot block configuration does not have a proper assistant ID set for related questions generation")
+            info(
+                "INFO: Chatbot block configuration does not have a proper assistant ID set for related questions generation"
+            )
         else:
-            requests["qgen"] = "/_rq/chat/send-message"
+            requests["qgen"] = "/_rq/chat/send-chat-message"
 
         if quality_check not in ["enabled", "ondemand", "ondemand_toggle"]:
-            info("INFO: Chatbot block is configured to never do Halloumi answer quality fact-check after assistant response")
+            info(
+                "INFO: Chatbot block is configured to never do Halloumi answer quality fact-check after assistant response"
+            )
         else:
             requests["halloumi"] = "/_ha/generate"
 
         if qc_config and quality_check == "ondemand_toggle":
             with step("Ensure Hallumi quality fact-check toggle is enabled"):
                 expect(chatbot_page.fact_check_toggle).to_be_visible()
-                input_el = chatbot_page.fact_check_toggle.locator("#quality-check-toggle")
+                input_el = chatbot_page.fact_check_toggle.locator(
+                    "#quality-check-toggle"
+                )
                 if not input_el.is_checked():
                     chatbot_page.fact_check_toggle.locator(".ui.checkbox").click()
-                    assert input_el.is_checked(), "Failed to enable quality check toggle"
+                    assert input_el.is_checked(), (
+                        "Failed to enable quality check toggle"
+                    )
         elif not qc_config and quality_check == "ondemand_toggle":
-            with step("Halloumi quality fact-check not enabled for this test case - disabling toggle"):
+            with step(
+                "Halloumi quality fact-check not enabled for this test case - disabling toggle"
+            ):
                 expect(chatbot_page.fact_check_toggle).to_be_visible()
-                input_el = chatbot_page.fact_check_toggle.locator("#quality-check-toggle")
+                input_el = chatbot_page.fact_check_toggle.locator(
+                    "#quality-check-toggle"
+                )
                 if input_el.is_checked():
                     chatbot_page.fact_check_toggle.locator(".ui.checkbox").click()
-                    assert not input_el.is_checked(), "Failed to disable quality check toggle"
+                    assert not input_el.is_checked(), (
+                        "Failed to disable quality check toggle"
+                    )
 
         # =====================================================================
         # PHASE 1: Send Question and Get Response
@@ -158,7 +174,7 @@ class TestQuestionValidation:
                 error = None
                 rq = response.get_message()
                 if "no_response" in rq.lower():
-                    error = "assistent responded with \"no_response\""
+                    error = 'assistant responded with "no_response"'
                 error = error or response.error
                 if error:
                     # pdb.set_trace()
@@ -169,18 +185,29 @@ class TestQuestionValidation:
                 with step("Verify related questions are displayed", True):
                     assert len(items) > 0, "No related questions found"
                     # if count != len(items):
-                        # pdb.set_trace()
-                    assert count == len(items), "Incorrect number of related questions displayed"
+                    # pdb.set_trace()
+                    assert count == len(items), (
+                        "Incorrect number of related questions displayed"
+                    )
                     for i, question in enumerate(items):
-                        assert ui_items.nth(i).text_content() == question, f"Question {i} is incorrectly displayed"
-                with step(f"Verify related questions count ({count} found, {min_rq} minimum)", True):
-                    assert count >= min_rq, f"Insufficient related questions: {count} < {min_rq}"
+                        assert ui_items.nth(i).text_content() == question, (
+                            f"Question {i} is incorrectly displayed"
+                        )
+                with step(
+                    f"Verify related questions count ({count} found, {min_rq} minimum)",
+                    True,
+                ):
+                    assert count >= min_rq, (
+                        f"Insufficient related questions: {count} < {min_rq}"
+                    )
 
         with _related_questions() as rq_response:
             with step(f"Send question [{test_id}]: '{question}'"):
                 with chatbot_page.send_message(question) as response:
                     chatbot_page.verify_interactions_disabled()
-                    assert chatbot_page.textarea.input_value() == "", "Textarea should be cleared after message is sent"
+                    assert chatbot_page.textarea.input_value() == "", (
+                        "Textarea should be cleared after message is sent"
+                    )
                 response = response.value
             chatbot_page.verify_answer(response)
             start = time.time()
@@ -219,35 +246,48 @@ class TestQuestionValidation:
 
                 answers_question = [
                     verification.answers_question,
-                    verification.answers_question_explanation
+                    verification.answers_question_explanation,
                 ]
 
-                not_vague = [
-                    verification.not_vague,
-                    verification.not_vague_explanation
-                ]
+                not_vague = [verification.not_vague, verification.not_vague_explanation]
 
                 has_citations = [
                     verification.has_citations,
-                    verification.has_citations_explanation
+                    verification.has_citations_explanation,
                 ]
 
                 if verify_lack_information and verification.lack_information:
-                    llm_verdict('LLM analysis: answer lacks information', verification.lack_information_explanation)
-                    pytest.skip(f"LLM analysis: answer lacks information - {verification.lack_information_explanation}")
+                    llm_verdict(
+                        "LLM analysis: answer lacks information",
+                        verification.lack_information_explanation,
+                    )
+                    pytest.skip(
+                        f"LLM analysis: answer lacks information - {verification.lack_information_explanation}"
+                    )
                 else:
-                    llm_verdict("LLM analysis: answer has sufficient information", verification.lack_information_explanation)
+                    llm_verdict(
+                        "LLM analysis: answer has sufficient information",
+                        verification.lack_information_explanation,
+                    )
                 if verify_answers_question and not answers_question[0]:
-                    llm_verdict("LLM analysis: answer off-topic", answers_question[1], "failed")
+                    llm_verdict(
+                        "LLM analysis: answer off-topic", answers_question[1], "failed"
+                    )
                 else:
                     llm_verdict("LLM analysis: answer on-topic", answers_question[1])
                 if verify_not_vague and not not_vague[0]:
-                    llm_verdict("LLM analysis: answer too vague", not_vague[1], "failed")
+                    llm_verdict(
+                        "LLM analysis: answer too vague", not_vague[1], "failed"
+                    )
                 else:
                     llm_verdict("LLM analysis: answer not vague", not_vague[1])
                 if verify_citations and not has_citations[0]:
                     # pdb.set_trace()
-                    llm_verdict("LLM analysis: answer missing citations", has_citations[1], "failed")
+                    llm_verdict(
+                        "LLM analysis: answer missing citations",
+                        has_citations[1],
+                        "failed",
+                    )
                 else:
                     llm_verdict("LLM analysis: answer has citations", has_citations[1])
 
@@ -258,15 +298,23 @@ class TestQuestionValidation:
         sources_config = validation.get("sources", {})
         min_sources = sources_config.get("min_count", get_threshold("min_sources")) or 0
 
-        with step(f"Verify assistant response has inline citations ({len(citations)} found)", True):
+        with step(
+            f"Verify assistant response has inline citations ({len(citations)} found)",
+            True,
+        ):
             # if len(citations) == 0:
-                # pdb.set_trace()
+            # pdb.set_trace()
             assert len(citations) > 0, "No inline citations in response"
 
-        with step(f"Verify cited sources ({len(cited_documents)} found, {min_sources} minimum)", True):
+        with step(
+            f"Verify cited sources ({len(cited_documents)} found, {min_sources} minimum)",
+            True,
+        ):
             # if len(cited_documents) < min_sources:
-                # pdb.set_trace()
-            assert len(cited_documents) >= min_sources, f"Insufficient cited sources: {len(cited_documents)} < {min_sources}"
+            # pdb.set_trace()
+            assert len(cited_documents) >= min_sources, (
+                f"Insufficient cited sources: {len(cited_documents)} < {min_sources}"
+            )
 
         if len(citations) > 0:
             with step("Verify sources visible in UI"):
@@ -282,18 +330,30 @@ class TestQuestionValidation:
         # =====================================================================
 
         response_config = validation.get("response", {})
-        min_length = response_config.get("min_length", get_threshold("min_response_length")) or 0
-        with step(f"Verify assistant response length ({len(message_text)} chars >= {min_length} required)"):
-            assert len(message_text) >= min_length, f"Response too short: {len(message_text)} chars < {min_length} required"
+        min_length = (
+            response_config.get("min_length", get_threshold("min_response_length")) or 0
+        )
+        with step(
+            f"Verify assistant response length ({len(message_text)} chars >= {min_length} required)"
+        ):
+            assert len(message_text) >= min_length, (
+                f"Response too short: {len(message_text)} chars < {min_length} required"
+            )
 
         # Optional keyword validation
         expected_keywords = response_config.get("expected_keywords", [])
         if expected_keywords:
-            with step(f"Verify assistant response contains expected keywords: {expected_keywords}"):
+            with step(
+                f"Verify assistant response contains expected keywords: {expected_keywords}"
+            ):
                 message_lower = message_text.lower()
                 found = [kw for kw in expected_keywords if kw.lower() in message_lower]
-                missing = [kw for kw in expected_keywords if kw.lower() not in message_lower]
-                assert len(found) > 0, f"None of the expected keywords found. Missing: {missing}"
+                missing = [
+                    kw for kw in expected_keywords if kw.lower() not in message_lower
+                ]
+                assert len(found) > 0, (
+                    f"None of the expected keywords found. Missing: {missing}"
+                )
 
         # =====================================================================
         # PHASE 5: Quality Check (Halloumi) Validation
@@ -323,7 +383,7 @@ class TestQuestionValidation:
 
                 ha_holder.value = response.value
 
-            except Exception as e:
+            except Exception:
                 log_step(
                     "Wait for Halloumi quality fact-check response",
                     outcome="failed",
@@ -341,12 +401,16 @@ class TestQuestionValidation:
         def validate_ha_complete(response: ResponseHolder, start):
             if response.value in ["not_supported", "no_response"]:
                 return
-            with step("Wait for Halloumi quality fact-check to be fetched", True, start=start):
+            with step(
+                "Wait for Halloumi quality fact-check to be fetched", True, start=start
+            ):
                 response = response.value
                 response.finished()
                 # if response.status != 200:
                 #     pdb.set_trace()
-                assert response.status == 200, f"Expected status 200, got {response.status} - {str(response.body())}"
+                assert response.status == 200, (
+                    f"Expected status 200, got {response.status} - {str(response.body())}"
+                )
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
                 expect(chatbot_page.halloumi_message).to_be_visible()
             with step("Verify Halloumi quality fact-check loader disappears"):
@@ -354,26 +418,38 @@ class TestQuestionValidation:
             if response.status == 200:
                 with step("Verify Halloumi quality fact-check message is displayed"):
                     expect(chatbot_page.halloumi_message).to_be_visible()
-                    assert chatbot_page.halloumi_message.text_content(), "Halloumi message is empty"
+                    assert chatbot_page.halloumi_message.text_content(), (
+                        "Halloumi message is empty"
+                    )
                 with step("Verify Halloumi quality fact-check claims are displayed"):
                     is_empty = chatbot_page.empty_halloumi_message.count() > 0
                     if is_empty:
-                        raise Exception(chatbot_page.empty_halloumi_message.text_content())
-                    assert chatbot_page.halloumi_claims.count() > 0, "Claims are not displayed"
+                        raise Exception(
+                            chatbot_page.empty_halloumi_message.text_content()
+                        )
+                    assert chatbot_page.halloumi_claims.count() > 0, (
+                        "Claims are not displayed"
+                    )
                 halloumi_text = chatbot_page.halloumi_message.text_content()
                 score = int(halloumi_text.split(" ")[1].replace("%", ""))
                 stage = quality_check_stages(score)
                 info(f"Halloumi quality fact-check score: {score}%. {stage}")
 
-                with step("Verify Halloumi quality fact-check score is in valid range", True):
+                with step(
+                    "Verify Halloumi quality fact-check score is in valid range", True
+                ):
                     # Validate score is in valid range
-                    assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
+                    assert 0 <= score <= 100, (
+                        f"Score should be between 0-100, got {score}"
+                    )
 
                 if score >= min_score:
                     log_step(f"Quality score ({score}%) above threshold ({min_score}%)")
                 else:
                     # pdb.set_trace()
-                    log_step(f"Quality score {score}% below threshold {min_score}%", "failed")
+                    log_step(
+                        f"Quality score {score}% below threshold {min_score}%", "failed"
+                    )
 
         try:
             with _halloumi_fact_check() as ha_response:
@@ -417,8 +493,12 @@ class TestQuestionValidation:
                     request = response.response_info.value.request
                     data = json.loads(request.post_data) if request.post_data else None
                     assert data, "No post data found"
-                    assert data.get("feedback_text") == feedback_text, f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
-                    assert data.get("is_positive") is True, "Requested feedback is negative, expected positive feedback"
+                    assert data.get("feedback_text") == feedback_text, (
+                        f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
+                    )
+                    assert data.get("is_positive") is True, (
+                        "Requested feedback is negative, expected positive feedback"
+                    )
 
             with step("Wait for feedback to be sent"):
                 response = response.response_info.value
@@ -426,8 +506,12 @@ class TestQuestionValidation:
             with step("Verify feedback succeeded and verify toast notification"):
                 expect(chatbot_page.feedback_modal).to_be_hidden()
                 expect(chatbot_page.feedback_toast).to_be_visible()
-                expect(chatbot_page.feedback_toast).to_have_text("Thanks for your feedback!")
-                assert response.status == 200, f"Expected status 200, got {response.status}"
+                expect(chatbot_page.feedback_toast).to_have_text(
+                    "Thanks for your feedback!"
+                )
+                assert response.status == 200, (
+                    f"Expected status 200, got {response.status}"
+                )
 
         # =====================================================================
         # CLEANUP: Clear chat for next test iteration

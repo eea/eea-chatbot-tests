@@ -3,12 +3,12 @@
 import json
 from dataclasses import dataclass, field
 from typing import Optional
-import re
 
 
 @dataclass
 class StreamedResponse:
     """Holds the accumulated streamed response chunks."""
+
     user_message_id: Optional[int] = None
     assistant_message_id: Optional[int] = None
     chunks: list[dict] = field(default_factory=list)
@@ -27,19 +27,14 @@ class StreamedResponse:
         else:
             chunks = self.chunks
 
-        return [
-            c["obj"] for c in chunks
-            if c.get("obj", {}).get("type") == chunk_type
-        ]
+        return [c["obj"] for c in chunks if c.get("obj", {}).get("type") == chunk_type]
 
     def get_message(self) -> str:
         """Concatenate all message_delta chunks into final message.
 
         The stream contains only one message, so we concatenate across all inds.
         """
-        return "".join(
-            c.get("content", "") for c in self.get_by_type("message_delta")
-        )
+        return "".join(c.get("content", "") for c in self.get_by_type("message_delta"))
 
     def get_reasoning(self) -> dict[int, str]:
         """Get all reasoning texts grouped by ind.
@@ -49,7 +44,8 @@ class StreamedResponse:
         reasoning_by_ind = {}
         for ind, chunks in self.grouped_chunks.items():
             reasoning_chunks = [
-                c["obj"] for c in chunks
+                c["obj"]
+                for c in chunks
                 if c.get("obj", {}).get("type") == "reasoning_delta"
             ]
             if reasoning_chunks:
@@ -68,11 +64,13 @@ class StreamedResponse:
         for ind, chunks in self.grouped_chunks.items():
             # Look for internal_search_tool_start and internal_search_tool_delta
             search_start = [
-                c["obj"] for c in chunks
+                c["obj"]
+                for c in chunks
                 if c.get("obj", {}).get("type") == "internal_search_tool_start"
             ]
             search_deltas = [
-                c["obj"] for c in chunks
+                c["obj"]
+                for c in chunks
                 if c.get("obj", {}).get("type") == "internal_search_tool_delta"
             ]
 
@@ -85,9 +83,13 @@ class StreamedResponse:
                     all_documents.extend(delta.get("documents", []))
 
                 search_by_ind[ind] = {
-                    "is_internet_search": search_start[0].get("is_internet_search", False) if search_start else False,
+                    "is_internet_search": search_start[0].get(
+                        "is_internet_search", False
+                    )
+                    if search_start
+                    else False,
                     "queries": all_queries,
-                    "documents": all_documents
+                    "documents": all_documents,
                 }
         return search_by_ind
 
@@ -102,19 +104,18 @@ class StreamedResponse:
         return []
 
     def get_citations(self) -> list[dict]:
-        #{"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "citation_info", "citation_number": 1, "document_id": "https://mapping.emergency.copernicus.eu/news/cems-instruments-for-information-on-wildfires/"}}
+        # {"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "citation_info", "citation_number": 1, "document_id": "https://mapping.emergency.copernicus.eu/news/cems-instruments-for-information-on-wildfires/"}}
 
         citations = []
         for chunk in self.chunks:
             obj = chunk.get("obj", {})
             if obj.get("type") == "citation_info":
-                citations.append(obj.get("document_id", None))
-        print("citations: ", citations)
+                citations.append(obj)
         return citations
 
     def get_related_questions(self) -> list[str]:
         def parse_lines(text: str) -> list[str]:
-            return [line.strip() for line in text.split('\n') if line.strip()]
+            return [line.strip() for line in text.split("\n") if line.strip()]
 
         message = self.get_message()
 
@@ -137,7 +138,7 @@ class StreamedResponse:
         assistant_msg_id = None
         error = None
         stopped = False
-        for chunk in body.strip().split('\n'):
+        for chunk in body.strip().split("\n"):
             if not chunk:
                 continue
             chunk = json.loads(chunk)
@@ -156,14 +157,11 @@ class StreamedResponse:
                 error = chunk.get("error")
                 chunk = {
                     "ind": -1,
-                    "obj": {
-                        "type": "error",
-                        "error": error
-                    },
+                    "obj": {"type": "error", "error": error},
                 }
             chunks.append(chunk)
 
-         #   {"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "stop", "stop_reason": null}}
+            #   {"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "stop", "stop_reason": null}}
             placement = chunk.get("placement", {})
             if "tab_index" in placement:
                 ind = placement["tab_index"]
@@ -179,5 +177,5 @@ class StreamedResponse:
             chunks=chunks,
             grouped_chunks=grouped,
             stopped=stopped,
-            error=error
+            error=error,
         )

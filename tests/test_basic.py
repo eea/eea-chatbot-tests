@@ -1,13 +1,13 @@
 """End-to-end tests for EEA Chatbot functionality."""
 
-import pytest
 import json
-from playwright.sync_api import expect
 
+import pytest
 from chatbot_tests.page_objects import ChatbotPage
 from chatbot_tests.page_objects.chatbot_page import ChatbotPageSelectors
-from chatbot_tests.step import step, info
+from chatbot_tests.step import info, step
 from chatbot_tests.utils import quality_check_stages
+from playwright.sync_api import expect
 
 
 @pytest.mark.basic
@@ -37,7 +37,9 @@ class TestChatbotUI:
             with step("Verify empty state placeholder displays before conversation"):
                 expect(chatbot_page.empty_state).to_be_visible()
 
-            with step("Verify predefined starter messages section renders in empty state"):
+            with step(
+                "Verify predefined starter messages section renders in empty state"
+            ):
                 expect(chatbot_page.starter_container).to_be_visible()
                 chatbot_page.validate_predefined_messages_in_ui()
         else:
@@ -60,46 +62,72 @@ class TestChatbotUI:
 
         # === Fact-Check Toggle (optional - may not be configured) ===
         if quality_check == "ondemand_toggle":
-            info("INFO: Chatbot block is configured to show a Halloumi quality fact-check toggle button, ON by default")
-            with step("Verify Halloumi quality fact-check toggle changes state on click"):
+            info(
+                "INFO: Chatbot block is configured to show a Halloumi quality fact-check toggle button, ON by default"
+            )
+            with step(
+                "Verify Halloumi quality fact-check toggle changes state on click"
+            ):
                 expect(chatbot_page.fact_check_toggle).to_be_visible()
                 checkbox = chatbot_page.fact_check_toggle.locator(".ui.checkbox")
                 input = chatbot_page.fact_check_toggle.locator("#quality-check-toggle")
                 initial_fc_checked = input.is_checked()
-                assert initial_fc_checked, "Fact-check toggle should be checked by default"
+                assert initial_fc_checked, (
+                    "Fact-check toggle should be checked by default"
+                )
                 checkbox.click()
                 new_fc_checked = input.is_checked()
-                assert new_fc_checked != initial_fc_checked, f"Fact-check toggle unchanged after click (was: {initial_fc_checked}, now: {new_fc_checked})"
+                assert new_fc_checked != initial_fc_checked, (
+                    f"Fact-check toggle unchanged after click (was: {initial_fc_checked}, now: {new_fc_checked})"
+                )
                 checkbox.click()  # Reset to original
         elif quality_check == "ondemand":
-            info("INFO: Chatbot block is configured to show a Halloumi quality fact-check trigger button, after assistant response")
+            info(
+                "INFO: Chatbot block is configured to show a Halloumi quality fact-check trigger button, after assistant response"
+            )
         elif quality_check == "enabled":
-            info("INFO: Chatbot block is configured to always do Halloumi quality fact-check after assistant response")
+            info(
+                "INFO: Chatbot block is configured to always do Halloumi quality fact-check after assistant response"
+            )
         else:
-            info("INFO: Chatbot block is configured to never do Halloumi quality fact-check after assistant response")
+            info(
+                "INFO: Chatbot block is configured to never do Halloumi quality fact-check after assistant response"
+            )
 
         # === Deep Research Toggle (optional - may not be configured) ===
         if deep_research in ["user_on", "user_off"]:
             on_or_off = "ON" if deep_research == "user_on" else "OFF"
-            info(f"INFO: Chatbot block is configured to show a deep research toggle button, {on_or_off} by default")
+            info(
+                f"INFO: Chatbot block is configured to show a deep research toggle button, {on_or_off} by default"
+            )
             with step("Verify deep research toggle changes state on click"):
                 expect(chatbot_page.deep_research_toggle).to_be_visible()
                 checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
-                input = chatbot_page.deep_research_toggle.locator("#deep-research-toggle")
+                input = chatbot_page.deep_research_toggle.locator(
+                    "#deep-research-toggle"
+                )
                 initial_dr_checked = input.is_checked()
                 if on_or_off == "ON":
-                    assert initial_dr_checked, "Deep research toggle should be checked by default"
+                    assert initial_dr_checked, (
+                        "Deep research toggle should be checked by default"
+                    )
                 else:
-                    assert not initial_dr_checked, "Deep research toggle should be unchecked by default"
+                    assert not initial_dr_checked, (
+                        "Deep research toggle should be unchecked by default"
+                    )
                 checkbox.click()
                 new_dr_checked = input.is_checked()
-                assert new_dr_checked != initial_dr_checked, f"Deep research toggle unchanged after click (was: {initial_dr_checked}, now: {new_dr_checked})"
+                assert new_dr_checked != initial_dr_checked, (
+                    f"Deep research toggle unchanged after click (was: {initial_dr_checked}, now: {new_dr_checked})"
+                )
                 checkbox.click()  # Reset to original
         elif deep_research == "always_on":
             info("INFO: Chatbot block is configured to always go into deep research")
             with step("Verify deep research is always enabled"):
                 expect(chatbot_page.deep_research_toggle).to_be_visible()
-                expect(chatbot_page.deep_research_toggle).to_have_text("Deep research on")
+                expect(chatbot_page.deep_research_toggle).to_have_text(
+                    "Deep research on"
+                )
         else:
             info("INFO: Chatbot block is configured to never go into deep research")
 
@@ -119,7 +147,9 @@ class TestChatbotUI:
         with step("Verify send button remains disabled for whitespace-only input"):
             chatbot_page.textarea.fill("   ")
             is_disabled = chatbot_page.submit_button.is_disabled()
-            assert is_disabled, "Send button should be disabled for whitespace-only input"
+            assert is_disabled, (
+                "Send button should be disabled for whitespace-only input"
+            )
             chatbot_page.textarea.fill("")
 
         # === Textarea Input ===
@@ -135,7 +165,9 @@ class TestChatbotUI:
 
         with step("Verify send button is enabled when textarea has content"):
             is_disabled = chatbot_page.submit_button.is_disabled()
-            assert not is_disabled, "Send button should be enabled when textarea has content"
+            assert not is_disabled, (
+                "Send button should be enabled when textarea has content"
+            )
 
         with step("Verify clear chat button is hidden"):
             expect(chatbot_page.clear_chat_button).to_be_hidden()
@@ -143,7 +175,9 @@ class TestChatbotUI:
         with step(f"Send typed message by submit button: {test_message}"):
             with chatbot_page.send_message(test_message) as response:
                 chatbot_page.verify_interactions_disabled()
-                assert chatbot_page.textarea.input_value() == "", "Textarea should be cleared after message is sent"
+                assert chatbot_page.textarea.input_value() == "", (
+                    "Textarea should be cleared after message is sent"
+                )
 
         response = response.value
         chatbot_page.verify_answer(response)
@@ -155,7 +189,9 @@ class TestChatbotUI:
         with step("Verify clear chat button is enabled"):
             expect(chatbot_page.clear_chat_button).to_be_visible()
             is_disabled = chatbot_page.clear_chat_button.is_disabled()
-            assert not is_disabled, "Clear chat button should be enabled after assistant response completes"
+            assert not is_disabled, (
+                "Clear chat button should be enabled after assistant response completes"
+            )
 
         with step("Click clear chat button"):
             chatbot_page.clear_chat_button.click()
@@ -177,12 +213,16 @@ class TestChatbotUI:
         with step("Verify textarea contains multiline text"):
             expected_text = f"{first_line}\n{second_line}"
             actual_value = chatbot_page.textarea.input_value()
-            assert expected_text == actual_value, "Textarea should contain multiline text"
+            assert expected_text == actual_value, (
+                "Textarea should contain multiline text"
+            )
             assert first_line in actual_value, "First line should be present"
             assert second_line in actual_value, "Second line should be present"
 
         with step("Verify message was not sent"):
-            assert chatbot_page.user_messages.count() == 0, "Message should not be sent on Shift+Enter"
+            assert chatbot_page.user_messages.count() == 0, (
+                "Message should not be sent on Shift+Enter"
+            )
 
         with step("Send multiline message via Enter key"):
             with chatbot_page.send_message(enter=True) as response:
@@ -208,7 +248,9 @@ class TestChatbotUI:
                 starter = chatbot_page.starter_messages.first
                 prompt_text = starter.text_content()
 
-            with step(f"Send message by clicking predefined starter prompt: {prompt_text}"):
+            with step(
+                f"Send message by clicking predefined starter prompt: {prompt_text}"
+            ):
                 with chatbot_page.send_predefined_message(0) as response:
                     chatbot_page.verify_interactions_disabled()
 
@@ -225,7 +267,9 @@ class TestChatbotUI:
             with step("Verify clear chat button is enabled"):
                 expect(chatbot_page.clear_chat_button).to_be_visible()
                 is_disabled = chatbot_page.clear_chat_button.is_disabled()
-                assert not is_disabled, "Clear chat button should be enabled after assistant response completes"
+                assert not is_disabled, (
+                    "Clear chat button should be enabled after assistant response completes"
+                )
 
             with step("Click clear chat button"):
                 chatbot_page.clear_chat_button.click()
@@ -280,8 +324,12 @@ class TestChatbotUI:
             expect(chatbot_page.copy_button).to_be_enabled()
 
         with step("Verify clipboard contains the assistant response text"):
-            clipboard_text = chatbot_page.page.evaluate("navigator.clipboard.readText()")
-            assert clipboard_text == response.get_message(), "Clipboard text does not match assistant response"
+            clipboard_text = chatbot_page.page.evaluate(
+                "navigator.clipboard.readText()"
+            )
+            assert clipboard_text == response.get_message(), (
+                "Clipboard text does not match assistant response"
+            )
 
         if not chatbot_page.block_config.get("enableFeedback"):
             info("INFO: Chatbot block is not configured to allow sending feedback")
@@ -316,15 +364,21 @@ class TestChatbotUI:
                 request = response.response_info.value.request
                 data = json.loads(request.post_data) if request.post_data else None
                 assert data, "No post data found"
-                assert data.get("feedback_text") == feedback_text, f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
-                assert data.get("is_positive") is True, "Requested feedback is negative, expected positive feedback"
+                assert data.get("feedback_text") == feedback_text, (
+                    f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
+                )
+                assert data.get("is_positive") is True, (
+                    "Requested feedback is negative, expected positive feedback"
+                )
 
         response = response.response_info.value
 
         with step("Verify feedback succeeded and verify toast notification"):
             expect(chatbot_page.feedback_modal).to_be_hidden()
             expect(chatbot_page.feedback_toast).to_be_visible()
-            expect(chatbot_page.feedback_toast).to_have_text("Thanks for your feedback!")
+            expect(chatbot_page.feedback_toast).to_have_text(
+                "Thanks for your feedback!"
+            )
             assert response.status == 200, f"Expected status 200, got {response.status}"
 
         # === Dislike ===
@@ -364,22 +418,30 @@ class TestChatbotUI:
                 request = response.response_info.value.request
                 data = json.loads(request.post_data) if request.post_data else None
                 assert data, "No post data found"
-                assert data.get("feedback_text") == feedback_text, f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
-                assert data.get("is_positive") is False, "Requested feedback is positive, expected negative feedback"
-                assert data.get("predefined_feedback") == reason_text, f"Requested feedback doesn't match predefined feedback, expected: {reason_text}, requested: {data.get('predefined_feedback')}"
+                assert data.get("feedback_text") == feedback_text, (
+                    f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
+                )
+                assert data.get("is_positive") is False, (
+                    "Requested feedback is positive, expected negative feedback"
+                )
+                assert data.get("predefined_feedback") == reason_text, (
+                    f"Requested feedback doesn't match predefined feedback, expected: {reason_text}, requested: {data.get('predefined_feedback')}"
+                )
 
         response = response.response_info.value
 
         with step("Verify feedback succeeded and verify toast notification"):
             expect(chatbot_page.feedback_modal).to_be_hidden()
             expect(chatbot_page.feedback_toast).to_be_visible()
-            expect(chatbot_page.feedback_toast).to_have_text("Thanks for your feedback!")
+            expect(chatbot_page.feedback_toast).to_have_text(
+                "Thanks for your feedback!"
+            )
             assert response.status == 200, f"Expected status 200, got {response.status}"
 
         with step("Re-open feedback modal to verify button still works"):
             chatbot_page.dislike_button.click()
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_loading_states(self, chatbot_page: ChatbotPage):
         """Verify all loading states during a single response flow.
 
@@ -393,10 +455,12 @@ class TestChatbotUI:
         with chatbot_page.send_message(message) as response:
             with step("Verify answer loader appears"):
                 expect(chatbot_page.answer_loader).to_be_visible()
-# TODO: check this test
-            # if len(chatbot_page.block_config.get("showTools")) <= 0:
-            #     info("INFO: Chatbot block is configured to never show multi-tool steps like reasoning or internal serach tool")
-            #     return
+
+            if len(chatbot_page.block_config.get("showTools")) <= 0:
+                info(
+                    "INFO: Chatbot block is configured to never show multi-tool steps like reasoning or internal search tool"
+                )
+                return
 
             with step("Verify multi-tool renderer appears", step_type="info"):
                 expect(chatbot_page.multi_tool).to_be_visible()
@@ -408,7 +472,9 @@ class TestChatbotUI:
                 expect(chatbot_page.multi_tool_header).to_be_visible()
 
             with step("Verify multi-tool header is clickable (button role)"):
-                expect(chatbot_page.multi_tool_header).to_have_attribute("role", "button")
+                expect(chatbot_page.multi_tool_header).to_have_attribute(
+                    "role", "button"
+                )
 
             # === Step Count ===
             with step("Verify multi-tool step count is displayed"):
@@ -423,9 +489,13 @@ class TestChatbotUI:
                     ChatbotPageSelectors.MULTI_TOOL_COUNT_LABEL
                 ).text_content()
                 if step_count == 1:
-                    assert count_label == "step", f"Expected 'step', got '{count_label}'"
+                    assert count_label == "step", (
+                        f"Expected 'step', got '{count_label}'"
+                    )
                 else:
-                    assert count_label == "steps", f"Expected 'steps', got '{count_label}'"
+                    assert count_label == "steps", (
+                        f"Expected 'steps', got '{count_label}'"
+                    )
 
             # === Expandability (during streaming) ===
             with step("Expand multi-tool by clicking header"):
@@ -435,7 +505,6 @@ class TestChatbotUI:
                 expect(chatbot_page.multi_tool_header).to_have_attribute(
                     "aria-expanded", "true"
                 )
-            #import pdb; pdb.set_trace()
 
             with step("Verify active step indicator exists"):
                 expect(chatbot_page.multi_tool_active_item).to_be_visible()
@@ -488,7 +557,9 @@ class TestChatbotUI:
                 expect(chatbot_page.textarea).to_have_value("")
 
             with step("Verify first user message appears in conversation"):
-                assert chatbot_page.user_messages.count() == 1, "Should have 1 user message"
+                assert chatbot_page.user_messages.count() == 1, (
+                    "Should have 1 user message"
+                )
                 expect(chatbot_page.user_messages.last).to_be_visible()
                 expect(chatbot_page.user_messages.last).to_contain_text(first_message)
 
@@ -496,7 +567,9 @@ class TestChatbotUI:
         chatbot_page.verify_answer(response)
 
         with step("Verify first assistant response is visible"):
-            assert chatbot_page.assistant_messages.count() == 1, "Should have 1 assistant message"
+            assert chatbot_page.assistant_messages.count() == 1, (
+                "Should have 1 assistant message"
+            )
             expect(chatbot_page.assistant_messages.last).to_be_visible()
 
         # === Enter Key Sends Message ===
@@ -516,16 +589,24 @@ class TestChatbotUI:
 
         # === Conversation Flow Verification ===
         with step("Verify both user messages are visible"):
-            assert chatbot_page.user_messages.count() == 2, "Should have 2 user messages"
+            assert chatbot_page.user_messages.count() == 2, (
+                "Should have 2 user messages"
+            )
 
         with step("Verify both assistant responses are visible"):
-            assert chatbot_page.assistant_messages.count() == 2, "Should have 2 assistant messages"
+            assert chatbot_page.assistant_messages.count() == 2, (
+                "Should have 2 assistant messages"
+            )
 
         with step("Verify messages are in correct order"):
             first_user_msg = chatbot_page.user_messages.nth(0).text_content()
             second_user_msg = chatbot_page.user_messages.nth(1).text_content()
-            assert first_message in first_user_msg, "First message should be first in list"
-            assert second_message in second_user_msg, "Second message should be second in list"
+            assert first_message in first_user_msg, (
+                "First message should be first in list"
+            )
+            assert second_message in second_user_msg, (
+                "Second message should be second in list"
+            )
 
         with step("Verify conversation scrolled to show latest message"):
             last_assistant = chatbot_page.assistant_messages.last
@@ -549,23 +630,34 @@ class TestChatbotUI:
 
         info(f"Send message with special characters and unicode: {special_message}")
         with chatbot_page.send_message() as response:
-            with step("Verify user message displays special characters correctly", True):
+            with step(
+                "Verify user message displays special characters correctly", True
+            ):
                 expect(chatbot_page.user_messages.last).to_be_visible()
                 expect(chatbot_page.user_messages.last).not_to_have_text("")
                 user_msg_text = chatbot_page.user_messages.last.text_content()
                 # Check key special characters are preserved
-                assert "CO₂" in user_msg_text or "CO2" in user_msg_text, f"Subscript or CO2 should be in message"
-                assert "émissions" in user_msg_text or "emissions" in user_msg_text.lower(), "Accented characters should be preserved"
+                assert "CO₂" in user_msg_text or "CO2" in user_msg_text, (
+                    "Subscript or CO2 should be in message"
+                )
+                assert (
+                    "émissions" in user_msg_text or "emissions" in user_msg_text.lower()
+                ), "Accented characters should be preserved"
 
         response = response.value
-        chatbot_page.verify_answer(response, "Verify assistant response to special characters and unicode")
+        chatbot_page.verify_answer(
+            response, "Verify assistant response to special characters and unicode"
+        )
 
         with step("Clear chat for next test"):
             chatbot_page.clear_chat_button.click()
             chatbot_page.verify_empty_conversation()
 
         # === Long Message ===
-        long_message = "Please explain in detail " + "the environmental impact of industrial activities " * 10
+        long_message = (
+            "Please explain in detail "
+            + "the environmental impact of industrial activities " * 10
+        )
 
         with step("Type a long message"):
             chatbot_page.textarea.fill(long_message)
@@ -580,7 +672,9 @@ class TestChatbotUI:
                 expect(chatbot_page.user_messages.last).to_be_visible()
 
         response = response.value
-        chatbot_page.verify_answer(response, "Verify assistant response to long message")
+        chatbot_page.verify_answer(
+            response, "Verify assistant response to long message"
+        )
 
 
 @pytest.mark.basic
@@ -631,12 +725,16 @@ class TestResponseSources:
                 expect(chatbot_page.source_items.first).to_be_visible()
                 ui_sources_count = chatbot_page.source_items.count()
         with step("Verify sources count"):
-            assert ui_sources_count == len(citations), "Sources count doesn't match citations count"
+            assert ui_sources_count == len(citations), (
+                "Sources count doesn't match citations count"
+            )
 
         with step("Verify sources tab menu item is visible"):
             expect(chatbot_page.tab_menu_item_sources).to_be_visible()
             classes = chatbot_page.tab_menu_item_sources.get_attribute("class") or ""
-            assert "active" not in classes.split(), "Sources tab menu should not be active"
+            assert "active" not in classes.split(), (
+                "Sources tab menu should not be active"
+            )
 
         with step("Click sources tab menu item"):
             chatbot_page.tab_menu_item_sources.click()
@@ -645,9 +743,13 @@ class TestResponseSources:
             classes = chatbot_page.tab_menu_item_sources.get_attribute("class") or ""
             assert "active" in classes.split(), "Sources tab menu should be active"
             expect(chatbot_page.tab_content).to_be_visible()
-            source_items = chatbot_page.tab_content.locator(chatbot_page.selectors.SOURCE_ITEMS)
+            source_items = chatbot_page.tab_content.locator(
+                chatbot_page.selectors.SOURCE_ITEMS
+            )
             expect(source_items.first).to_be_visible()
-            assert source_items.count() == len(citations), "Sources count doesn't match citations count"
+            assert source_items.count() == len(citations), (
+                "Sources count doesn't match citations count"
+            )
 
         with step("Click answer tab menu item"):
             chatbot_page.tab_menu_item_answer.click()
@@ -668,11 +770,15 @@ class TestRelatedQuestions:
         """Verify related questions are displayed after response."""
 
         if not chatbot_page.block_config.get("enableQgen"):
-            info("INFO: Chatbot block configuration does not have related questions generation enabled")
+            info(
+                "INFO: Chatbot block configuration does not have related questions generation enabled"
+            )
             return
 
         if not chatbot_page.block_config.get("qgenAsistantId"):
-            info("INFO: Chatbot block configuration does not have a proper assistant ID set for related questions generation")
+            info(
+                "INFO: Chatbot block configuration does not have a proper assistant ID set for related questions generation"
+            )
             return
 
         message, index = chatbot_page.get_predefined_message(use_random=True)
@@ -697,11 +803,18 @@ class TestRelatedQuestions:
 
         with step("Verify related questions are displayed"):
             assert len(related_questions) > 0, "No related questions found"
-            assert chatbot_page.related_question_buttons.count() == len(related_questions), "Incorrect number of related questions displayed"
+            assert chatbot_page.related_question_buttons.count() == len(
+                related_questions
+            ), "Incorrect number of related questions displayed"
             for i, question in enumerate(related_questions):
-                assert chatbot_page.related_question_buttons.nth(i).text_content() == question, f"Question {i} is incorrectly displayed"
+                assert (
+                    chatbot_page.related_question_buttons.nth(i).text_content()
+                    == question
+                ), f"Question {i} is incorrectly displayed"
 
-        info(f"Click the first related question: {chatbot_page.related_question_buttons.nth(0).text_content()}")
+        info(
+            f"Click the first related question: {chatbot_page.related_question_buttons.nth(0).text_content()}"
+        )
         with chatbot_page.send_related_question(0) as response:
             with step("Verify answer loader appears"):
                 expect(chatbot_page.answer_loader).to_be_visible()
@@ -729,7 +842,9 @@ class TestHalloumiFactCheck:
         message, index = chatbot_page.get_predefined_message(use_random=True)
 
         with step("Verify Halloumi quality fact-check is enabled"):
-            assert quality_check and quality_check != "disabled", "Halloumi quality fact-check is disabled"
+            assert quality_check and quality_check != "disabled", (
+                "Halloumi quality fact-check is disabled"
+            )
 
         if quality_check == "ondemand_toggle":
             with step("Verify Halloumi quality fact-check toggle is ON"):
@@ -769,7 +884,9 @@ class TestHalloumiFactCheck:
             expect(chatbot_page.verify_claims_loading).to_be_hidden()
         with step("Verify Halloumi quality fact-check message is displayed"):
             expect(chatbot_page.halloumi_message).to_be_visible()
-            assert chatbot_page.halloumi_message.text_content(), "Halloumi message is empty"
+            assert chatbot_page.halloumi_message.text_content(), (
+                "Halloumi message is empty"
+            )
         with step("Verify Halloumi quality fact-check claims are displayed"):
             assert chatbot_page.halloumi_claims.count() > 0, "Claims are not displayed"
 
@@ -784,14 +901,25 @@ class TestHalloumiFactCheck:
                 # Validate score is in valid range
                 assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
 
-            with step("Verify Halloumi quality fact-check stage message is appropriate for the score"):
+            with step(
+                "Verify Halloumi quality fact-check stage message is appropriate for the score"
+            ):
                 # Verify stage message makes sense for the score
                 if score < 20:
-                    assert "not supported" in stage.lower(), f"Low score ({score}%) should indicate 'not supported'"
+                    assert "not supported" in stage.lower(), (
+                        f"Low score ({score}%) should indicate 'not supported'"
+                    )
                 elif score >= 95:
-                    assert "fully supported" in stage.lower() or "safe" in stage.lower(), f"High score ({score}%) should indicate 'fully supported' or 'safe'"
+                    assert (
+                        "fully supported" in stage.lower() or "safe" in stage.lower()
+                    ), (
+                        f"High score ({score}%) should indicate 'fully supported' or 'safe'"
+                    )
         except (IndexError, ValueError) as e:
-            info(f"Halloumi quality fact-check score cannot be determined: {str(e)}", "failed")
+            info(
+                f"Halloumi quality fact-check score cannot be determined: {str(e)}",
+                "failed",
+            )
 
         # TODO: check claim modal
 
@@ -806,7 +934,9 @@ class TestHalloumiFactCheck:
                 retry_response = retry_response_info.value
                 retry_response.finished()
 
-                assert retry_response.status == 200, f"Retry failed with status {retry_response.status}"
+                assert retry_response.status == 200, (
+                    f"Retry failed with status {retry_response.status}"
+                )
                 expect(chatbot_page.verify_claims_loading).to_be_hidden()
                 expect(chatbot_page.halloumi_message).to_be_visible()
         else:
@@ -824,8 +954,7 @@ class TestErrorHandling:
 
         with step("Set up network interception to simulate error"):
             chatbot_page.page.route(
-                "**/chat/send-chat-message",
-                lambda route: route.abort("failed")
+                "**/chat/send-chat-message", lambda route: route.abort("failed")
             )
 
         test_message = "Test network error handling"
@@ -861,8 +990,10 @@ class TestErrorHandling:
                 lambda route: route.fulfill(
                     status=500,
                     content_type="application/json",
-                    body=json.dumps({"message": error_message, "detail": error_message})
-                )
+                    body=json.dumps(
+                        {"message": error_message, "detail": error_message}
+                    ),
+                ),
             )
 
         test_message = "Test API error handling"
@@ -894,10 +1025,8 @@ class TestErrorHandling:
             chatbot_page.page.route(
                 "**/chat/send-chat-message",
                 lambda route: route.fulfill(
-                    status=200,
-                    content_type="application/json",
-                    body="invalid json {"
-                )
+                    status=200, content_type="application/json", body="invalid json {"
+                ),
             )
 
         test_message = "Test malformed response"
@@ -934,10 +1063,8 @@ class TestErrorHandling:
             chatbot_page.page.route(
                 "**/chat/send-chatmessage",
                 lambda route: route.fulfill(
-                    status=200,
-                    content_type="application/json",
-                    body=""
-                )
+                    status=200, content_type="application/json", body=""
+                ),
             )
 
         test_message = "Test empty response"
@@ -964,8 +1091,7 @@ class TestErrorHandling:
 
         with step("Set up route to simulate error"):
             chatbot_page.page.route(
-                "**/chat/send-chat-message",
-                lambda route: route.abort("failed")
+                "**/chat/send-chat-message", lambda route: route.abort("failed")
             )
 
         with step("Send message that will fail"):
@@ -1012,7 +1138,9 @@ class TestDeepResearch:
             with step("Ensure deep research toggle is ON"):
                 expect(chatbot_page.deep_research_toggle).to_be_visible()
                 checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
-                input_el = chatbot_page.deep_research_toggle.locator("#deep-research-toggle")
+                input_el = chatbot_page.deep_research_toggle.locator(
+                    "#deep-research-toggle"
+                )
                 if not input_el.is_checked():
                     checkbox.click()
                 expect(input_el).to_be_checked()
@@ -1021,21 +1149,29 @@ class TestDeepResearch:
 
         info("Send a message")
         with chatbot_page.send_predefined_message(index, message) as response:
-            with step("Verify request contains deep_research parameter", step_type="info"):
+            with step(
+                "Verify request contains deep_research parameter", step_type="info"
+            ):
                 request = response.response_info.value.request
                 body = json.loads(request.post_data)
-                assert body.get("deep_research") is True, f"Request should have deep_research=true, got: {body.get('deep_research')}"
+                assert body.get("deep_research") is True, (
+                    f"Request should have deep_research=true, got: {body.get('deep_research')}"
+                )
 
             with step("Verify multi-tool renderer appears", step_type="info"):
                 expect(chatbot_page.multi_tool).to_be_visible()
 
             with step("Expand multi-tool header"):
                 chatbot_page.multi_tool_header.click()
-                expect(chatbot_page.multi_tool_header).to_have_attribute("aria-expanded", "true")
+                expect(chatbot_page.multi_tool_header).to_have_attribute(
+                    "aria-expanded", "true"
+                )
 
             # Look for "Thinking" status which indicates reasoning
             with step("Verify reasoning step is visible"):
-                thinking_item = chatbot_page.multi_tool_items.locator(".tool-collapsed-status:has-text('Thinking')").last
+                thinking_item = chatbot_page.multi_tool_items.locator(
+                    ".tool-collapsed-status:has-text('Thinking')"
+                ).last
                 expect(thinking_item).to_be_visible(timeout=15000)
 
         response = response.value
@@ -1058,7 +1194,9 @@ class TestDeepResearch:
         with step("Ensure deep research toggle is OFF"):
             expect(chatbot_page.deep_research_toggle).to_be_visible()
             checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
-            input_el = chatbot_page.deep_research_toggle.locator("#deep-research-toggle")
+            input_el = chatbot_page.deep_research_toggle.locator(
+                "#deep-research-toggle"
+            )
             if input_el.is_checked():
                 checkbox.click()
             expect(input_el).not_to_be_checked()
@@ -1075,4 +1213,6 @@ class TestDeepResearch:
         with step("Verify request has deep_research=false"):
             assert request is not None, "Request was not captured"
             body = json.loads(request.post_data)
-            assert body.get("deep_research") is False, f"Request should have deep_research=false, got: {body.get('deep_research')}"
+            assert body.get("deep_research") is False, (
+                f"Request should have deep_research=false, got: {body.get('deep_research')}"
+            )
