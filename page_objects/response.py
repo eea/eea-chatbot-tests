@@ -102,11 +102,14 @@ class StreamedResponse:
         return []
 
     def get_citations(self) -> list[dict]:
+        #{"placement": {"turn_index": 3, "tab_index": 0, "sub_turn_index": null, "model_index": 0}, "obj": {"type": "citation_info", "citation_number": 1, "document_id": "https://mapping.emergency.copernicus.eu/news/cems-instruments-for-information-on-wildfires/"}}
+
         citations = []
         for chunk in self.chunks:
             obj = chunk.get("obj", {})
-            if obj.get("type") == "citation_delta":
-                citations += obj.get("citations", [])
+            if obj.get("type") == "citation_info":
+                citations.append(obj.get("document_id", None))
+        print("citations: ", citations)
         return citations
 
     def get_related_questions(self) -> list[str]:
