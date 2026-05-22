@@ -250,7 +250,7 @@ class TestChatbotUI:
             expect(chatbot_page.user_messages.last).to_be_visible()
             expect(chatbot_page.user_messages.last).to_contain_text(test_message)
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_message_actions(self, chatbot_page: ChatbotPage):
         """Verify user can interact with message actions.
 
@@ -997,7 +997,7 @@ class TestErrorHandling:
 class TestDeepResearch:
     """Tests for deep research functionality."""
 
-    @pytest.mark.failed
+    @pytest.mark.wip
     def test_deep_research_toggle_affects_request(self, chatbot_page: ChatbotPage):
         """Verify deep research toggle sends correct API parameters."""
 
@@ -1022,10 +1022,10 @@ class TestDeepResearch:
 
         info("Send a message")
         with chatbot_page.send_predefined_message(index, message) as response:
-            with step("Verify request contains use_agentic_search parameter", step_type="info"):
+            with step("Verify request contains deep_research parameter", step_type="info"):
                 request = response.response_info.value.request
                 body = json.loads(request.post_data)
-                assert body.get("use_agentic_search") is True, f"Request should have use_agentic_search=true, got: {body.get('use_agentic_search')}"
+                assert body.get("deep_research") is True, f"Request should have deep_research=true, got: {body.get('deep_research')}"
 
             with step("Verify multi-tool renderer appears", step_type="info"):
                 expect(chatbot_page.multi_tool).to_be_visible()
@@ -1046,7 +1046,7 @@ class TestDeepResearch:
             reasoning = response.get_reasoning()
             assert len(reasoning) > 0, "Expected reasoning data"
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_deep_research_toggle_off(self, chatbot_page: ChatbotPage):
         """Verify no reasoning data when deep research is OFF."""
 
@@ -1073,7 +1073,7 @@ class TestDeepResearch:
         response = response.value
         chatbot_page.verify_answer(response)
 
-        with step("Verify request has use_agentic_search=false"):
+        with step("Verify request has deep_research=false"):
             assert request is not None, "Request was not captured"
             body = json.loads(request.post_data)
-            assert body.get("use_agentic_search") is False, f"Request should have use_agentic_search=false, got: {body.get('use_agentic_search')}"
+            assert body.get("deep_research") is False, f"Request should have deep_research=false, got: {body.get('deep_research')}"
