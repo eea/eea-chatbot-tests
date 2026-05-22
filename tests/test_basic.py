@@ -820,13 +820,13 @@ class TestHalloumiFactCheck:
 class TestErrorHandling:
     """Tests for error handling and display."""
 
-    @pytest.mark.failed
+    @pytest.mark.wip
     def test_network_error_displays_gracefully(self, chatbot_page: ChatbotPage):
         """Verify network errors are displayed with appropriate error UI."""
 
         with step("Set up network interception to simulate error"):
             chatbot_page.page.route(
-                "**/chat/send-message",
+                "**/chat/send-chat-message",
                 lambda route: route.abort("failed")
             )
 
