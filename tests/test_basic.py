@@ -820,7 +820,7 @@ class TestHalloumiFactCheck:
 class TestErrorHandling:
     """Tests for error handling and display."""
 
-    @pytest.mark.wip
+    @pytest.mark.passed
     def test_network_error_displays_gracefully(self, chatbot_page: ChatbotPage):
         """Verify network errors are displayed with appropriate error UI."""
 
