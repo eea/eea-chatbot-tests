@@ -114,7 +114,7 @@ class StreamedResponse:
 
     def get_related_questions(self) -> list[str]:
         def parse_lines(text: str) -> list[str]:
-            return [line for line in text.split('\n') if line.strip()]
+            return [line.strip() for line in text.split('\n') if line.strip()]
 
         message = self.get_message()
 

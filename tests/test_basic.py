@@ -665,7 +665,7 @@ class TestResponseSources:
 class TestRelatedQuestions:
     """Tests for related questions functionality."""
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_related_questions_displayed(self, chatbot_page: ChatbotPage):
         """Verify related questions are displayed after response."""
 
