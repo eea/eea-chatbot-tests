@@ -849,7 +849,7 @@ class TestErrorHandling:
         info(f"Error message displayed: {error_text}")
 
         with step("Clean up route"):
-            chatbot_page.page.unroute("**/chat/send-message")
+            chatbot_page.page.unroute("**/chat/send-chat-message")
 
     @pytest.mark.passed
     def test_api_error_response_handled(self, chatbot_page: ChatbotPage):
@@ -886,7 +886,7 @@ class TestErrorHandling:
         info(f"Error displayed: {error_text}")
 
         with step("Clean up route"):
-            chatbot_page.page.unroute("**/chat/send-message")
+            chatbot_page.page.unroute("**/chat/send-chat-message")
 
     @pytest.mark.passed
     def test_malformed_response_handled(self, chatbot_page: ChatbotPage):
@@ -894,7 +894,7 @@ class TestErrorHandling:
 
         with step("Set up route to return malformed response"):
             chatbot_page.page.route(
-                "**/chat/send-message",
+                "**/chat/send-chat-message",
                 lambda route: route.fulfill(
                     status=200,
                     content_type="application/json",
@@ -926,7 +926,7 @@ class TestErrorHandling:
             info("UI remained stable despite malformed response")
 
         with step("Clean up route"):
-            chatbot_page.page.unroute("**/chat/send-message")
+            chatbot_page.page.unroute("**/chat/send-chat-message")
 
     @pytest.mark.passed
     def test_empty_response_handled(self, chatbot_page: ChatbotPage):
@@ -934,7 +934,7 @@ class TestErrorHandling:
 
         with step("Set up route to return empty response"):
             chatbot_page.page.route(
-                "**/chat/send-message",
+                "**/chat/send-chatmessage",
                 lambda route: route.fulfill(
                     status=200,
                     content_type="application/json",
@@ -958,15 +958,15 @@ class TestErrorHandling:
         info("UI handled empty response gracefully")
 
         with step("Clean up route"):
-            chatbot_page.page.unroute("**/chat/send-message")
+            chatbot_page.page.unroute("**/chat/send-chat-message")
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_error_recovery_allows_new_message(self, chatbot_page: ChatbotPage):
         """Verify user can send a new message after an error."""
 
         with step("Set up route to simulate error"):
             chatbot_page.page.route(
-                "**/chat/send-message",
+                "**/chat/send-chat-message",
                 lambda route: route.abort("failed")
             )
 
@@ -978,7 +978,7 @@ class TestErrorHandling:
             expect(chatbot_page.message_error).to_be_visible(timeout=15000)
 
         with step("Remove error route"):
-            chatbot_page.page.unroute("**/chat/send-message")
+            chatbot_page.page.unroute("**/chat/send-chat-message")
 
         with step("Verify textarea is enabled for new input"):
             expect(chatbot_page.textarea).to_be_enabled()
