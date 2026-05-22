@@ -851,7 +851,7 @@ class TestErrorHandling:
         with step("Clean up route"):
             chatbot_page.page.unroute("**/chat/send-message")
 
-    @pytest.mark.failed
+    @pytest.mark.passed
     def test_api_error_response_handled(self, chatbot_page: ChatbotPage):
         """Verify API error responses (5xx) display appropriate error message."""
 
@@ -859,7 +859,7 @@ class TestErrorHandling:
 
         with step("Set up route to return 500 error"):
             chatbot_page.page.route(
-                "**/chat/send-message",
+                "**/chat/send-chat-message",
                 lambda route: route.fulfill(
                     status=500,
                     content_type="application/json",
