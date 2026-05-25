@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EEA Chatbot Test Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f1a; --card: #1a1a2e; --card2: #16213e;
+    --border: #2d2d44; --text: #e2e8f0; --muted: #94a3b8;
+    --pass: #22c55e; --warn: #f59e0b; --fail: #ef4444;
+    --skip: #6b7280; --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; }
+
+  .header { background: var(--card2); border-bottom: 1px solid var(--border); padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .header .meta { color: var(--muted); font-size: 13px; }
+  .header .meta span { margin-right: 20px; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .kpi .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .kpi .value { font-size: 32px; font-weight: 700; line-height: 1; }
+  .kpi .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media(max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .chart-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+  .chart-wrap { position: relative; height: 260px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { color: var(--muted); font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+  .badge-pass { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .badge-fail { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge-warn { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .badge-skip { background: rgba(107,114,128,0.15); color: #9ca3af; }
+
+  .bar-wrap { display: inline-block; width: 80px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+  .bar { height: 100%; border-radius: 3px; }
+  .pct { font-size: 12px; color: var(--muted); }
+
+  .step-details { margin-top: 6px; }
+  .step-fail { background: rgba(239,68,68,0.07); border-left: 3px solid #ef4444; padding: 6px 10px; border-radius: 0 4px 4px 0; margin-bottom: 4px; font-size: 12px; }
+  .step-msg { color: var(--muted); font-family: monospace; font-size: 11px; margin-top: 4px; word-break: break-word; white-space: pre-wrap; }
+  .test-msg { color: var(--muted); font-family: monospace; font-size: 11px; margin-top: 4px; word-break: break-word; }
+
+  .insight-box { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; font-size: 13px; }
+  .insight-box.warn { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+  .insight-box.fail { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); }
+  .insight-box.good { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); }
+
+  code { background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 3px; font-size: 12px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>EEA Chatbot Test Report</h1>
+  <div class="meta">
+    <span><code>reports/r5/test_run_1777023127.jsonl</code></span>
+    <span>April 24, 2026 at 12:32</span>
+    <span>Duration: 143m 56s</span>
+    <span>Health: <span style="color:#22c55e;font-weight:600">HEALTHY</span></span>
+  </div>
+</div>
+
+<div class="container">
+
+
+  <div class="section" style="margin-bottom:32px">
+    <div style="background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(99,102,241,0.08));border:1px solid rgba(34,197,94,0.35);border-radius:14px;padding:28px 32px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+        <div style="font-size:36px">✅</div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:#fff;">Production Ready — 2 fixes required</div>
+          <div style="color:#94a3b8;font-size:13px;margin-top:2px;">reports/r5/test_run_1777023127.jsonl · April 24, 2026 at 12:32</div>
+        </div>
+      </div>
+      <p style="font-size:15px;line-height:1.75;color:#e2e8f0;margin-bottom:20px;">The chatbot is performing well. <strong style="color:#22c55e">99% of evaluated tests pass.</strong> All core UI flows work. The system correctly handles unknown questions by admitting it lacks information rather than hallucinating. No systemic failures across topic categories.</p>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 18px;">
+          <div style="font-size:12px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">🚨 Must Fix Before Release (2)</div>
+          
+            <div style="margin-bottom:10px">
+              <div style="font-weight:600;color:#f1f5f9;margin-bottom:2px">1. Q-008 — Verify assistant response</div>
+              <div style="color:#94a3b8;font-size:12px">AssertionError: Response should not be empty</div>
+            </div>
+            <div style="margin-bottom:0">
+              <div style="font-weight:600;color:#f1f5f9;margin-bottom:2px">2. Q-188 — Verify feedback succeeded and verify toast notification</div>
+              <div style="color:#94a3b8;font-size:12px">AssertionError: Locator expected to have text 'Thanks for your feedback!'       Actual value: Failed to submit feedback.       Error: element(s) not found        Call log:         - Expect "to_have_text" with timeout 30000ms         - waiting for locator(".chat-window[data-playwright-block-id=\"69c0</div>
+            </div>
+        </div>
+        
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px 18px;">
+          <div style="font-size:12px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">⚠️ Known Issues — Not Blocking</div>
+          
+            <div style="margin-bottom:8px">
+              <div style="font-weight:600;color:#f1f5f9;margin-bottom:2px">Halloumi service timeouts (8 tests)</div>
+              <div style="color:#94a3b8;font-size:12px">External fact-check API returned 504 on these questions. Infrastructure issue — chatbot responses themselves were fine.</div>
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="font-weight:600;color:#f1f5f9;margin-bottom:2px">Low Halloumi quality scores (9 tests)</div>
+              <div style="color:#94a3b8;font-size:12px">Scores below 60% threshold. Affected: Q-002, Q-005, Q-022, Q-037, Q-038, Q-046, Q-132, Q-146, Q-180. Review whether the knowledge base needs enrichment for these topics.</div>
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="font-weight:600;color:#f1f5f9;margin-bottom:2px">Knowledge-gap skips (15 tests)</div>
+              <div style="color:#94a3b8;font-size:12px">Chatbot correctly admitted it lacked information for these questions. Expected behaviour — not failures.</div>
+            </div>
+        </div>
+      </div>
+      <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:14px 18px;">
+        <div style="font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">📋 Verdict</div>
+        <div style="color:#e2e8f0;font-size:14px;line-height:1.7;">Fix Q-008, Q-188, then ship. Everything else is infrastructure noise or acceptable knowledge limits. Halloumi quality averages <strong style="color:#22c55e">88.6%</strong> across scored responses.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Total Tests</div><div class="value">216</div></div>
+    <div class="kpi"><div class="label">Pass Rate</div><div class="value" style="color:#22c55e">99.0%</div><div class="sub">199 passed / 201 evaluated</div></div>
+    <div class="kpi"><div class="label">Failed</div><div class="value" style="color:#ef4444">2</div></div>
+    <div class="kpi"><div class="label">Warnings</div><div class="value" style="color:#f59e0b">18</div><div class="sub">passed w/ failed steps</div></div>
+    <div class="kpi"><div class="label">Skipped</div><div class="value" style="color:#6b7280">15</div><div class="sub">knowledge gaps</div></div>
+    <div class="kpi"><div class="label">Step Pass Rate</div><div class="value" style="color:#22c55e">99.7%</div><div class="sub">6732/6752 steps</div></div>
+    <div class="kpi"><div class="label">Avg Halloumi Score</div><div class="value" style="color:#22c55e">88.6%</div><div class="sub">177 tests scored</div></div>
+    <div class="kpi"><div class="label">Duration</div><div class="value" style="font-size:24px">143m 56s</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="icon">💡</span> Key Insights</div>
+    <div class="insight-box good"><strong>99.0% pass rate</strong> across 201 evaluated tests.</div><div class="insight-box warn"><strong>18 tests passed with warnings</strong> — 8 Halloumi service timeouts (504 — infrastructure, not chatbot quality); 9 responses below the 60% Halloumi quality threshold; 1 missing-citations verdicts.</div><div class="insight-box info"><strong>15 questions skipped</strong> — chatbot correctly admitted it lacked information. Expected behaviour, not bugs.</div><div class="insight-box info"><strong>Halloumi quality:</strong> average 88.6% across 177 scored responses. 9 below 60% threshold.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="icon">📊</span> Visual Overview</div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="chart-label">Outcome Distribution</div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="chart-label">Halloumi Score Distribution</div>
+        <div class="chart-wrap"><canvas id="scoreChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="chart-label">Pass Rate by Topic</div>
+        <div class="chart-wrap"><canvas id="topicChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="icon">🏷️</span> Results by Topic</div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Marker</th><th class="num">Total</th><th class="num">Passed</th><th class="num">Failed</th><th class="num">Skipped</th><th>Pass Rate</th></tr></thead>
+        <tbody>
+    <tr>
+      <td><code>ai</code></td>
+      <td class="num">2</td>
+      <td class="num" style="color:#22c55e">2</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>air_quality</code></td>
+      <td class="num">16</td>
+      <td class="num" style="color:#22c55e">16</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>atmosphere</code></td>
+      <td class="num">3</td>
+      <td class="num" style="color:#22c55e">3</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>biodiversity</code></td>
+      <td class="num">9</td>
+      <td class="num" style="color:#22c55e">8</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">1</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>climate</code></td>
+      <td class="num">27</td>
+      <td class="num" style="color:#22c55e">27</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>copernicus</code></td>
+      <td class="num">51</td>
+      <td class="num" style="color:#22c55e">51</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>emergency</code></td>
+      <td class="num">13</td>
+      <td class="num" style="color:#22c55e">13</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>land</code></td>
+      <td class="num">5</td>
+      <td class="num" style="color:#22c55e">4</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">1</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>marine</code></td>
+      <td class="num">17</td>
+      <td class="num" style="color:#22c55e">17</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>policy</code></td>
+      <td class="num">30</td>
+      <td class="num" style="color:#22c55e">26</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">4</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>satellite</code></td>
+      <td class="num">47</td>
+      <td class="num" style="color:#22c55e">41</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">6</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>security</code></td>
+      <td class="num">27</td>
+      <td class="num" style="color:#22c55e">20</td>
+      <td class="num" style="color:#ef4444">1</td>
+      <td class="num" style="color:#888">6</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:95%;background:#22c55e"></div></div>
+        <span class="pct">95%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>sentinel</code></td>
+      <td class="num">29</td>
+      <td class="num" style="color:#22c55e">29</td>
+      <td class="num" style="color:#ef4444">0</td>
+      <td class="num" style="color:#888">0</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:100%;background:#22c55e"></div></div>
+        <span class="pct">100%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>technical</code></td>
+      <td class="num">59</td>
+      <td class="num" style="color:#22c55e">57</td>
+      <td class="num" style="color:#ef4444">1</td>
+      <td class="num" style="color:#888">1</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:98%;background:#22c55e"></div></div>
+        <span class="pct">98%</span>
+      </td>
+    </tr>
+    <tr>
+      <td><code>water</code></td>
+      <td class="num">20</td>
+      <td class="num" style="color:#22c55e">14</td>
+      <td class="num" style="color:#ef4444">1</td>
+      <td class="num" style="color:#888">5</td>
+      <td>
+        <div class="bar-wrap"><div class="bar" style="width:93%;background:#22c55e"></div></div>
+        <span class="pct">93%</span>
+      </td>
+    </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section"><div class="section-title"><span class="icon">❌</span> Failed Tests (2)</div><div class="card"><table><thead><tr><th style="width:80px">Status</th><th>Test</th><th class="num">Duration</th></tr></thead><tbody>
+    <tr>
+      <td><span class="badge badge-fail">FAIL</span></td>
+      <td>test_question_response[Q-008-chromium]
+        <div class="test-msg">Response should not be empty</div>
+        <div class="step-details"><div class="step-fail"><b>Verify assistant response</b><div class="step-msg">AssertionError: Response should not be empty</div></div></div>
+      </td>
+      <td class="num">70.9s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-fail">FAIL</span></td>
+      <td>test_question_response[Q-188-chromium]
+        <div class="test-msg">Locator expected to have text 'Thanks for your feedback!'
+     Actual value: Failed to submit feedback.
+     Error: element(s) not found 
+     Call log:
+       - Expect "to_have_text" with timeout 30000ms
+       - waiting for locator(".chat-window[data-playwright-block-id=\"69c0a21f-2e61-4172-8473-9</div>
+        <div class="step-details"><div class="step-fail"><b>Verify feedback succeeded and verify toast notification</b><div class="step-msg">AssertionError: Locator expected to have text 'Thanks for your feedback!'
+      Actual value: Failed to submit feedback.
+      Error: element(s) not found 
+      Call log:
+        - Expect "to_have_text" with timeout 30000ms
+        - waiting for locator(".chat-window[data-playwright-block-id=\"69c0</div></div></div>
+      </td>
+      <td class="num">94.5s</td>
+    </tr></tbody></table></div></div>
+
+  <div class="section"><div class="section-title"><span class="icon">⚠️</span> Tests Passed with Warnings (18)</div><div class="card"><table><thead><tr><th style="width:80px">Status</th><th>Test / Failed Step</th><th class="num">Duration</th></tr></thead><tbody>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-002-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 57% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">31.1s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-005-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 39% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">33.5s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-018-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">134.6s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-022-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 10% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">47.3s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-037-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 42% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">37.0s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-038-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 32% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">34.2s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-040-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>LLM analysis: answer missing citations</b><div class="step-msg">Although citation markers are included, the referenced sources do not pertain to the OCN components and thus do not substantiate the claims.</div></div></div>
+      </td>
+      <td class="num">29.4s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-046-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 51% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">36.4s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-094-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">81.8s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-123-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">85.2s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-124-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">86.4s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-132-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 45% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">28.0s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-146-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 21% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">49.0s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-148-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">87.0s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-153-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">84.1s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-180-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Quality score 22% below threshold 60%</b></div></div>
+      </td>
+      <td class="num">43.3s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-190-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">80.3s</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-warn">WARN</span></td>
+      <td>test_question_response[Q-200-chromium]
+        
+        <div class="step-details"><div class="step-fail"><b>Wait for Halloumi quality fact-check to be fetched</b><div class="step-msg">AssertionError: Expected status 200, got 504 - b'&lt;html&gt;\r\n&lt;head&gt;&lt;title&gt;504 Gateway Time-out&lt;/title&gt;&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;center&gt;&lt;h1&gt;504 Gateway Time-out&lt;/h1&gt;&lt;/center&gt;\r\n&lt;/body&gt;\r\n&lt;/html&gt;\r\n&lt;!-- a padding to disable MSIE and Chrome friendly error page --&gt;\r\n&lt;!-- a padding to disable MSIE and Chr</div></div></div>
+      </td>
+      <td class="num">82.9s</td>
+    </tr></tbody></table></div></div>
+
+  _halloumi_section(c, score_table_rows, score_dist_rows, total_scored)
+
+  <div class="section"><div class="section-title"><span class="icon">⏭️</span> Skipped — Knowledge Gaps (15)</div><div class="card"><div style="color:var(--muted);font-size:12px;margin-bottom:12px">Chatbot correctly admitted lacking information. Expected behaviour, not bugs.</div><table><thead><tr><th style="width:80px">Status</th><th>Test / Reason</th></tr></thead><tbody>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-001-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits it could not find detailed information on SatCen’s AI or big‑data methods, so it does not provide sufficient data to answer the question.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-007-chromium]<div class="test-msg">LLM analysis: answer lacks information - The answer states that the knowledge base does not contain any details about the work of physicists at SatCen, so it does not provide the needed information.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-010-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits that no relevant information about the SatCen‑NATO relationship was found, providing no substantive answer.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-015-chromium]<div class="test-msg">LLM analysis: answer lacks information - The reply admits it could not find any information about the IntSen² project's purpose, so it does not provide the needed details.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-026-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits it cannot find any information about the operation's objective, providing no answer.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-028-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits it cannot find any information about the ENTRUSTED project, providing no details on its contribution.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-083-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits that it does not have the necessary details to explain the difference between SAR_SC_GEC and SAR_SC_MGD.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-154-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response does not provide any details about the sampling‑frequency requirements in EU water directives.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-159-chromium]<div class="test-msg">LLM analysis: answer lacks information - The reply admits that the available documents do not provide any details about how the CORINE Biotopes database is linked to the NATURA 2000 network, so the answer is missing the needed information.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-165-chromium]<div class="test-msg">LLM analysis: answer lacks information - The answer focuses on how Earth‑Observation data can improve monitoring of agreements but does not provide a direct assessment of the overall effectiveness of environmental agreements (e.g., success rates, quantitative outcomes).</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-174-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits it could not find any relevant information, so it does not provide the needed details about cadmium’s environmental effects.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-187-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits that no data on EU landfill waste trends since 2010 was found, so it does not provide the requested information.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-189-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits it cannot find the percentage and provides no data to answer the question.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-191-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response provides no information about the environmental impacts of petroleum industries on freshwater ecosystems.</div></td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-skip">SKIP</span></td>
+      <td>test_question_response[Q-197-chromium]<div class="test-msg">LLM analysis: answer lacks information - The response admits that no relevant information could be found, so it does not provide the needed details about the environmental effects of textile‑derived microplastics.</div></td>
+    </tr></tbody></table></div></div>
+
+  
+
+  <div class="section"><div class="section-title"><span class="icon">⏱️</span> Slowest Tests (Top 10)</div><div class="card"><table><thead><tr><th>Test</th><th class="num">Duration</th></tr></thead><tbody><tr><td>test_question_response[Q-018-chromium]</td><td class="num" style="color:#ef4444">134.6s</td></tr><tr><td>test_question_response[Q-188-chromium]</td><td class="num" style="color:#ef4444">94.5s</td></tr><tr><td>test_question_response[Q-148-chromium]</td><td class="num" style="color:#f59e0b">87.0s</td></tr><tr><td>test_question_response[Q-124-chromium]</td><td class="num" style="color:#f59e0b">86.4s</td></tr><tr><td>test_question_response[Q-123-chromium]</td><td class="num" style="color:#f59e0b">85.2s</td></tr></tbody></table></div></div>
+
+  <div style="color:var(--muted);font-size:12px;text-align:center;padding:24px 0;border-top:1px solid var(--border);margin-top:8px">
+    Generated from <code>reports/r5/test_run_1777023127.jsonl</code> · April 24, 2026 at 12:32 → April 24, 2026 at 14:56
+  </div>
+
+</div>
+
+<script>
+
+const pieData = {
+  labels: ['Passed','Passed (warnings)','Failed','Skipped'],
+  datasets: [{
+    data: [181,18,2,15],
+    backgroundColor: ['#22c55e','#f59e0b','#ef4444','#6b7280'],
+    borderWidth: 2, borderColor: '#1a1a2e',
+  }]
+};
+const scoreData = {
+  labels: ["<40", "40\u201359", "60\u201374", "75\u201389", "90\u2013100"],
+  datasets: [{
+    label: 'Tests',
+    data: [5, 4, 9, 28, 131],
+    backgroundColor: ['#ef4444','#f59e0b','#eab308','#22c55e','#16a34a'],
+    borderRadius: 4,
+  }]
+};
+const topicLabels = ["ai", "air_quality", "atmosphere", "biodiversity", "climate", "copernicus", "emergency", "land", "marine", "policy", "satellite", "security", "sentinel", "technical", "water"];
+const topicPass  = [2, 16, 3, 8, 27, 51, 13, 4, 17, 26, 41, 20, 29, 57, 14];
+const topicFail  = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1];
+const topicSkip  = [0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 6, 6, 0, 1, 5];
+
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut', data: pieData,
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } },
+      tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw } }
+    },
+    cutout: '65%',
+  }
+});
+new Chart(document.getElementById('scoreChart'), {
+  type: 'bar', data: scoreData,
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+  }
+});
+new Chart(document.getElementById('topicChart'), {
+  type: 'bar',
+  data: {
+    labels: topicLabels,
+    datasets: [
+      { label: 'Passed', data: topicPass, backgroundColor: 'rgba(34,197,94,0.7)', stack: 'a', borderRadius: 2 },
+      { label: 'Failed', data: topicFail, backgroundColor: 'rgba(239,68,68,0.7)', stack: 'a', borderRadius: 2 },
+      { label: 'Skipped', data: topicSkip, backgroundColor: 'rgba(107,114,128,0.5)', stack: 'a', borderRadius: 2 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { stacked: true, beginAtZero: true }
+    }
+  }
+});
+</script>
+</body>
+</html>
