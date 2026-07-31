@@ -86,8 +86,9 @@ class ChatbotPageSelectors:
     MULTI_TOOL_COUNT_VALUE = ".tools-count-value"
     MULTI_TOOL_COUNT_LABEL = ".tools-count-label"
     MULTI_TOOL_ITEM = ".tool-item-collapsed, .tool-item-expanded"
-    MULTI_TOOL_ITEM_ACTIVE = ".tool-item-collapsed.active"
-    MULTI_TOOL_ITEM_COMPLETED = ".tool-item-collapsed.completed"
+    MULTI_TOOL_ITEM_ACTIVE = "[data-state='active']"
+    MULTI_TOOL_ITEM_COMPLETED = "[data-state='completed']"
+    MULTI_TOOL_REASONING_CONTENT = ".reasoning-content"
     MULTI_TOOL_DONE_NODE = ".tool-done-node"
     MULTI_TOOL_EXPAND_CHEVRON = ".expand-chevron"
 
@@ -271,6 +272,12 @@ class ChatbotPage:
     @property
     def multi_tool_active_item(self) -> Locator:
         return self.multi_tool.locator(self.selectors.MULTI_TOOL_ITEM_ACTIVE)
+
+    @property
+    def multi_tool_reasoning_content(self) -> Locator:
+        return self.multi_tool.locator(
+            self.selectors.MULTI_TOOL_REASONING_CONTENT
+        )
 
     @property
     def multi_tool_done_node(self) -> Locator:

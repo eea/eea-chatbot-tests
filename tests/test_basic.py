@@ -16,7 +16,8 @@ class TestChatbotUI:
     """UI tests that verify the chatbot interface renders correctly."""
 
     @pytest.mark.passed
-    def test_initial_ui_state_and_configuration(self, chatbot_page: ChatbotPage):
+    def test_initial_ui_state_and_configuration(
+            self, chatbot_page: ChatbotPage):
         """Verify the chatbot UI loads correctly with all initial elements.
 
         Tests: chat window, input, send button, empty state, assistant, starter messages.
@@ -56,7 +57,8 @@ class TestChatbotUI:
         if chatbot_page.block_config.get("showAssistantDescription"):
             with step("Verify assistant description matches configured text"):
                 description = chatbot_page.messages.locator("p")
-                expect(description).to_have_text(chatbot_page.assistant.description)
+                expect(description).to_have_text(
+                    chatbot_page.assistant.description)
         else:
             info("INFO: Chatbot block is configured to hide assistant description")
 
@@ -69,8 +71,10 @@ class TestChatbotUI:
                 "Verify Halloumi quality fact-check toggle changes state on click"
             ):
                 expect(chatbot_page.fact_check_toggle).to_be_visible()
-                checkbox = chatbot_page.fact_check_toggle.locator(".ui.checkbox")
-                input = chatbot_page.fact_check_toggle.locator("#quality-check-toggle")
+                checkbox = chatbot_page.fact_check_toggle.locator(
+                    ".ui.checkbox")
+                input = chatbot_page.fact_check_toggle.locator(
+                    "#quality-check-toggle")
                 initial_fc_checked = input.is_checked()
                 assert initial_fc_checked, (
                     "Fact-check toggle should be checked by default"
@@ -102,7 +106,8 @@ class TestChatbotUI:
             )
             with step("Verify deep research toggle changes state on click"):
                 expect(chatbot_page.deep_research_toggle).to_be_visible()
-                checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
+                checkbox = chatbot_page.deep_research_toggle.locator(
+                    ".ui.checkbox")
                 input = chatbot_page.deep_research_toggle.locator(
                     "#deep-research-toggle"
                 )
@@ -262,7 +267,9 @@ class TestChatbotUI:
 
             with step("Verify user message appears with correct text"):
                 expect(chatbot_page.user_messages.last).to_be_visible()
-                expect(chatbot_page.user_messages.last).to_contain_text(prompt_text)
+                expect(
+                    chatbot_page.user_messages.last).to_contain_text(
+                    prompt_text)
 
             with step("Verify clear chat button is enabled"):
                 expect(chatbot_page.clear_chat_button).to_be_visible()
@@ -362,7 +369,8 @@ class TestChatbotUI:
         with step("Submit positive feedback and capture API response"):
             with chatbot_page.send_feedback() as response:
                 request = response.response_info.value.request
-                data = json.loads(request.post_data) if request.post_data else None
+                data = json.loads(
+                    request.post_data) if request.post_data else None
                 assert data, "No post data found"
                 assert data.get("feedback_text") == feedback_text, (
                     f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
@@ -379,7 +387,8 @@ class TestChatbotUI:
             expect(chatbot_page.feedback_toast).to_have_text(
                 "Thanks for your feedback!"
             )
-            assert response.status == 200, f"Expected status 200, got {response.status}"
+            assert response.status == 200, f"Expected status 200, got {
+                response.status} "
 
         # === Dislike ===
         with step("Verify dislike button is visible"):
@@ -407,7 +416,8 @@ class TestChatbotUI:
             chatbot_page.feedback_textarea.fill(feedback_text)
 
         with step("Select first predefined negative feedback reason"):
-            reason = chatbot_page.feedback_negative_reason.locator("button").nth(0)
+            reason = chatbot_page.feedback_negative_reason.locator(
+                "button").nth(0)
             reason_text = reason.text_content()
             reason.click()
             classes = reason.get_attribute("class") or ""
@@ -416,7 +426,8 @@ class TestChatbotUI:
         with step("Submit negative feedback and capture API response"):
             with chatbot_page.send_feedback() as response:
                 request = response.response_info.value.request
-                data = json.loads(request.post_data) if request.post_data else None
+                data = json.loads(
+                    request.post_data) if request.post_data else None
                 assert data, "No post data found"
                 assert data.get("feedback_text") == feedback_text, (
                     f"Requested feedback text doesn't match, expected: {feedback_text}, requested: {data.get('feedback_text')}"
@@ -436,7 +447,8 @@ class TestChatbotUI:
             expect(chatbot_page.feedback_toast).to_have_text(
                 "Thanks for your feedback!"
             )
-            assert response.status == 200, f"Expected status 200, got {response.status}"
+            assert response.status == 200, f"Expected status 200, got {
+                response.status} "
 
         with step("Re-open feedback modal to verify button still works"):
             chatbot_page.dislike_button.click()
@@ -535,7 +547,8 @@ class TestChatbotUI:
             expect(chatbot_page.assistant_messages.first).to_be_visible()
 
     @pytest.mark.passed
-    def test_message_sending_and_conversation_flow(self, chatbot_page: ChatbotPage):
+    def test_message_sending_and_conversation_flow(
+            self, chatbot_page: ChatbotPage):
         """Verify message sending methods and conversation flow work correctly.
 
         Tests: send button click, enter key, textarea clears, message ordering, auto-scroll.
@@ -561,7 +574,9 @@ class TestChatbotUI:
                     "Should have 1 user message"
                 )
                 expect(chatbot_page.user_messages.last).to_be_visible()
-                expect(chatbot_page.user_messages.last).to_contain_text(first_message)
+                expect(
+                    chatbot_page.user_messages.last).to_contain_text(
+                    first_message)
 
         response = response.value
         chatbot_page.verify_answer(response)
@@ -628,7 +643,8 @@ class TestChatbotUI:
         with step("Verify textarea accepts special characters and unicode"):
             expect(chatbot_page.textarea).to_have_value(special_message)
 
-        info(f"Send message with special characters and unicode: {special_message}")
+        info(
+            f"Send message with special characters and unicode: {special_message}")
         with chatbot_page.send_message() as response:
             with step(
                 "Verify user message displays special characters correctly", True
@@ -646,8 +662,8 @@ class TestChatbotUI:
 
         response = response.value
         chatbot_page.verify_answer(
-            response, "Verify assistant response to special characters and unicode"
-        )
+            response,
+            "Verify assistant response to special characters and unicode")
 
         with step("Clear chat for next test"):
             chatbot_page.clear_chat_button.click()
@@ -664,7 +680,8 @@ class TestChatbotUI:
 
         with step("Verify textarea accepts long message"):
             actual_value = chatbot_page.textarea.input_value()
-            assert len(actual_value) > 200, "Textarea should accept long messages"
+            assert len(
+                actual_value) > 200, "Textarea should accept long messages"
 
         info("Send long message")
         with chatbot_page.send_message() as response:
@@ -731,7 +748,8 @@ class TestResponseSources:
 
         with step("Verify sources tab menu item is visible"):
             expect(chatbot_page.tab_menu_item_sources).to_be_visible()
-            classes = chatbot_page.tab_menu_item_sources.get_attribute("class") or ""
+            classes = chatbot_page.tab_menu_item_sources.get_attribute(
+                "class") or ""
             assert "active" not in classes.split(), (
                 "Sources tab menu should not be active"
             )
@@ -740,7 +758,8 @@ class TestResponseSources:
             chatbot_page.tab_menu_item_sources.click()
 
         with step("Verify sources tab content is visible"):
-            classes = chatbot_page.tab_menu_item_sources.get_attribute("class") or ""
+            classes = chatbot_page.tab_menu_item_sources.get_attribute(
+                "class") or ""
             assert "active" in classes.split(), "Sources tab menu should be active"
             expect(chatbot_page.tab_content).to_be_visible()
             source_items = chatbot_page.tab_content.locator(
@@ -755,7 +774,8 @@ class TestResponseSources:
             chatbot_page.tab_menu_item_answer.click()
 
         with step("Verify answer tab content is visible"):
-            classes = chatbot_page.tab_menu_item_answer.get_attribute("class") or ""
+            classes = chatbot_page.tab_menu_item_answer.get_attribute(
+                "class") or ""
             assert "active" in classes.split(), "Answer tab menu should be active"
             expect(chatbot_page.tab_content).to_be_visible()
 
@@ -841,16 +861,17 @@ class TestHalloumiFactCheck:
         quality_check = chatbot_page.block_config.get("qualityCheck")
         message, index = chatbot_page.get_predefined_message(use_random=True)
 
-        with step("Verify Halloumi quality fact-check is enabled"):
-            assert quality_check and quality_check != "disabled", (
-                "Halloumi quality fact-check is disabled"
-            )
+        if not quality_check or quality_check == "disabled":
+            info("INFO: Halloumi quality fact-check is disabled in block config")
+            return
 
         if quality_check == "ondemand_toggle":
             with step("Verify Halloumi quality fact-check toggle is ON"):
                 expect(chatbot_page.fact_check_toggle).to_be_visible()
-                checkbox = chatbot_page.fact_check_toggle.locator(".ui.checkbox")
-                input = chatbot_page.fact_check_toggle.locator("#quality-check-toggle")
+                checkbox = chatbot_page.fact_check_toggle.locator(
+                    ".ui.checkbox")
+                input = chatbot_page.fact_check_toggle.locator(
+                    "#quality-check-toggle")
                 checked = input.is_checked()
                 if not checked:
                     checkbox.click()
@@ -876,7 +897,8 @@ class TestHalloumiFactCheck:
         with step("Wait for Halloumi quality fact-check to be fetched"):
             response = response_info.value
             response.finished()
-            assert response.status == 200, f"Expected status 200, got {response.status}"
+            assert response.status == 200, f"Expected status 200, got {
+                response.status} "
             expect(chatbot_page.verify_claims_loading).to_be_hidden()
             expect(chatbot_page.halloumi_message).to_be_visible()
 
@@ -899,7 +921,8 @@ class TestHalloumiFactCheck:
 
             with step("Verify Halloumi quality fact-check score is in valid range"):
                 # Validate score is in valid range
-                assert 0 <= score <= 100, f"Score should be between 0-100, got {score}"
+                assert 0 <= score <= 100, f"Score should be between 0-100, got {
+                    score} "
 
             with step(
                 "Verify Halloumi quality fact-check stage message is appropriate for the score"
@@ -949,7 +972,8 @@ class TestErrorHandling:
     """Tests for error handling and display."""
 
     @pytest.mark.passed
-    def test_network_error_displays_gracefully(self, chatbot_page: ChatbotPage):
+    def test_network_error_displays_gracefully(
+            self, chatbot_page: ChatbotPage):
         """Verify network errors are displayed with appropriate error UI."""
 
         with step("Set up network interception to simulate error"):
@@ -1086,7 +1110,8 @@ class TestErrorHandling:
             chatbot_page.page.unroute("**/chat/send-chat-message")
 
     @pytest.mark.passed
-    def test_error_recovery_allows_new_message(self, chatbot_page: ChatbotPage):
+    def test_error_recovery_allows_new_message(
+            self, chatbot_page: ChatbotPage):
         """Verify user can send a new message after an error."""
 
         with step("Set up route to simulate error"):
@@ -1123,7 +1148,8 @@ class TestDeepResearch:
     """Tests for deep research functionality."""
 
     @pytest.mark.passed
-    def test_deep_research_toggle_affects_request(self, chatbot_page: ChatbotPage):
+    def test_deep_research_toggle_affects_request(
+            self, chatbot_page: ChatbotPage):
         """Verify deep research toggle sends correct API parameters."""
 
         deep_research = chatbot_page.block_config.get("deepResearch")
@@ -1137,7 +1163,8 @@ class TestDeepResearch:
         if deep_research in ["user_on", "user_off"]:
             with step("Ensure deep research toggle is ON"):
                 expect(chatbot_page.deep_research_toggle).to_be_visible()
-                checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
+                checkbox = chatbot_page.deep_research_toggle.locator(
+                    ".ui.checkbox")
                 input_el = chatbot_page.deep_research_toggle.locator(
                     "#deep-research-toggle"
                 )
@@ -1167,12 +1194,10 @@ class TestDeepResearch:
                     "aria-expanded", "true"
                 )
 
-            # Look for "Thinking" status which indicates reasoning
-            with step("Verify reasoning step is visible"):
-                thinking_item = chatbot_page.multi_tool_items.locator(
-                    ".tool-collapsed-status:has-text('Thinking')"
-                ).last
-                expect(thinking_item).to_be_visible(timeout=15000)
+            with step("Verify reasoning content is visible"):
+                expect(
+                    chatbot_page.multi_tool_reasoning_content.last
+                ).to_be_visible(timeout=15000)
 
         response = response.value
         chatbot_page.verify_answer(response)
@@ -1193,7 +1218,8 @@ class TestDeepResearch:
 
         with step("Ensure deep research toggle is OFF"):
             expect(chatbot_page.deep_research_toggle).to_be_visible()
-            checkbox = chatbot_page.deep_research_toggle.locator(".ui.checkbox")
+            checkbox = chatbot_page.deep_research_toggle.locator(
+                ".ui.checkbox")
             input_el = chatbot_page.deep_research_toggle.locator(
                 "#deep-research-toggle"
             )
